@@ -8,8 +8,11 @@ server:
       key-store-password: 123,Developer
       key-alias: baltsloboda
       enabled: true
-#ToDo secret in env variables
-jwt.secret: secret
+
+jwt:
+  secret: secret  #ToDo secret in env variables
+  accessTokenValidity: 2 # seconds
+  refreshTokenValidity: 4 # seconds
 ---
 spring:
   profiles: test

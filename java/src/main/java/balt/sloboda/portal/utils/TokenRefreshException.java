@@ -1,4 +1,4 @@
-package balt.sloboda.portal.service;
+package balt.sloboda.portal.utils;
 
 /**
  * Created by evolshan on 11.07.2021.
@@ -6,6 +6,9 @@ package balt.sloboda.portal.service;
 public class TokenRefreshException extends Exception {
     TokenRefreshException(String message) {
         super(message);
+    }
+    TokenRefreshException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

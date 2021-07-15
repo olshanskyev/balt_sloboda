@@ -1,7 +1,5 @@
 package balt.sloboda.portal.utils;
 
-import balt.sloboda.portal.model.Role;
-import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -9,15 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 /**
  * Created by evolshan on 24.09.2020.
@@ -64,7 +59,7 @@ public class WebSecurityUtils {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 
 // if token is valid configure authentication that should be set in Spring
-            if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+            if (jwtTokenUtil.validateAcessToken(jwtToken, userDetails)) {
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());

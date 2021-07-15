@@ -1,10 +1,19 @@
 package balt.sloboda.portal.utils;
 
 
+import balt.sloboda.portal.model.JwtResponse;
+import balt.sloboda.portal.model.RefreshTokenRequest;
+import balt.sloboda.portal.model.TokenPair;
+import balt.sloboda.portal.service.JwtUserDetailsService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -19,23 +28,34 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenUtil implements Serializable {
     private static final long serialVersionUID = -2550185165626007488L;
-    public static final long ACCESS_TOKEN_VALIDITY = 60 * 60; //1 hour
-    public static final long REFRESH_TOKEN_VALIDITY = 24 * 60 * 60; //24 hour
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+
+    @Value("${jwt.accessTokenValidity}")
+    private long ACCESS_TOKEN_VALIDITY;
+    @Value("${jwt.refreshTokenValidity}")
+    private long REFRESH_TOKEN_VALIDITY;
 
     @Value("${jwt.secret}")
     private String secret;
 
+    @Autowired
+    private WebSecurityUtils webSecurityUtils;
+
+    @Autowired
+    private JwtUserDetailsService userDetailsService;
+
     //retrieve username from jwt token
-    public String getUsernameFromToken(String token) {
+    String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
     //retrieve expiration date from jwt token
-    public Date getExpirationDateFromToken(String token) {
+    private Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+    private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
@@ -51,13 +71,13 @@ public class JwtTokenUtil implements Serializable {
         return expiration.before(new Date());
     }
     //generate access token for user
-    public String generateAccessToken(UserDetails userDetails) {
+    private String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         return doGenerateJwtToken(claims, userDetails.getUsername(), ACCESS_TOKEN_VALIDITY * 1000);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    private String generateRefreshToken(UserDetails userDetails) {
         return doGenerateJwtToken(new HashMap<>(), userDetails.getUsername(), REFRESH_TOKEN_VALIDITY * 1000);
     }
 
@@ -78,9 +98,90 @@ public class JwtTokenUtil implements Serializable {
     }
 
     //validate token
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    Boolean validateAcessToken(String token, UserDetails userDetails) {
+        Map.Entry<String, TokenPair> foundToken = usedTokens.entrySet().stream().filter
+                (item -> item.getValue().getAccessToken().equals(token)).findFirst().orElse(null);
+        if (foundToken == null) {
+            logger.warn("Access token not found in used tokens. Can be deleted via logout or new login");
+            return false; // token previously not used or deleted via logout
+        }
+        try {
+            final String username = getUsernameFromToken(token);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (ExpiredJwtException exc) {
+            // token expired
+            // remove entry from used tokens
+            usedTokens.remove(foundToken.getKey());
+            logger.warn("Access token expired");
+            return false;
+        }
     }
+
+    private Map<String, TokenPair> usedTokens = new HashMap<>();
+
+    /**
+     * generaes new tokens for user
+     * @param authentication authentication information
+     * @return JwtResponse with access_token and refresh_token
+     */
+    public JwtResponse generateTokens(Authentication authentication) {
+        UserDetails userDetails = (UserDetails)authentication.getPrincipal();
+        final String token = generateAccessToken(userDetails);
+        final String refreshToken = generateRefreshToken(userDetails);
+        TokenPair tokenPair = new TokenPair().accessToken(token).refreshToken(refreshToken);
+        usedTokens.put(userDetails.getUsername(), tokenPair);
+        return new JwtResponse(tokenPair);
+    }
+
+
+    public void deleteTokens() {
+        String authorizedUserName = webSecurityUtils.getAuthorizedUserName();
+        if (authorizedUserName != null)
+            usedTokens.remove(authorizedUserName);
+    }
+
+    /**
+     * refreshes tokens after token-refresh opearion
+     * @param refreshTokenRequest request with access and refresh token
+     * @return new access token
+     */
+    public JwtResponse refreshTokens(RefreshTokenRequest refreshTokenRequest) throws TokenRefreshException {
+        String usernameFromToken;
+        String token = refreshTokenRequest.getToken().getRefreshToken();
+        // start validating refresh token
+        // 1. if not found in used tokens throw exception
+        Map.Entry<String, TokenPair> foundToken = usedTokens.entrySet().stream().filter
+                (item -> item.getValue().getRefreshToken().equals(token)).findFirst().orElse(null);
+        if (foundToken == null) {
+            logger.warn("Refresh token is not in used list");
+            throw new TokenRefreshException("Refresh token is not in used list"); // token previously not used or deleted via logout
+        }
+        try {
+            // this throws ExpiredJwtException so we can't get username
+            usernameFromToken = getUsernameFromToken(refreshTokenRequest.getToken().getRefreshToken());
+        } catch (ExpiredJwtException exc) {
+            // 2. token expired
+            // remove entry from used tokens
+            usedTokens.remove(foundToken.getKey());
+            logger.warn("Refresh token expired");
+            throw new TokenRefreshException("Refresh token expired");
+        }
+
+        TokenPair usedTokenPair = usedTokens.get(usernameFromToken);
+        if (usedTokenPair != null &&  // check if access token correlates with user
+                usedTokenPair.getAccessToken().equals(refreshTokenRequest.getToken().getAccessToken())) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
+            final String newToken = generateAccessToken(userDetails);
+            TokenPair tokenPair = new TokenPair().accessToken(newToken).refreshToken(refreshTokenRequest.getToken().getRefreshToken());
+            usedTokens.put(usernameFromToken, tokenPair);
+            return (new JwtResponse(tokenPair));
+        } else { // // 3. access token in used set is not equal to token from refresh request
+            usedTokens.remove(usernameFromToken);
+            logger.warn("Cannot refresh Access Token. Stored access token do not correlate with in request presented token");
+            throw new TokenRefreshException("Cannot refresh Access Token. Stored access token do not correlate with in request presented token");
+        }
+
+    }
+
 
 }

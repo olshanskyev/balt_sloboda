@@ -8,8 +8,11 @@ server:
       key-store-password: 123,Developer
       key-alias: baltsloboda
       enabled: true
-#ToDo secret in env variables
-jwt.secret: secret
+
+jwt:
+  secret: secret  #ToDo secret in env variables
+  accessTokenValidity: 3600 # 1 hour
+  refreshTokenValidity: 86400 # 24 hours
 ---
 spring:
   profiles: default, docker
