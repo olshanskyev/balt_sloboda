@@ -1,0 +1,45 @@
+server:
+  port: 8099
+  servlet:
+    contextPath: /baltsloboda/api/v1
+  ssl:
+      key-store-type: PKCS12
+      key-store: classpath:keystore/baltsloboda.p12
+      key-store-password: 123,Developer
+      key-alias: baltsloboda
+      enabled: true
+#ToDo secret in env variables
+jwt.secret: secret
+---
+spring:
+  profiles: default, docker
+datasource:
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?currentSchema=${DATABASE_SCHEMA}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driverClassName: org.postgresql.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+       #hbm2ddl.method: update
+       hbm2ddl.method: none
+       show_sql: true
+       format_sql: true
+       dialect: org.hibernate.dialect.PostgreSQLDialect
+
+---
+spring:
+  profiles: local
+datasource:
+    url: jdbc:postgresql://localhost:3399/PORTAL?currentSchema=BALTSLOBODA
+    username: admin
+    password: adminpwd
+    driverClassName: org.postgresql.Driver
+    defaultSchema:
+    maxPoolSize: 20
+    hibernate:
+       #hbm2ddl.method: update
+       hbm2ddl.method: none
+       show_sql: true
+       format_sql: true
+       dialect: org.hibernate.dialect.PostgreSQLDialect

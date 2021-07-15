@@ -1,0 +1,5 @@
+docker build -t balt_sloboda_db .
+docker build -t balt_sloboda .
+docker-compose -f docker-compose.local.yml up -d
+
+docker-compose logs --follow

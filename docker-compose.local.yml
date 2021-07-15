@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  balt_sloboda_db:
+    image: balt_sloboda_db
+    environment:
+      - POSTGRES_PASSWORD=adminpwd
+      - POSTGRES_DB=PORTAL
+      - POSTGRES_USER=admin
+    ports:
+      - 3399:5432
+  balt_sloboda:
+    image: balt_sloboda
+    environment:
+      - DATABASE_HOST=balt_sloboda_db
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=adminpwd
+      - DATABASE_NAME=PORTAL
+      - DATABASE_PORT=5432
+      - DATABASE_SCHEMA=BALTSLOBODA
+    restart: on-failure
+    depends_on:
+      - balt_sloboda_db
+    ports:
+      - 8099:8099

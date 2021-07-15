@@ -1,0 +1,12 @@
+ # generate p12. This can be used in postman (PFX file)
+ keytool -genkeypair -alias baltsloboda -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore baltsloboda.p12 -validity 3650
+ 
+ # export crt
+ .\openssl.exe  pkcs12 -in "C:\workspace\projects\balt_sloboda\java\src\main\resources\keystore\baltsloboda.p12" -nokeys -out C:\workspace\projects\balt_sloboda\java\src\main\resources\keystore\baltsloboda.crt
+ 
+ #export pem
+ .\openssl.exe  pkcs12 -in "C:\workspace\projects\balt_sloboda\java\src\main\resources\keystore\baltsloboda.p12" -nodes -nocerts -out C:\workspace\projects\balt_sloboda\java\src\main\resources\keystore\baltsloboda.pem
+ 
+
+  
+  
