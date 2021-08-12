@@ -4,7 +4,8 @@ import { NgModule} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import {
-  NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule, NbCheckboxModule, NbContextMenuModule, NbInputModule, NbLayoutModule, NbMenuModule, NbThemeModule
+  NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule,
+  NbCheckboxModule, NbContextMenuModule, NbInputModule, NbLayoutModule,
 } from '@nebular/theme';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomLoginComponent } from './custom-login.component';
@@ -29,7 +30,7 @@ import { CustomRegisterComponent } from './custom-register.component';
   ],
   declarations: [
     CustomLoginComponent,
-    CustomRegisterComponent
+    CustomRegisterComponent,
   ],
 })
 export class CustomLoginModule { }

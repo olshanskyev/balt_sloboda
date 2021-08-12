@@ -13,9 +13,9 @@ import { Toaster } from '../Toaster';
 })
 
 
-export class NewsComponent{
+export class NewsComponent {
 
-  private toaster:Toaster;
+  private toaster: Toaster;
 
   constructor(private toastrService: NbToastrService) {
     this.toaster = new Toaster(toastrService);

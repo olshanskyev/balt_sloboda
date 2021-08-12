@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { MENU_ITEMS } from './pages-menu';
     </ngx-one-column-layout>
   `,
 })
-export class PagesComponent {
+export class PagesComponent implements OnInit {
 
   menu = MENU_ITEMS;
   currentLang: string;
@@ -53,10 +53,10 @@ export class PagesComponent {
     }
     if (!menuItem.hidden && menuItem.children != null) {
       menuItem.children.forEach(item => {
-        const key = item.title;
-        const value = this.translateService.translations[this.currentLang].menu[key];
-        if (value) {
-          item.title = value; // translate menu item
+        const innerKey = item.title;
+        const innerValue = this.translateService.translations[this.currentLang].menu[innerKey];
+        if (innerValue) {
+          item.title = innerValue; // translate menu item
         }
 
         if (item.data && item.data['permission'] && item.data['resource']) {

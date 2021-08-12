@@ -54,7 +54,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
               const translates = this.translateService.translations[this.translateService.currentLang];
               this.userMenu = [
-                { title: translates.menu.Profile }, { title: translates.menu.LogOut, link: '/auth/logout' }
+                { title: translates.menu.Profile }, { title: translates.menu.LogOut, link: '/auth/logout' },
               ];
   }
 

@@ -1,11 +1,11 @@
-import { ToasterConfig } from "angular2-toaster";
+import { ToasterConfig } from 'angular2-toaster';
 import { NbGlobalPhysicalPosition, NbGlobalPosition, NbComponentStatus, NbToastrService } from '@nebular/theme';
 
-export class Toaster{
-    
-    constructor(private toastrService: NbToastrService){
+export class Toaster {
 
+    constructor(private toastrService: NbToastrService) {
     }
+
     config: ToasterConfig;
 
     index = 1;

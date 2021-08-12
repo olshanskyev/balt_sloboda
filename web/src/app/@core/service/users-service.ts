@@ -24,7 +24,7 @@ export class UserService extends UserServiceData {
     return this._http.get<User>(_endpoint);
   }
 
-  getUserInfo() : Observable<User> {
+  getUserInfo(): Observable<User> {
     const _endpoint = this.uri +  '/userInfo';
     return this._http.get<User>(_endpoint);
   }

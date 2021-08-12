@@ -22,22 +22,14 @@ export class AppComponent implements OnInit {
   constructor(private analytics: AnalyticsService, private seoService: SeoService,
     passwordStrategy: NbPasswordAuthStrategy,
     private menuService: NbMenuService, private router: Router,
-    private translateService: TranslateService
+    private translateService: TranslateService,
     ) {
 
       this.translations();
       this.translateService.setDefaultLang('ru');
       this.translateService.use('ru');
 
-    /*this.menuService.onItemClick()
-      .subscribe((event) => {
-        this.onContecxtItemSelection(event.item.title);
-      });*/
   }
-
-  /*onContecxtItemSelection(title:string) {
-
-  }*/
 
   ngOnInit(): void {
     this.analytics.trackPageViews();

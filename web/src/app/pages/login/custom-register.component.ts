@@ -9,7 +9,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class CustomRegisterComponent extends NbRegisterComponent {
 
-  constructor(authService: NbAuthService, @Inject(NB_AUTH_OPTIONS) options = {}, cd: ChangeDetectorRef, router: Router, translate: TranslateService) {
+  constructor(authService: NbAuthService, @Inject(NB_AUTH_OPTIONS) options = {},
+              cd: ChangeDetectorRef, router: Router, translate: TranslateService) {
     super(authService, options, cd, router);
   }
 

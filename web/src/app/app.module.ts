@@ -55,17 +55,17 @@ const appInitializerFn = (appConfig: AppConfigService) => {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
-      deps: [AppConfigService]
+      deps: [AppConfigService],
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: NbAuthJWTInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorsInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: NB_AUTH_TOKEN_INTERCEPTOR_FILTER,

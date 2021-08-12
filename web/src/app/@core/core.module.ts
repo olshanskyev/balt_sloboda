@@ -52,24 +52,24 @@ export const NB_CORE_PROVIDERS = [
           endpoint: 'login',
           redirect: {
             success: '/pages/news',
-            failure: '/auth/login'
+            failure: '/auth/login',
           },
         },
         logout: {
           endpoint: 'logout',
           redirect: {
             success: '/auth/login',
-            failure: '/auth/login'
-          }
+            failure: '/auth/login',
+          },
 
         },
         register: {
           requireValidToken: false,
           redirect: {
             success: null,
-            failure: null
+            failure: null,
           },
-          defaultMessages: ['successMessage']
+          defaultMessages: ['successMessage'],
         },
         refreshToken: {
           endpoint: 'refresh-token',

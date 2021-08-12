@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs';
 
 export abstract class UserServiceData {
     abstract getUserByName(userName: string): Observable<User>;

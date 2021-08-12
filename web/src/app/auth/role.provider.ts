@@ -11,7 +11,6 @@ export class RoleProvider implements NbRoleProvider {
   }
 
   getRole(): Observable<string[]> {
-    //const roles: string[] = ['ROLE_ADMIN'];
     return this.authService.onTokenChange()
       .pipe(
         map((token: NbAuthOAuth2JWTToken) => {

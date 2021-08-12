@@ -19,7 +19,7 @@ export class RussianLanguage {
                 dontHaveAccount: 'Ещё нет аккаунта?',
                 register: 'Зарегистрироваться',
                 hooray: 'Ура!',
-                snap: 'Ошибочка вышла'
+                snap: 'Ошибочка вышла',
             },
             register: {
                 register: 'Зарегистрироваться',
@@ -33,7 +33,7 @@ export class RussianLanguage {
                 Users: 'Жители',
                 Addresses: 'Адреса',
                 LogOut: 'Выйти',
-                Profile: 'Профиль'
+                Profile: 'Профиль',
             },
             errors: {
                 errorCode: 'Код ошибки',
@@ -45,9 +45,9 @@ export class RussianLanguage {
                 newRequests: 'Новые заявки',
                 count: 'Всего',
                 firstName: 'Имя',
-                lastName: 'Фамилия'
+                lastName: 'Фамилия',
 
-            }
+            },
         };
     }
 }

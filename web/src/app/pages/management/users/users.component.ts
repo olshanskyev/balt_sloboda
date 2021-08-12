@@ -16,9 +16,9 @@ import { Toaster } from '../../Toaster';
 })
 
 
-export class UsersComponent{
+export class UsersComponent {
 
-  private toaster:Toaster;
+  private toaster: Toaster;
 
 
 
@@ -30,10 +30,11 @@ export class UsersComponent{
     this.settings.columns.firstName.title = translations.usersPage.firstName;
     this.settings.columns.lastName.title = translations.usersPage.lastName;
 
-    usersService.getAllUsers().subscribe(res => {
+    usersService.getAllUsers().subscribe(
+      res => {
       this.source.load(res);
       this.count = res.length;
-    }, err=> {
+    }, err => {
       this.toaster.showToast(this.toaster.types[4], translations.errors.cannotGetUsers,
            `${err.error}. ${translations.errors.errorCode}: ${err.status}`);
     });

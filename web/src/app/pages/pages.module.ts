@@ -15,10 +15,10 @@ import { UsersPageModule } from './management/users/users-page.module';
     PagesRoutingModule,
     ThemeModule,
     NbMenuModule,
-	  MiscellaneousModule,
+    MiscellaneousModule,
     NewsPageModule,
     CustomLoginModule,
-    UsersPageModule
+    UsersPageModule,
   ],
   declarations: [
     PagesComponent,

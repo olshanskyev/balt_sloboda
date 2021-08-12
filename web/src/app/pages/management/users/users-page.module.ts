@@ -16,7 +16,7 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     ThemeModule,
     NbCardModule,
     NbTabsetModule,
-    Ng2SmartTableModule
+    Ng2SmartTableModule,
   ],
   declarations: [
     UsersComponent,
