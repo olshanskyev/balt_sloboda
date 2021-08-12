@@ -3,6 +3,7 @@ package balt.sloboda.portal.controller;
 import balt.sloboda.portal.model.JwtRequest;
 import balt.sloboda.portal.model.JwtResponse;
 import balt.sloboda.portal.model.RefreshTokenRequest;
+import balt.sloboda.portal.model.TokenPair;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Created by evolshan on 07.07.2021.
- */
 @RestController
 @RequestMapping("/auth")
 public class AuthRestController {
@@ -30,7 +28,6 @@ public class AuthRestController {
 
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @CrossOrigin
     public ResponseEntity<?> login(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
         //authenticate via email and password using authenticationManager
@@ -43,8 +40,13 @@ public class AuthRestController {
         } catch (BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
+    }
 
 
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public ResponseEntity<?> register(@RequestBody String string) { //ToDo real request and processing
+        JwtResponse jwtResponse = new JwtResponse((new TokenPair()).accessToken("").refreshToken("")); // empty jwtResponse
+        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/refresh-token", method = RequestMethod.POST)

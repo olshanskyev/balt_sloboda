@@ -11,6 +11,7 @@ import {
 
 import {AuthGuard} from './auth/AuthGuard';
 import { CustomLoginComponent } from './pages/login/custom-login.component';
+import { CustomRegisterComponent } from './pages/login/custom-register.component';
 
 export const routes: Routes = [
   {
@@ -34,7 +35,7 @@ export const routes: Routes = [
       },
       {
         path: 'register',
-        component: NbRegisterComponent,
+        component: CustomRegisterComponent,
       },
       {
         path: 'logout',

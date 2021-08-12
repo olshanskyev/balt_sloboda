@@ -1,7 +1,5 @@
 package balt.sloboda.portal.service;
 
-
-
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.repository.DbUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Created by evolshan on 06.03.2020.
- */
 @Service
 public class DbUserService {
 

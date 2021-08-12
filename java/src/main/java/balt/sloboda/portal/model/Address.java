@@ -2,9 +2,6 @@ package balt.sloboda.portal.model;
 
 import javax.persistence.*;
 
-/**
- * Created by evolshan on 09.07.2021.
- */
 @Entity
 @Table(name="ADDRESSES")
 public class Address {

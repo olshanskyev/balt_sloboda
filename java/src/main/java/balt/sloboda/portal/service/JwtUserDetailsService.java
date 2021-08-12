@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by evolshan on 12.03.2020.
- */
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 

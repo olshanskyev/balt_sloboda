@@ -70,7 +70,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     {
       provide: NB_AUTH_TOKEN_INTERCEPTOR_FILTER,
       useValue: function (req: HttpRequest<any>) {
-        return (req.url.includes('login') || /*req.url.includes('logout') ||*/ req.url.includes('refresh-token'));
+        return (req.url.includes('login') || req.url.includes('refresh-token'));
      },
     },
 

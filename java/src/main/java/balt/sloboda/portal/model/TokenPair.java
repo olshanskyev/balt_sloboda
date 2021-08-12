@@ -2,9 +2,6 @@ package balt.sloboda.portal.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Created by evolshan on 11.07.2021.
- */
 public class TokenPair {
     @JsonProperty("access_token")
     private String accessToken;

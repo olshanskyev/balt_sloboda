@@ -20,9 +20,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-/**
- * Created by evolshan on 09.09.2020.
- */
 @Configuration
 @EnableJpaRepositories(basePackages = "balt.sloboda.portal.repository")
 public class DBConfiguration {

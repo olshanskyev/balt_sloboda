@@ -63,6 +63,14 @@ export const NB_CORE_PROVIDERS = [
           }
 
         },
+        register: {
+          requireValidToken: false,
+          redirect: {
+            success: null,
+            failure: null
+          },
+          defaultMessages: ['successMessage']
+        },
         refreshToken: {
           endpoint: 'refresh-token',
           method: 'post',

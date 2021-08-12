@@ -8,10 +8,6 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
-/**
- * Created by evolshan on 09.09.2020.
- */
 @Entity
 @Table(name="USERS")
 public class User {

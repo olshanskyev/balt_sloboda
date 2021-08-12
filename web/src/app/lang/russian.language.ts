@@ -21,6 +21,10 @@ export class RussianLanguage {
                 hooray: 'Ура!',
                 snap: 'Ошибочка вышла'
             },
+            register: {
+                register: 'Зарегистрироваться',
+                successMessage: 'Письмо с запросом на регистрацию отправлено. Ожидайте подтверждения на email',
+            },
             menu: {
                 News: 'Новости',
                 Requests: 'Заявки',

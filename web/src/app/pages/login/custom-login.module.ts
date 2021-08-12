@@ -8,6 +8,7 @@ import {
 } from '@nebular/theme';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomLoginComponent } from './custom-login.component';
+import { CustomRegisterComponent } from './custom-register.component';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { CustomLoginComponent } from './custom-login.component';
     RouterModule,
   ],
   declarations: [
-    CustomLoginComponent
+    CustomLoginComponent,
+    CustomRegisterComponent
   ],
 })
 export class CustomLoginModule { }

@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * Created by evolshan on 24.09.2020.
- */
 @Component
 public class WebSecurityUtils {
 

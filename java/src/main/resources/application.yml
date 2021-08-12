@@ -16,6 +16,17 @@ jwt:
 ---
 spring:
   profiles: default, docker
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: olshanskyevdev@gmail.com
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 datasource:
     url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?currentSchema=${DATABASE_SCHEMA}
     username: ${DATABASE_USER}
@@ -33,6 +44,17 @@ datasource:
 ---
 spring:
   profiles: local
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: olshanskyevdev@gmail.com
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 datasource:
     url: jdbc:postgresql://localhost:3399/PORTAL?currentSchema=BALTSLOBODA
     username: admin
