@@ -5,6 +5,7 @@ import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.service.DbAddressService;
 import balt.sloboda.portal.service.DbUserService;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
@@ -28,14 +29,10 @@ public class DbUserServiceTest {
     @Autowired
     private DbUserService dbUserService;
 
-    @Autowired
-    private DbAddressService dbAddressService;
-
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    public void getAllUsers()
-            throws Exception {
+    public void getAllUsers() {
 
         List<User> all = dbUserService.selectAll();
         Assert.assertEquals(2, all.size());

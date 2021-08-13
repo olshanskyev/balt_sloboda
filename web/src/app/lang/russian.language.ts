@@ -24,6 +24,21 @@ export class RussianLanguage {
             register: {
                 register: 'Зарегистрироваться',
                 successMessage: 'Письмо с запросом на регистрацию отправлено. Ожидайте подтверждения на email',
+                firstName: 'Имя',
+                lastName: 'Фамилия',
+                firstNameRequired: 'Введите имя',
+                lastNameRequired: 'Введите фамилию',
+                firstNameShouldContain: 'Поле Имя должно содержать от {{from}} до {{to}} символов',
+                lastNameShouldContain: 'Поле Фамилия должно содержать от {{from}} до {{to}} символов',
+                alreadyHaveAccount: 'Уже зарегистрированы',
+                agreeTo: 'Согласен с',
+                termsAndConditions: ' Условиями пользования',
+                selectStreet: 'Выберите улицу',
+                street: 'Улица',
+                home: 'Дом',
+                plot: 'участок',
+                selectHome: 'Выберите дом',
+
             },
             menu: {
                 News: 'Новости',
@@ -38,6 +53,8 @@ export class RussianLanguage {
             errors: {
                 errorCode: 'Код ошибки',
                 cannotGetUsers: 'Не удается получить список жителей',
+                cannotGetStreet: 'Не удается загрузить список улиц',
+                cannotGetAddresses: 'Не удается загрузить список адресов',
             },
             usersPage: {
                 users: 'Жители',

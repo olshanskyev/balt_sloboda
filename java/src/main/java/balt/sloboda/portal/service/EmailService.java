@@ -18,4 +18,9 @@ public class EmailService {
         msg.setText(text);
         javaMailSender.send(msg);
     }
+
+    public void sendUserRegistrationRequestConfirmation(String to) {
+        sendMail(to, "Запрос на регистрацию получен", "Ваш запрос на регистрацию на портале Балтийская Слобода 2 получен. Ожидайте письма с дальнейшими инструкциями");
+    }
+
 }

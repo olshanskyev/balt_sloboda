@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DbAddressService {
@@ -23,7 +24,12 @@ public class DbAddressService {
          return dbAddressRepository.save(address);
     }
 
+    public List<String> getAllStreets() {
+        return dbAddressRepository.findDistinctStreets();
+    }
 
-
+    public List<Address> getAddressesOnStreet(String street){
+        return dbAddressRepository.findAllByStreet(street);
+    }
 
 }

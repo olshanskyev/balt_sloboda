@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import {
   NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule,
-  NbCheckboxModule, NbContextMenuModule, NbInputModule, NbLayoutModule,
+  NbCheckboxModule, NbContextMenuModule, NbInputModule, NbLayoutModule, NbSelectModule,
 } from '@nebular/theme';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomLoginComponent } from './custom-login.component';
@@ -27,6 +27,7 @@ import { CustomRegisterComponent } from './custom-register.component';
     NbInputModule,
     NbButtonModule,
     RouterModule,
+    NbSelectModule,
   ],
   declarations: [
     CustomLoginComponent,

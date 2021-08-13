@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { Address } from './addresses-service-data';
 
 export abstract class UserServiceData {
     abstract getUserByName(userName: string): Observable<User>;
@@ -16,9 +17,4 @@ export class User {
     picture: string;
 }
 
-export class Address {
-    id: number;
-    street: string;
-    houseNumber: number;
-    plotNumber: number;
-}
+

@@ -1,6 +1,7 @@
 package balt.sloboda.portal.model;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name="ADDRESSES")
@@ -54,5 +55,24 @@ public class Address {
     public Address id(Long id) {
         this.id = id;
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        // self check
+        if (this == o)
+            return true;
+        // null check
+        if (o == null)
+            return false;
+        // type check and cast
+        if (getClass() != o.getClass())
+            return false;
+        Address address = (Address) o;
+        // field comparison
+        return Objects.equals(street, address.street)
+                && Objects.equals(houseNumber, address.houseNumber)
+                && Objects.equals(plotNumber, address.plotNumber);
     }
 }
