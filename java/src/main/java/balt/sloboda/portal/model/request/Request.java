@@ -22,6 +22,9 @@ public class Request {
     @Column(name="COMMENT", columnDefinition="varchar(512)", nullable = false)
     private String comment;
 
+    @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = false)
+    private String paramValues; // in json {["parameterName":"parametervalue"], ...}
+
     @OneToOne
     @JoinColumn(name="REQUEST_TYPE_ID", nullable = false)
     private RequestType type;
@@ -119,6 +122,16 @@ public class Request {
 
     public Request status(RequestStatus status) {
         this.status = status;
+        return this;
+    }
+
+
+    public String getParamValues() {
+        return paramValues;
+    }
+
+    public Request paramValues(String paramValues) {
+        this.paramValues = paramValues;
         return this;
     }
 }

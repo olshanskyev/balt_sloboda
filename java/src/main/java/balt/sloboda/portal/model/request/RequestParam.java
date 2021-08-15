@@ -20,11 +20,8 @@ public class RequestParam {
     @Column(name="NAME", columnDefinition="varchar(64)", nullable = false)
     private String name;
 
-    @Column(name="VALUE", columnDefinition="varchar(128)", nullable = false)
-    private String value;
-
     @Enumerated(EnumType.STRING)
-    @Column(name="TYPE", nullable = false)
+    @Column(name="TYPE", columnDefinition="varchar(64)", nullable = false)
     private RequestParamType type;
 
     public Long getId() {
@@ -51,15 +48,6 @@ public class RequestParam {
 
     public RequestParam name(String name) {
         this.name = name;
-        return this;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public RequestParam value(String value) {
-        this.value = value;
         return this;
     }
 

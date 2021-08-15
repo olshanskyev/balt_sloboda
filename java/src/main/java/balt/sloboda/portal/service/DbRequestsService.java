@@ -1,13 +1,16 @@
 package balt.sloboda.portal.service;
 
-import balt.sloboda.portal.model.request.RequestScope;
+import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.repository.DbRequestTypesRepository;
 import balt.sloboda.portal.repository.DbRequestsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DbRequestsService {
@@ -23,7 +26,7 @@ public class DbRequestsService {
     }
 
     public List<RequestType> getRequestTypesAvailableForUser() {
-        return dbRequestTypesRepository.findByScope(RequestScope.USER);
+        return dbRequestTypesRepository.findAll().stream().filter(item -> item.getRoles().contains(Role.ROLE_USER)).collect(Collectors.toList());
     }
 
 

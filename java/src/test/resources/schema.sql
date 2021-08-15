@@ -9,8 +9,7 @@ create table IF NOT EXISTS ADDRESSES (
 create table IF NOT EXISTS REQUEST_PARAMS (
    id  bigserial not null,
 	NAME varchar(64) not null,
-	TYPE varchar(255) not null,
-	VALUE varchar(128) not null,
+	TYPE varchar(64) not null,
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -18,7 +17,7 @@ create table IF NOT EXISTS REQUEST_PARAMS (
 create table IF NOT EXISTS REQUEST_TYPES (
    id  bigserial not null,
 	DURABLE boolean not null,
-	SCOPE varchar(255) not null,
+	ROLES varchar(255) not null,
 	NAME varchar(64) not null,
 	TITLE varchar(256) not null,
 	primary key (id)
@@ -27,6 +26,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 create table IF NOT EXISTS REQUESTS (
    id  bigserial not null,
 	COMMENT varchar(512) not null,
+	PARAM_VALUES varchar(512),
 	CREATION_DATE timestamp,
 	LAST_MODIFIED_DATE timestamp,
 	STATUS varchar(255) not null,

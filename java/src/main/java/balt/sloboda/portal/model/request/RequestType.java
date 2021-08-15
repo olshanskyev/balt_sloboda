@@ -1,8 +1,13 @@
 package balt.sloboda.portal.model.request;
 
+import balt.sloboda.portal.model.Role;
+import balt.sloboda.portal.model.converter.StringSetConverter;
+
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="REQUEST_TYPES")
@@ -21,9 +26,9 @@ public class RequestType {
     @Column(name="DURABLE", nullable = false)
     private boolean durable = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name="SCOPE", nullable = false)
-    private RequestScope scope = RequestScope.USER; // who can create such request
+    @Column(name="ROLES", columnDefinition="varchar(256)", nullable = false)
+    @Convert(converter = StringSetConverter.class)
+    private Set<Role> roles = new HashSet<>(); // who can create such request
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "REQUEST_TYPE_ID")
@@ -75,12 +80,12 @@ public class RequestType {
         return this;
     }
 
-    public RequestScope getScope() {
-        return scope;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public RequestType scope(RequestScope scope) {
-        this.scope = scope;
+    public RequestType roles(Set<Role> roles) {
+        this.roles = roles;
         return this;
     }
 }
