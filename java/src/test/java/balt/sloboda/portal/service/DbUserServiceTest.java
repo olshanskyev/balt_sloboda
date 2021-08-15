@@ -1,6 +1,7 @@
-package balt.sloboda.portal.repository;
+package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.Application;
+import balt.sloboda.portal.model.Address;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.service.DbAddressService;
 import balt.sloboda.portal.service.DbUserService;
@@ -29,6 +30,9 @@ public class DbUserServiceTest {
     @Autowired
     private DbUserService dbUserService;
 
+    @Autowired
+    private DbAddressService dbAddressService;
+
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -41,4 +45,14 @@ public class DbUserServiceTest {
         User admin = all.stream().filter(item -> item.getUser().equals("admin@baltsloboda2.ru")).findFirst().orElseThrow(RuntimeException::new);
         Assert.assertEquals(0, admin.getAddress().getPlotNumber());
     }
+
+    @Test
+    @Sql({"/create_users_data.sql"})
+    @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void addressAlreadyUsed() {
+        List<User> all = dbUserService.selectAll();
+        Assert.assertTrue(dbUserService.addressAlreadyUsed(all.get(0).getAddress().getId()));
+        Assert.assertFalse(dbUserService.addressAlreadyUsed(1111L));
+    }
+
 }

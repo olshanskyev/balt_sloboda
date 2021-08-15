@@ -13,4 +13,6 @@ public interface DbAddressRepository extends JpaRepository<Address, Long> {
     List<String> findDistinctStreets();
 
     List<Address> findAllByStreet(String street);
+
+    List<Address> findAddressById(Long id);
 }

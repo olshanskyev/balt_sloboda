@@ -32,4 +32,8 @@ public class DbAddressService {
         return dbAddressRepository.findAllByStreet(street);
     }
 
+    public Address getAddressById(Long id){
+        return dbAddressRepository.findAddressById(id).stream().findFirst().orElse(null);
+    }
+
 }

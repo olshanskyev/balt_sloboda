@@ -1,10 +1,9 @@
-package balt.sloboda.portal.repository;
+package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.Address;
 import balt.sloboda.portal.service.DbAddressService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,4 +47,6 @@ public class DbAddressesServiceTest {
                 constSolnechnayaAddresses.containsAll(gotAddressesOnSolnechnaya));
 
     }
+
+
 }

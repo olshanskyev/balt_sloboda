@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbAuthService, NbRegisterComponent, NB_AUTH_OPTIONS } from '@nebular/auth';
+import { NbAuthResult, NbAuthService, NbRegisterComponent, NB_AUTH_OPTIONS } from '@nebular/auth';
 import { NbToastrService } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { Address } from '../../@core/data/addresses-service-data';
@@ -18,6 +18,8 @@ export class CustomRegisterComponent extends NbRegisterComponent {
   addressesOnStreet: Address[];
   private toaster: Toaster;
   translations: any;
+  terms: boolean = false;
+
   constructor(authService: NbAuthService, @Inject(NB_AUTH_OPTIONS) options = {},
               cd: ChangeDetectorRef, router: Router, translateService: TranslateService,
               private addressesService: AddressesService,
@@ -35,8 +37,7 @@ export class CustomRegisterComponent extends NbRegisterComponent {
         this.streets = res;
       },
       err => {
-        this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetStreet,
-          `${err.message}. ${this.translations.errors.errorCode}: ${err.status}`);
+        this.toaster.showToast(this.toaster.types[4], this.translations.errors.error, this.translations.errors.cannotGetStreet);
       }
     );
   }
@@ -52,7 +53,5 @@ export class CustomRegisterComponent extends NbRegisterComponent {
       }
     );
   }
-
-
 
 }

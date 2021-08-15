@@ -10,7 +10,7 @@ export class Toaster {
 
     index = 1;
     destroyByClick = true;
-    duration = 10000;
+    duration = 60000;
     hasIcon = true;
     position: NbGlobalPosition = NbGlobalPhysicalPosition.TOP_RIGHT;
     preventDuplicates = false;

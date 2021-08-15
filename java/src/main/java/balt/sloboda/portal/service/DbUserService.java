@@ -1,6 +1,8 @@
 package balt.sloboda.portal.service;
 
+import balt.sloboda.portal.model.Address;
 import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.repository.DbAddressRepository;
 import balt.sloboda.portal.repository.DbUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,9 @@ public class DbUserService {
 
     @Autowired
     private DbUserRepository dbUserRepository;
+
+    @Autowired
+    private DbAddressRepository dbAddressRepository;
 
     public List<User> selectAll(){
         return dbUserRepository.findAll();
@@ -38,6 +43,12 @@ public class DbUserService {
     public User findById(Long id){
        return dbUserRepository.findById(id).orElse(null);
     }
+
+
+    public boolean addressAlreadyUsed(Long addressId){
+        return !dbUserRepository.findByAddressId(addressId).isEmpty();
+    }
+
 
 
 

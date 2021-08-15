@@ -16,6 +16,7 @@ import { RoleProvider } from '../auth/role.provider';
 import { PageAccessChecker } from '../auth/PageAccessChecker';
 import { ServiceModule } from './service/services.module';
 import { environment } from '../../environments/environment';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const socialLinks = [
   {
@@ -54,6 +55,7 @@ export const NB_CORE_PROVIDERS = [
             success: '/pages/news',
             failure: '/auth/login',
           },
+          defaultMessages: ['login.successMessage']
         },
         logout: {
           endpoint: 'logout',
@@ -69,7 +71,7 @@ export const NB_CORE_PROVIDERS = [
             success: null,
             failure: null,
           },
-          defaultMessages: ['successMessage'],
+          defaultMessages: ['register.successMessage']
         },
         refreshToken: {
           endpoint: 'refresh-token',

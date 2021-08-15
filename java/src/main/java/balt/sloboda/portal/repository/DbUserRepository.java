@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DbUserRepository extends JpaRepository<User, Long> {
     List<User> findByUser(String user);
+    List<User> findByAddressId(Long addressId);
 }

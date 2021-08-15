@@ -1,17 +1,19 @@
 import { HttpInterceptor, HttpHandler, HttpRequest, HttpEvent, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { AfterContentInit, Injectable } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { NbToastrService } from '@nebular/theme';
 import { Toaster } from '../pages/Toaster';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
-export class ErrorsInterceptor implements HttpInterceptor {
+export class ErrorsInterceptor implements HttpInterceptor{
 
     toaster: Toaster;
-
-    constructor(private router: Router, private toastrService: NbToastrService) {
+    currentLang: string;
+    constructor(private router: Router, private toastrService: NbToastrService,
+      private translateService: TranslateService) {
       this.toaster = new Toaster(toastrService);
     }
 
@@ -21,16 +23,28 @@ export class ErrorsInterceptor implements HttpInterceptor {
       ): Observable<HttpEvent<any>> {
         return next.handle(req).pipe(
             catchError((err: any) => {
+                let errorMsg = '';
+                let errorParameters;
                 if (err instanceof HttpErrorResponse) {
+                  errorMsg = err.error.error;
+                  errorParameters = err.error.parameters
                   if (err.status === 401) {
                     this.router.navigate(['auth/login']);
-                    this.toaster.showToast(this.toaster.types[4], 'Error', 'Not authorized');
                   }
+
                 }
                 if (err.status <= 0) { // connection refused
-                  this.toaster.showToast(this.toaster.types[4], 'Error', 'Server communication error. Connection refused');
+                  errorMsg = 'serverCommunicationError';
                 }
-                return next.handle(req);
+
+                // translate
+                this.translateService.get('errors.' + errorMsg, errorParameters).subscribe(res => {
+                  this.toaster.showToast(this.toaster.types[4],
+                    this.translateService.translations[this.translateService.currentLang].errors.error,
+                     res);
+                });
+
+                return throwError(err);
             }));
 
     }

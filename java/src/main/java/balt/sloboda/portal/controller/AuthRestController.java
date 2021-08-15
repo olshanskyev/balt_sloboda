@@ -1,9 +1,8 @@
 package balt.sloboda.portal.controller;
 
-import balt.sloboda.portal.model.JwtRequest;
-import balt.sloboda.portal.model.JwtResponse;
-import balt.sloboda.portal.model.RefreshTokenRequest;
-import balt.sloboda.portal.model.TokenPair;
+import balt.sloboda.portal.model.*;
+import balt.sloboda.portal.service.DbAddressService;
+import balt.sloboda.portal.service.DbUserService;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +15,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthRestController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private DbUserService dbUserService;
+
+    @Autowired
+    private DbAddressService dbAddressService;
 
     @Autowired
     private JwtTokenUtil tokenUtil;
@@ -38,15 +45,40 @@ public class AuthRestController {
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            return new ResponseEntity<>(new ErrorResponse("badCredentials"), HttpStatus.UNAUTHORIZED);
         }
     }
 
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> register(@RequestBody String string) { //ToDo real request and processing
+    public ResponseEntity<?> register(@RequestBody User user) { //ToDo real request and processing
+        if (dbUserService.alreadyExists(user)){
+            return new ResponseEntity<>(new ErrorResponse("userAlreadyExists", new HashMap<String, String>() {{
+                put("user", user.getUser());
+            }}), HttpStatus.CONFLICT);
+        }
+
+        if (user.getAddress() != null && user.getAddress().getId() != null) {
+            Address addressById = dbAddressService.getAddressById(user.getAddress().getId());
+            if (addressById != null){
+                if (dbUserService.addressAlreadyUsed(addressById.getId())) { //address used by another user
+                    return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", new HashMap<String, String>() {{
+                        put("user", user.getUser());
+                    }}), HttpStatus.CONFLICT);
+                }
+            } else {
+                // address not found
+                return new ResponseEntity<>(new ErrorResponse("notExistingAddress", new HashMap<String, String>() {{
+                    put("user", user.getUser());
+                }}), HttpStatus.CONFLICT);
+            }
+        }
+
+
         JwtResponse jwtResponse = new JwtResponse((new TokenPair()).accessToken("").refreshToken("")); // empty jwtResponse
         return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+
+
     }
 
     @RequestMapping(value = "/refresh-token", method = RequestMethod.POST)

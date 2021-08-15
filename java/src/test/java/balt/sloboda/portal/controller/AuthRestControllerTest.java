@@ -1,9 +1,7 @@
 package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.Application;
-import balt.sloboda.portal.model.JwtRequest;
-import balt.sloboda.portal.model.JwtResponse;
-import balt.sloboda.portal.model.RefreshTokenRequest;
+import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.service.DbUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = { "spring.config.location = classpath:application_test.yml",
 })
 @ActiveProfiles("test")
-public class UsersRestControllerTest {
+public class AuthRestControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -204,6 +203,43 @@ public class UsersRestControllerTest {
         getUsers_OK(jwtResponse2.getToken().getAccessToken());
         // 4. get with first login fails
         getUsers_401(jwtResponse1.getToken().getAccessToken());
+    }
+
+
+    @Test
+    @Sql({"/create_users_data.sql"})
+    @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void registerTest() throws Exception {
+        User alreadyExistsUser = new User().user("olshanskyev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
+        User notExistingAddressUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(111L));
+        User addressAlreadyUsedUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
+        User okUser = new User().user("olshanskyevdev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(4L));
+
+        mvc.perform(post("/auth/register")
+                .content(asJsonString(alreadyExistsUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error", is("userAlreadyExists")));
+
+        mvc.perform(post("/auth/register")
+                .content(asJsonString(notExistingAddressUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error", is("notExistingAddress")));
+
+        mvc.perform(post("/auth/register")
+                .content(asJsonString(addressAlreadyUsedUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error", is("addressAlreadyUsed")));
+
+        mvc.perform(post("/auth/register")
+                .content(asJsonString(okUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
 

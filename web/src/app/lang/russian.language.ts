@@ -20,6 +20,8 @@ export class RussianLanguage {
                 register: 'Зарегистрироваться',
                 hooray: 'Ура!',
                 snap: 'Ошибочка вышла',
+                tryAgain: 'Попробуйте еще раз',
+                successMessage: 'Вход выполнен',
             },
             register: {
                 register: 'Зарегистрироваться',
@@ -51,10 +53,17 @@ export class RussianLanguage {
                 Profile: 'Профиль',
             },
             errors: {
+                error: 'Ошибка',
                 errorCode: 'Код ошибки',
                 cannotGetUsers: 'Не удается получить список жителей',
                 cannotGetStreet: 'Не удается загрузить список улиц',
                 cannotGetAddresses: 'Не удается загрузить список адресов',
+                userAlreadyExists: 'Пользователь {{user}} уже зарегистрирован',
+                serverCommunicationError: 'Ошибка связи с сервером',
+                unauthorized: 'Пользователь не авторизован',
+                badCredentials: 'Неверные логин/пароль',
+                addressAlreadyUsed: 'Адрес уже зарегистрирован за другим пользователем',
+                notExistingAddress: 'Адрес не существует',
             },
             usersPage: {
                 users: 'Жители',
