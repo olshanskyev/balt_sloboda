@@ -68,6 +68,7 @@ public class RequestType {
 
     public RequestType parameters(List<RequestParam> parameters) {
         this.parameters = parameters;
+        parameters.forEach(item -> item.requestType(this));
         return this;
     }
 

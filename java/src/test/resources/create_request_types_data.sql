@@ -3,11 +3,17 @@ INSERT INTO REQUEST_TYPES (id, DURABLE, NAME, TITLE, ROLES) VALUES
 ('2', 'false', 'NewUserRequest', 'New user Request', 'ROLE_ADMIN')
 ;
 
-INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE) VALUES
-('2', 'user', 'STRING'),
-('2', 'firstName', 'STRING'),
-('2', 'lastName', 'STRING'),
-('2', 'address.street', 'STRING'),
-('2', 'address.houseNumber', 'INTEGER'),
-('2', 'address.plotNumber', 'INTEGER')
+INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE, OPTIONAL, COMMENT) VALUES
+('2', 'user', 'STRING', false, ''),
+('2', 'firstName', 'STRING', false, ''),
+('2', 'lastName', 'STRING', false, ''),
+('2', 'street', 'STRING', false, ''),
+('2', 'houseNumber', 'INTEGER', false, ''),
+('2', 'plotNumber', 'INTEGER', false, '')
 ;
+
+INSERT INTO REQUESTS (PARAM_VALUES, STATUS, SUBJECT, LAST_MODIFIED_BY_ID, OWNER_ID, REQUEST_TYPE_ID) VALUES
+('{"user": "olshanskyev@gmail.com"}', 'NEW', 'Create New User', '1', '1', '2')
+;
+
+

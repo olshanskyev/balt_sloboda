@@ -24,6 +24,12 @@ public class RequestParam {
     @Column(name="TYPE", columnDefinition="varchar(64)", nullable = false)
     private RequestParamType type;
 
+    @Column(name="OPTIONAL", nullable = false)
+    private boolean optional = false;
+
+    @Column(name="COMMENT", columnDefinition="varchar(128)", nullable = true)
+    private String comment;
+
     public Long getId() {
         return id;
     }
@@ -37,7 +43,7 @@ public class RequestParam {
         return requestType;
     }
 
-    public RequestParam request(RequestType requestType) {
+    public RequestParam requestType(RequestType requestType) {
         this.requestType = requestType;
         return this;
     }
@@ -57,6 +63,24 @@ public class RequestParam {
 
     public RequestParam type(RequestParamType type) {
         this.type = type;
+        return this;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public RequestParam optional(boolean optional) {
+        this.optional = optional;
+        return this;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public RequestParam comment(String comment) {
+        this.comment = comment;
         return this;
     }
 }

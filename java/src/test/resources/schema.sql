@@ -10,6 +10,8 @@ create table IF NOT EXISTS REQUEST_PARAMS (
    id  bigserial not null,
 	NAME varchar(64) not null,
 	TYPE varchar(64) not null,
+	OPTIONAL boolean not null,
+	COMMENT varchar(128),
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -25,7 +27,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 
 create table IF NOT EXISTS REQUESTS (
    id  bigserial not null,
-	COMMENT varchar(512) not null,
+	COMMENT varchar(512),
 	PARAM_VALUES varchar(512),
 	CREATION_DATE timestamp,
 	LAST_MODIFIED_DATE timestamp,

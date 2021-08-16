@@ -2,6 +2,7 @@ package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.service.DbAddressService;
+import balt.sloboda.portal.service.DbRequestsService;
 import balt.sloboda.portal.service.DbUserService;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +31,9 @@ public class AuthRestController {
 
     @Autowired
     private DbAddressService dbAddressService;
+
+    @Autowired
+    private DbRequestsService dbRequestsService;
 
     @Autowired
     private JwtTokenUtil tokenUtil;
@@ -62,22 +67,24 @@ public class AuthRestController {
             Address addressById = dbAddressService.getAddressById(user.getAddress().getId());
             if (addressById != null){
                 if (dbUserService.addressAlreadyUsed(addressById.getId())) { //address used by another user
-                    return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", new HashMap<String, String>() {{
-                        put("user", user.getUser());
-                    }}), HttpStatus.CONFLICT);
+                    return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", null), HttpStatus.CONFLICT);
                 }
+                user.address(addressById);
             } else {
                 // address not found
-                return new ResponseEntity<>(new ErrorResponse("notExistingAddress", new HashMap<String, String>() {{
-                    put("user", user.getUser());
-                }}), HttpStatus.CONFLICT);
+                return new ResponseEntity<>(new ErrorResponse("notExistingAddress", null), HttpStatus.CONFLICT);
             }
+        } else {
+            return new ResponseEntity<>(new ErrorResponse("notExistingAddress", null), HttpStatus.CONFLICT);
         }
 
-
-        JwtResponse jwtResponse = new JwtResponse((new TokenPair()).accessToken("").refreshToken("")); // empty jwtResponse
-        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
-
+        try {
+            dbRequestsService.createNewUserRequest(user);
+            JwtResponse jwtResponse = new JwtResponse((new TokenPair()).accessToken("").refreshToken("")); // empty jwtResponse
+            return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+        } catch (Exception ex){
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
     }
 

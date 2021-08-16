@@ -3,9 +3,9 @@ package balt.sloboda.portal.controller;
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.service.DbUserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import balt.sloboda.portal.utils.JsonUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
-
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,31 +44,17 @@ public class AuthRestControllerTest {
     @Value("${jwt.refreshTokenValidity}")
     private long REFRESH_TOKEN_VALIDITY;
 
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public <T> T fromJsonString(String jsonString, Class<T> valueType) {
-        try {
-            return (new ObjectMapper()).readValue(jsonString, valueType);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
-    }
 
 
     private JwtResponse login(String userName, String password) throws Exception {
         JwtRequest jwtRequest = new JwtRequest(userName, password);
         MvcResult result = mvc.perform(post("/auth/login")
-                .content(asJsonString(jwtRequest))
+                .content(JsonUtils.asJsonString(jwtRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        JwtResponse jwtResponse = fromJsonString(result.getResponse().getContentAsString(), JwtResponse.class);
+        JwtResponse jwtResponse = JsonUtils.fromJsonString(result.getResponse().getContentAsString(), JwtResponse.class);
         Assert.assertNotNull(jwtResponse);
         Assert.assertNotNull(jwtResponse.getToken());
         Assert.assertNotEquals(jwtResponse.getToken().getRefreshToken(), jwtResponse.getToken().getAccessToken());
@@ -86,11 +71,11 @@ public class AuthRestControllerTest {
 
     private JwtResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws Exception {
         MvcResult mvcResult = mvc.perform(post("/auth/refresh-token")
-                .content(asJsonString(refreshTokenRequest))
+                .content(JsonUtils.asJsonString(refreshTokenRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        JwtResponse jwtResponse = fromJsonString(mvcResult.getResponse().getContentAsString(), JwtResponse.class);
+        JwtResponse jwtResponse = JsonUtils.fromJsonString(mvcResult.getResponse().getContentAsString(), JwtResponse.class);
         Assert.assertNotNull(jwtResponse);
         Assert.assertNotNull(jwtResponse.getToken());
         return jwtResponse;
@@ -99,7 +84,7 @@ public class AuthRestControllerTest {
 
     private void refreshToken_NOK(RefreshTokenRequest refreshTokenRequest) throws Exception {
         mvc.perform(post("/auth/refresh-token")
-                .content(asJsonString(refreshTokenRequest))
+                .content(JsonUtils.asJsonString(refreshTokenRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(401));
 
@@ -184,7 +169,7 @@ public class AuthRestControllerTest {
         refreshTokenRequest.setToken(jwtResponse.getToken());
         // 6. trying to refresh with expired refresh token not ok
         mvc.perform(post("/auth/refresh-token")
-                .content(asJsonString(refreshTokenRequest))
+                .content(JsonUtils.asJsonString(refreshTokenRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(401));
     }
@@ -207,37 +192,45 @@ public class AuthRestControllerTest {
 
 
     @Test
-    @Sql({"/create_users_data.sql"})
-    @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void registerTest() throws Exception {
         User alreadyExistsUser = new User().user("olshanskyev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
         User notExistingAddressUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(111L));
         User addressAlreadyUsedUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
+        User nullAddressIdUser = new User().user("olshanskyevdev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(null));
         User okUser = new User().user("olshanskyevdev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(4L));
 
         mvc.perform(post("/auth/register")
-                .content(asJsonString(alreadyExistsUser))
+                .content(JsonUtils.asJsonString(alreadyExistsUser))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error", is("userAlreadyExists")));
 
         mvc.perform(post("/auth/register")
-                .content(asJsonString(notExistingAddressUser))
+                .content(JsonUtils.asJsonString(notExistingAddressUser))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error", is("notExistingAddress")));
 
         mvc.perform(post("/auth/register")
-                .content(asJsonString(addressAlreadyUsedUser))
+                .content(JsonUtils.asJsonString(addressAlreadyUsedUser))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error", is("addressAlreadyUsed")));
 
         mvc.perform(post("/auth/register")
-                .content(asJsonString(okUser))
+                .content(JsonUtils.asJsonString(nullAddressIdUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error", is("notExistingAddress")));
+
+        mvc.perform(post("/auth/register")
+                .content(JsonUtils.asJsonString(okUser))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

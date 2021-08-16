@@ -11,4 +11,5 @@ import java.util.Set;
 
 @Repository
 public interface DbRequestTypesRepository extends JpaRepository<RequestType, Long> {
+    List<RequestType> findByName(String name);
 }

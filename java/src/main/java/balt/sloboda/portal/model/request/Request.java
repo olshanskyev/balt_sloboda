@@ -1,12 +1,15 @@
 package balt.sloboda.portal.model.request;
 
 import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.model.converter.StringMapConverter;
+import balt.sloboda.portal.model.converter.StringSetConverter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name="REQUESTS")
@@ -23,7 +26,8 @@ public class Request {
     private String comment;
 
     @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = false)
-    private String paramValues; // in json {["parameterName":"parametervalue"], ...}
+    @Convert(converter = StringMapConverter.class)
+    private Map<String, String> paramValues; // in json {["parameterName":"parametervalue"], ...}
 
     @OneToOne
     @JoinColumn(name="REQUEST_TYPE_ID", nullable = false)
@@ -126,11 +130,11 @@ public class Request {
     }
 
 
-    public String getParamValues() {
+    public Map<String, String> getParamValues() {
         return paramValues;
     }
 
-    public Request paramValues(String paramValues) {
+    public Request paramValues(Map<String, String> paramValues) {
         this.paramValues = paramValues;
         return this;
     }
