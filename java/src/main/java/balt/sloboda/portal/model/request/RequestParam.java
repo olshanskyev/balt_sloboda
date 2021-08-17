@@ -27,6 +27,9 @@ public class RequestParam {
     @Column(name="OPTIONAL", nullable = false)
     private boolean optional = false;
 
+    @Column(name="DEFAULT_VALUE", columnDefinition="varchar(256)", nullable = true)
+    private String defaultValue = "";
+
     @Column(name="COMMENT", columnDefinition="varchar(128)", nullable = true)
     private String comment;
 
@@ -34,7 +37,7 @@ public class RequestParam {
         return id;
     }
 
-    public RequestParam id(Long id) {
+    public RequestParam setId(Long id) {
         this.id = id;
         return this;
     }
@@ -43,7 +46,7 @@ public class RequestParam {
         return requestType;
     }
 
-    public RequestParam requestType(RequestType requestType) {
+    public RequestParam setRequestType(RequestType requestType) {
         this.requestType = requestType;
         return this;
     }
@@ -52,7 +55,7 @@ public class RequestParam {
         return name;
     }
 
-    public RequestParam name(String name) {
+    public RequestParam setName(String name) {
         this.name = name;
         return this;
     }
@@ -61,7 +64,7 @@ public class RequestParam {
         return type;
     }
 
-    public RequestParam type(RequestParamType type) {
+    public RequestParam setType(RequestParamType type) {
         this.type = type;
         return this;
     }
@@ -70,7 +73,7 @@ public class RequestParam {
         return optional;
     }
 
-    public RequestParam optional(boolean optional) {
+    public RequestParam setOptional(boolean optional) {
         this.optional = optional;
         return this;
     }
@@ -79,8 +82,17 @@ public class RequestParam {
         return comment;
     }
 
-    public RequestParam comment(String comment) {
+    public RequestParam setComment(String comment) {
         this.comment = comment;
+        return this;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public RequestParam setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
         return this;
     }
 }

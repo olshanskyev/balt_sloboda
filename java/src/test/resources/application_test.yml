@@ -40,3 +40,15 @@ datasource:
      show_sql: true
      format_sql: true
      dialect: org.hibernate.dialect.H2Dialect
+admin-user:
+  user: admin@baltsloboda2.ru
+  password: $2a$10$Y9iceFh92PKUK5d2alIgzOeSy.Gg6kX6/o.Cn32ARH2H9whZaZ17K
+  firstName: admin
+  lastName: admin
+  roles:
+    -
+      ROLE_ADMIN
+  address:
+    street: Покровская
+    houseNumber: 1
+    plotNumber: 0

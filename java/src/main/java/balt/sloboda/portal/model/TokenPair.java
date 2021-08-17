@@ -17,12 +17,12 @@ public class TokenPair {
         return refreshToken;
     }
 
-    public TokenPair accessToken(String accessToken) {
+    public TokenPair setAccessToken(String accessToken) {
         this.accessToken = accessToken;
         return this;
     }
 
-    public TokenPair refreshToken(String refreshToken) {
+    public TokenPair setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
         return this;
     }

@@ -1,5 +1,6 @@
 package balt.sloboda.portal.configuration;
 
+import balt.sloboda.portal.model.User;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,12 @@ public class DBConfiguration {
 
     @Value("${datasource.maxPoolSize:10}")
     private int maxPoolSize;
+
+    @Bean(name = "adminUser")
+    @ConfigurationProperties(prefix = "admin-user")
+    User adminUser() {
+        return new User();
+    }
 
     @Bean
     @Primary

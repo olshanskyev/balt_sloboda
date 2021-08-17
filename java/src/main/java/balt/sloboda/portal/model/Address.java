@@ -25,7 +25,7 @@ public class Address {
         return street;
     }
 
-    public Address street(String street) {
+    public Address setStreet(String street) {
         this.street = street;
         return this;
     }
@@ -34,7 +34,7 @@ public class Address {
         return houseNumber;
     }
 
-    public Address houseNumber(int houseNumber) {
+    public Address setHouseNumber(int houseNumber) {
         this.houseNumber = houseNumber;
         return this;
     }
@@ -43,7 +43,7 @@ public class Address {
         return plotNumber;
     }
 
-    public Address plotNumber(int plotNumber) {
+    public Address setPlotNumber(int plotNumber) {
         this.plotNumber = plotNumber;
         return this;
     }
@@ -52,7 +52,7 @@ public class Address {
         return id;
     }
 
-    public Address id(Long id) {
+    public Address setId(Long id) {
         this.id = id;
         return this;
     }

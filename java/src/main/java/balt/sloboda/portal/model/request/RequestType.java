@@ -39,7 +39,7 @@ public class RequestType {
         return id;
     }
 
-    public RequestType id(Long id) {
+    public RequestType setId(Long id) {
         this.id = id;
         return this;
     }
@@ -48,7 +48,7 @@ public class RequestType {
         return durable;
     }
 
-    public RequestType durable(boolean durable) {
+    public RequestType setDurable(boolean durable) {
         this.durable = durable;
         return this;
     }
@@ -57,7 +57,7 @@ public class RequestType {
         return title;
     }
 
-    public RequestType title(String title) {
+    public RequestType setTitle(String title) {
         this.title = title;
         return this;
     }
@@ -66,9 +66,9 @@ public class RequestType {
         return parameters;
     }
 
-    public RequestType parameters(List<RequestParam> parameters) {
+    public RequestType setParameters(List<RequestParam> parameters) {
         this.parameters = parameters;
-        parameters.forEach(item -> item.requestType(this));
+        parameters.forEach(item -> item.setRequestType(this));
         return this;
     }
 
@@ -76,7 +76,7 @@ public class RequestType {
         return name;
     }
 
-    public RequestType name(String name) {
+    public RequestType setName(String name) {
         this.name = name;
         return this;
     }
@@ -85,7 +85,7 @@ public class RequestType {
         return roles;
     }
 
-    public RequestType roles(Set<Role> roles) {
+    public RequestType setRoles(Set<Role> roles) {
         this.roles = roles;
         return this;
     }

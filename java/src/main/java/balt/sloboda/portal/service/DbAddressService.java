@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +21,7 @@ public class DbAddressService {
         return dbAddressRepository.findAll();
     }
 
-    public Address createAddress(Address address){
+    public Address addAddress(Address address){
          return dbAddressRepository.save(address);
     }
 
@@ -32,8 +33,13 @@ public class DbAddressService {
         return dbAddressRepository.findAllByStreet(street);
     }
 
-    public Address getAddressById(Long id){
-        return dbAddressRepository.findAddressById(id).stream().findFirst().orElse(null);
+    public Optional<Address> getAddressById(Long id){
+        return dbAddressRepository.findAddressById(id).stream().findFirst();
+    }
+
+    public Optional<Address> getAddressByAddress(Address address){
+        return dbAddressRepository.findAddressByStreetAndHouseNumberAndPlotNumber(address.getStreet(), address.getHouseNumber(), address.getPlotNumber())
+                .stream().findFirst();
     }
 
 }

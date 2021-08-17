@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
@@ -22,26 +23,24 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName){
 
-        User user = userService.findByUserName(userName);
+        Optional<User> user = userService.findByUserName(userName);
 
         return new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 List<GrantedAuthority> list = new ArrayList<>();
-                if (user != null) {
-                    user.getRoles().forEach(item -> list.add((GrantedAuthority) item::toString));
-                }
+                user.ifPresent(value -> value.getRoles().forEach(item -> list.add((GrantedAuthority) item::toString)));
                 return list;
             }
 
             @Override
             public String getPassword() {
-                return (user != null)?user.getPassword(): null;
+                return user.map(User::getPassword).orElse(null);
             }
 
             @Override
             public String getUsername() {
-                return (user != null)?user.getUser(): null;
+                return user.map(User::getUser).orElse(null);
             }
 
             @Override

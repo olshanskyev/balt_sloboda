@@ -14,6 +14,7 @@ create table $DATABASE_SCHEMA.REQUEST_PARAMS (
 	TYPE varchar(64) not null,
 	OPTIONAL boolean not null,
 	COMMENT varchar(128),
+	DEFAULT_VALUE varchar(256),
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );

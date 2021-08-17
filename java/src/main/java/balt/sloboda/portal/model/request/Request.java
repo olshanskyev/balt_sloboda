@@ -61,7 +61,7 @@ public class Request {
         return id;
     }
 
-    public Request id(Long id) {
+    public Request setId(Long id) {
         this.id = id;
         return this;
     }
@@ -70,7 +70,7 @@ public class Request {
         return subject;
     }
 
-    public Request subject(String subject) {
+    public Request setSubject(String subject) {
         this.subject = subject;
         return this;
     }
@@ -79,7 +79,7 @@ public class Request {
         return comment;
     }
 
-    public Request comment(String comment) {
+    public Request setComment(String comment) {
         this.comment = comment;
         return this;
     }
@@ -96,7 +96,7 @@ public class Request {
         return lastModifiedBy;
     }
 
-    public Request lastModifiedBy(User lastModifiedBy) {
+    public Request setLastModifiedBy(User lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
         return this;
     }
@@ -106,7 +106,7 @@ public class Request {
         return type;
     }
 
-    public Request type(RequestType requestType) {
+    public Request setType(RequestType requestType) {
         this.type = requestType;
         return this;
     }
@@ -115,7 +115,7 @@ public class Request {
         return owner;
     }
 
-    public Request owner(User owner) {
+    public Request setOwner(User owner) {
         this.owner = owner;
         return this;
     }
@@ -124,7 +124,7 @@ public class Request {
         return status;
     }
 
-    public Request status(RequestStatus status) {
+    public Request setStatus(RequestStatus status) {
         this.status = status;
         return this;
     }
@@ -134,7 +134,7 @@ public class Request {
         return paramValues;
     }
 
-    public Request paramValues(Map<String, String> paramValues) {
+    public Request setParamValues(Map<String, String> paramValues) {
         this.paramValues = paramValues;
         return this;
     }

@@ -7,21 +7,28 @@ import balt.sloboda.portal.model.request.RequestType;
 
 import java.util.*;
 
-public class NewUserRequest {
+public class NewUserRequest implements PredefinedRequestType{
 
-    public static RequestType getRequestType(){
+    private final String name = "NewUserRequest";
+    @Override
+    public RequestType getRequestType(){
         return new RequestType()
-                .name("NewUserRequest")
-                .durable(true)
-                .title("New User Request")
-                .parameters(Arrays.asList(
-                        new RequestParam().name("user").optional(false).type(RequestParamType.STRING).comment("user"),
-                        new RequestParam().name("firstName").optional(false).type(RequestParamType.STRING).comment("firstName"),
-                        new RequestParam().name("lastName").optional(false).type(RequestParamType.STRING).comment("lastName"),
-                        new RequestParam().name("street").optional(false).type(RequestParamType.STRING).comment("street"),
-                        new RequestParam().name("houseNumber").optional(false).type(RequestParamType.INTEGER).comment("houseNumber"),
-                        new RequestParam().name("plotNumber").optional(false).type(RequestParamType.INTEGER).comment("plotNumber")
+                .setName(name)
+                .setDurable(true)
+                .setTitle("newUserRequest")
+                .setParameters(Arrays.asList(
+                        new RequestParam().setName("user").setOptional(false).setType(RequestParamType.STRING).setComment("user"),
+                        new RequestParam().setName("firstName").setOptional(false).setType(RequestParamType.STRING).setComment("firstName"),
+                        new RequestParam().setName("lastName").setOptional(false).setType(RequestParamType.STRING).setComment("lastName"),
+                        new RequestParam().setName("street").setOptional(false).setType(RequestParamType.STRING).setComment("street"),
+                        new RequestParam().setName("houseNumber").setOptional(false).setType(RequestParamType.INTEGER).setComment("houseNumber"),
+                        new RequestParam().setName("plotNumber").setOptional(false).setType(RequestParamType.INTEGER).setComment("plotNumber")
                 ))
-                .roles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));
+                .setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

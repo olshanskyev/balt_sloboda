@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -99,9 +100,9 @@ public class JwtTokenUtil implements Serializable {
 
     //validate token
     Boolean validateAcessToken(String token, UserDetails userDetails) {
-        Map.Entry<String, TokenPair> foundToken = usedTokens.entrySet().stream().filter
-                (item -> item.getValue().getAccessToken().equals(token)).findFirst().orElse(null);
-        if (foundToken == null) {
+        Optional<Map.Entry<String, TokenPair>> foundToken = usedTokens.entrySet().stream().filter
+                (item -> item.getValue().getAccessToken().equals(token)).findFirst();
+        if (!foundToken.isPresent()) {
             logger.warn("Access token not found in used tokens. Can be deleted via logout or new login");
             return false; // token previously not used or deleted via logout
         }
@@ -111,7 +112,7 @@ public class JwtTokenUtil implements Serializable {
         } catch (ExpiredJwtException exc) {
             // token expired
             // remove entry from used tokens
-            usedTokens.remove(foundToken.getKey());
+            usedTokens.remove(foundToken.get().getKey());
             logger.warn("Access token expired");
             return false;
         }
@@ -128,7 +129,7 @@ public class JwtTokenUtil implements Serializable {
         UserDetails userDetails = (UserDetails)authentication.getPrincipal();
         final String token = generateAccessToken(userDetails);
         final String refreshToken = generateRefreshToken(userDetails);
-        TokenPair tokenPair = new TokenPair().accessToken(token).refreshToken(refreshToken);
+        TokenPair tokenPair = new TokenPair().setAccessToken(token).setRefreshToken(refreshToken);
         usedTokens.put(userDetails.getUsername(), tokenPair);
         return new JwtResponse(tokenPair);
     }
@@ -150,9 +151,9 @@ public class JwtTokenUtil implements Serializable {
         String token = refreshTokenRequest.getToken().getRefreshToken();
         // start validating refresh token
         // 1. if not found in used tokens throw exception
-        Map.Entry<String, TokenPair> foundToken = usedTokens.entrySet().stream().filter
-                (item -> item.getValue().getRefreshToken().equals(token)).findFirst().orElse(null);
-        if (foundToken == null) {
+        Optional<Map.Entry<String, TokenPair>> foundToken = usedTokens.entrySet().stream().filter
+                (item -> item.getValue().getRefreshToken().equals(token)).findFirst();
+        if (!foundToken.isPresent()) {
             logger.warn("Refresh token is not in used list");
             throw new TokenRefreshException("Refresh token is not in used list"); // token previously not used or deleted via logout
         }
@@ -162,7 +163,7 @@ public class JwtTokenUtil implements Serializable {
         } catch (ExpiredJwtException exc) {
             // 2. token expired
             // remove entry from used tokens
-            usedTokens.remove(foundToken.getKey());
+            usedTokens.remove(foundToken.get().getKey());
             logger.warn("Refresh token expired");
             throw new TokenRefreshException("Refresh token expired");
         }
@@ -172,7 +173,7 @@ public class JwtTokenUtil implements Serializable {
                 usedTokenPair.getAccessToken().equals(refreshTokenRequest.getToken().getAccessToken())) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
             final String newToken = generateAccessToken(userDetails);
-            TokenPair tokenPair = new TokenPair().accessToken(newToken).refreshToken(refreshTokenRequest.getToken().getRefreshToken());
+            TokenPair tokenPair = new TokenPair().setAccessToken(newToken).setRefreshToken(refreshTokenRequest.getToken().getRefreshToken());
             usedTokens.put(usernameFromToken, tokenPair);
             return (new JwtResponse(tokenPair));
         } else { // // 3. access token in used set is not equal to token from refresh request

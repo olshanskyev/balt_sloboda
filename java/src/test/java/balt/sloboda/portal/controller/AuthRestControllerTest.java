@@ -5,7 +5,6 @@ import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.service.DbUserService;
 import balt.sloboda.portal.utils.JsonUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,11 +194,11 @@ public class AuthRestControllerTest {
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void registerTest() throws Exception {
-        User alreadyExistsUser = new User().user("olshanskyev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
-        User notExistingAddressUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(111L));
-        User addressAlreadyUsedUser = new User().user("test@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(1L));
-        User nullAddressIdUser = new User().user("olshanskyevdev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(null));
-        User okUser = new User().user("olshanskyevdev@gmail.com").firstName("Evgeny").lastName("Olshansky").address(new Address().id(4L));
+        User alreadyExistsUser = new User().setUser("olshanskyev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(102L));
+        User notExistingAddressUser = new User().setUser("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(111L));
+        User addressAlreadyUsedUser = new User().setUser("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(2L));
+        User nullAddressIdUser = new User().setUser("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(null));
+        User okUser = new User().setUser("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
 
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(alreadyExistsUser))

@@ -2,7 +2,6 @@ package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.Address;
-import balt.sloboda.portal.service.DbAddressService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +32,8 @@ public class DbAddressesServiceTest {
     public void getAddressesTest() {
         List<String> constAllStreets = Arrays.asList("Solnechnaya", "Pokrovskaya", "Svetlaya");
         List<Address> constSolnechnayaAddresses = Arrays.asList(
-                new Address().street("Solnechnaya").houseNumber(34).plotNumber(172),
-                new Address().street("Solnechnaya").houseNumber(32).plotNumber(171));
+                new Address().setStreet("Solnechnaya").setHouseNumber(34).setPlotNumber(172),
+                new Address().setStreet("Solnechnaya").setHouseNumber(32).setPlotNumber(171));
 
         List<Address> addresses = dbAddressService.selectAll();
         Assert.assertEquals(5, addresses.size());

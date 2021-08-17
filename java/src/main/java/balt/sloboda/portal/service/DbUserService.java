@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DbUserService {
@@ -32,16 +33,16 @@ public class DbUserService {
     }
 
     public boolean alreadyExists(User user){
-        User found = dbUserRepository.findByUser(user.getUser()).stream().findFirst().orElse(null);
-        return (found != null);
+        Optional<User> first = dbUserRepository.findByUser(user.getUser()).stream().findFirst();
+        return (first.isPresent());
     }
 
-    public User findByUserName(String userName){
-        return dbUserRepository.findByUser(userName).stream().findFirst().orElse(null);
+    public Optional<User> findByUserName(String userName){
+        return dbUserRepository.findByUser(userName).stream().findFirst();
     }
 
-    public User findById(Long id){
-       return dbUserRepository.findById(id).orElse(null);
+    public Optional<User> findById(Long id){
+       return dbUserRepository.findById(id);
     }
 
 

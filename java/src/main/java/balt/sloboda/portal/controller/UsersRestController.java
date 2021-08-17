@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/")
 public class UsersRestController {
@@ -36,8 +38,8 @@ public class UsersRestController {
     @RequestMapping(value="/management/users/{userName}", method = RequestMethod.GET)
     public ResponseEntity<?> getUserByName(@PathVariable String userName) throws Exception {
 
-        User found = dbUserService.findByUserName(userName);
-        if (found == null) {
+        Optional<User> found = dbUserService.findByUserName(userName);
+        if (!found.isPresent()) {
             return new ResponseEntity<>("User with name " + userName + " not found", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(found, HttpStatus.OK);

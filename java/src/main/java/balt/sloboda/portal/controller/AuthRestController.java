@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -64,12 +64,12 @@ public class AuthRestController {
         }
 
         if (user.getAddress() != null && user.getAddress().getId() != null) {
-            Address addressById = dbAddressService.getAddressById(user.getAddress().getId());
-            if (addressById != null){
-                if (dbUserService.addressAlreadyUsed(addressById.getId())) { //address used by another user
+            Optional<Address> addressById = dbAddressService.getAddressById(user.getAddress().getId());
+            if (addressById.isPresent()){
+                if (dbUserService.addressAlreadyUsed(addressById.get().getId())) { //address used by another user
                     return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", null), HttpStatus.CONFLICT);
                 }
-                user.address(addressById);
+                user.setAddress(addressById.get());
             } else {
                 // address not found
                 return new ResponseEntity<>(new ErrorResponse("notExistingAddress", null), HttpStatus.CONFLICT);
@@ -80,7 +80,7 @@ public class AuthRestController {
 
         try {
             dbRequestsService.createNewUserRequest(user);
-            JwtResponse jwtResponse = new JwtResponse((new TokenPair()).accessToken("").refreshToken("")); // empty jwtResponse
+            JwtResponse jwtResponse = new JwtResponse((new TokenPair()).setAccessToken("").setRefreshToken("")); // empty jwtResponse
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
         } catch (Exception ex){
             return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);

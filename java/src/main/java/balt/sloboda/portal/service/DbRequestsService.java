@@ -6,6 +6,7 @@ import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
+import balt.sloboda.portal.model.request.predefined.NewUserRequest;
 import balt.sloboda.portal.repository.DbRequestParamsRepository;
 import balt.sloboda.portal.repository.DbRequestTypesRepository;
 import balt.sloboda.portal.repository.DbRequestsRepository;
@@ -35,6 +36,9 @@ public class DbRequestsService {
     @Autowired
     private DbUserService dbUserService;
 
+    @Autowired
+    private User adminUser;
+
     // ================================== request types===========================
     public List<RequestType> getAllRequestTypes() {
         return dbRequestTypesRepository.findAll();
@@ -44,12 +48,12 @@ public class DbRequestsService {
         return dbRequestTypesRepository.findAll().stream().filter(item -> item.getRoles().contains(Role.ROLE_USER)).collect(Collectors.toList());
     }
 
-    public RequestType getRequestTypeByName(String requestTypeName){
-        return dbRequestTypesRepository.findByName(requestTypeName).stream().findFirst().orElse(null);
+    public Optional<RequestType> getRequestTypeByName(String requestTypeName){
+        return dbRequestTypesRepository.findByName(requestTypeName).stream().findFirst();
     }
 
     public boolean requestTypeAlreadyExists(RequestType requestType){
-        return getRequestTypeByName(requestType.getName()) != null;
+        return getRequestTypeByName(requestType.getName()).isPresent();
     }
 
     public RequestType saveRequestType(RequestType requestType){
@@ -79,6 +83,7 @@ public class DbRequestsService {
         return missingParameters;
     }
 
+
     public Request createNewUserRequest(User user){
         Map<String, String> paramValues = new HashMap<String, String>(){{
             put("user", user.getUser());
@@ -89,21 +94,22 @@ public class DbRequestsService {
             put("plotNumber", String.valueOf(user.getAddress().getPlotNumber()));
         }} ;
         // ToDo send mail
-        User adminUser = dbUserService.findByUserName("admin@baltsloboda2.ru"); // ToDo auto insert admin user
-        if (adminUser == null){
+        Optional<User> foundAdmin = dbUserService.findByUserName(adminUser.getUser());
+
+        if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-        // ToDo auto insert NewUserRequest
-        return createRequest("NewUserRequest", "Create New User", "User registration", paramValues, adminUser.getId(), adminUser.getId());
+
+        return createRequest((new NewUserRequest()).getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
     }
 
     public Request createRequest(String requestTypeName,
                                  String subject,
                                  String comment,
                                  Map<String, String> paramValues) {
-        User authorizedUser = dbUserService.findByUserName(webSecurityUtils.getAuthorizedUserName());
-        if (authorizedUser != null) {
-            return createRequest(requestTypeName, subject, comment, paramValues, authorizedUser.getId(), authorizedUser.getId());
+        Optional<User> authorizedUser = dbUserService.findByUserName(webSecurityUtils.getAuthorizedUserName());
+        if (authorizedUser.isPresent()) {
+            return createRequest(requestTypeName, subject, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
         } else {
             throw new RuntimeException("unauthorized");
         }
@@ -115,23 +121,23 @@ public class DbRequestsService {
                                   Map<String, String> paramValues,
                                   Long owner,
                                   Long lastModifyBy) {
-        RequestType requestType = getRequestTypeByName(requestTypeName);
-        if (requestType == null){
+        Optional<RequestType> requestType = getRequestTypeByName(requestTypeName);
+        if (!requestType.isPresent()){
             throw new DataIntegrityViolationException("requestTypeNotFound");
         }
-        List<String> missingParams = checkMandatoryParameters(paramValues, requestType);
+        List<String> missingParams = checkMandatoryParameters(paramValues, requestType.get());
         if (missingParams.size() > 0){
             throw new DataIntegrityViolationException("missingParameters");
         }
 
         Request newRequest = new Request()
-                .type(requestType)
-                .subject(subject)
-                .comment(comment)
-                .owner(new User().id(owner))
-                .lastModifiedBy(new User().id(lastModifyBy))
-                .paramValues(paramValues)
-                .status(RequestStatus.NEW);
+                .setType(requestType.get())
+                .setSubject(subject)
+                .setComment(comment)
+                .setOwner(new User().setId(owner))
+                .setLastModifiedBy(new User().setId(lastModifyBy))
+                .setParamValues(paramValues)
+                .setStatus(RequestStatus.NEW);
 
         return dbRequestsRepository.save(newRequest);
     }
