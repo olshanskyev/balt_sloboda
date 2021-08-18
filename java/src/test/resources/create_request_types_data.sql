@@ -4,7 +4,7 @@ INSERT INTO REQUEST_TYPES (id, DURABLE, NAME, TITLE, ROLES) VALUES
 ;
 
 INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE, OPTIONAL, COMMENT) VALUES
-('2', 'user', 'STRING', false, ''),
+('2', 'userName', 'STRING', false, ''),
 ('2', 'firstName', 'STRING', false, ''),
 ('2', 'lastName', 'STRING', false, ''),
 ('2', 'street', 'STRING', false, ''),
@@ -13,7 +13,7 @@ INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE, OPTIONAL, COMMENT) VALU
 ;
 
 INSERT INTO REQUESTS (PARAM_VALUES, STATUS, SUBJECT, LAST_MODIFIED_BY_ID, OWNER_ID, REQUEST_TYPE_ID) VALUES
-('{"user": "olshanskyev@gmail.com"}', 'NEW', 'Create New User', '1', '1', '2')
+('{"userName": "olshanskyev@gmail.com"}', 'NEW', 'Create New User', '1', '1', '2')
 ;
 
 

@@ -5,7 +5,7 @@ import { PagesComponent } from './pages.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 import { NewsComponent } from './news/news.component';
 import { PageAccessChecker } from '../auth/PageAccessChecker';
-import { UsersComponent } from './management/users/users.component';
+import { ResidentsComponent } from './management/residents/residents.component';
 
 const routes: Routes = [{
   path: '',
@@ -21,12 +21,12 @@ const routes: Routes = [{
       },
     },
     {
-      path: 'management/users',
-      component: UsersComponent,
+      path: 'management/residents',
+      component: ResidentsComponent,
       canActivate: [PageAccessChecker], // Check rights
       data: {
         permission: 'view_page',
-        resource: 'users',
+        resource: 'management/residents',
       },
     },
     {

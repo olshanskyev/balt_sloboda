@@ -78,7 +78,7 @@
 
 
   <div class="form-control-group">
-    <label class="label" for="select-street">{{ 'register.street' | translate }}:</label>
+    <label class="label" for="input-street">{{ 'register.street' | translate }}:</label>
 
     <nb-select *ngIf="streets"
       [(ngModel)]="selectedStreet"
@@ -93,6 +93,7 @@
       >
       <nb-option *ngFor="let itemStreet of streets" [value]="itemStreet">{{ itemStreet }}</nb-option>
     </nb-select>
+
     <ng-container *ngIf="!selectedStreet">
       <p class="caption status-danger">
         {{'register.selectStreet'|translate}}
@@ -102,7 +103,7 @@
 
 
   <div class="form-control-group">
-    <label class="label" for="select-street">{{ 'register.home' | translate }}:</label>
+    <label class="label" for="input-home">{{ 'register.home' | translate }}:</label>
 
     <nb-select
       [(ngModel)]="user.address"
@@ -131,7 +132,7 @@
   <div class="form-control-group">
     <label class="label" for="input-email">{{ 'login.email' | translate }}:</label>
     <input nbInput
-           [(ngModel)]="user.user"
+           [(ngModel)]="user.user.userName"
            #email="ngModel"
            id="input-email"
            name="email"

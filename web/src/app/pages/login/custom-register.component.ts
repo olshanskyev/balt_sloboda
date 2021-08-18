@@ -28,6 +28,9 @@ export class CustomRegisterComponent extends NbRegisterComponent {
     options['forms'].validation.fullName.minLength = 2;
     options['forms'].validation.fullName.maxLength = 32;
     options['forms'].validation.fullName.required = true;
+    this.user.user = {
+      userName: ''
+    };
 
     this.translations = translateService.translations[translateService.currentLang];
     this.toaster = new Toaster(toastrService);

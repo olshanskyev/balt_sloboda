@@ -1,3 +1,4 @@
+
 create table IF NOT EXISTS ADDRESSES (
    id  bigserial not null,
 	HOUSE_NUMBER int4 not null,
@@ -8,11 +9,11 @@ create table IF NOT EXISTS ADDRESSES (
 
 create table IF NOT EXISTS REQUEST_PARAMS (
    id  bigserial not null,
-	NAME varchar(64) not null,
-	TYPE varchar(64) not null,
-	OPTIONAL boolean not null,
 	COMMENT varchar(128),
 	DEFAULT_VALUE varchar(256),
+	NAME varchar(64) not null,
+	OPTIONAL boolean not null,
+	TYPE varchar(64) not null,
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -20,8 +21,8 @@ create table IF NOT EXISTS REQUEST_PARAMS (
 create table IF NOT EXISTS REQUEST_TYPES (
    id  bigserial not null,
 	DURABLE boolean not null,
-	ROLES varchar(255) not null,
 	NAME varchar(64) not null,
+	ROLES varchar(256) not null,
 	TITLE varchar(256) not null,
 	primary key (id)
 );
@@ -29,9 +30,9 @@ create table IF NOT EXISTS REQUEST_TYPES (
 create table IF NOT EXISTS REQUESTS (
    id  bigserial not null,
 	COMMENT varchar(512),
-	PARAM_VALUES varchar(512),
 	CREATION_DATE timestamp,
 	LAST_MODIFIED_DATE timestamp,
+	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
 	SUBJECT varchar(256) not null,
 	LAST_MODIFIED_BY_ID int8 not null,
@@ -40,20 +41,23 @@ create table IF NOT EXISTS REQUESTS (
 	primary key (id)
 );
 
-create table IF NOT EXISTS USERS (
+create table IF NOT EXISTS RESIDENTS (
    id  bigserial not null,
 	FIRST_NAME varchar(256) not null,
 	LAST_NAME varchar(256) not null,
-	PASSWORD varchar(256) not null,
-	ROLES varchar(256) not null,
-	USER_NAME varchar(256) not null,
 	ADDRESS_ID int8 not null,
+	USER_ID int8 not null,
 	primary key (id)
 );
 
-alter table REQUEST_TYPES
-   drop constraint IF EXISTS UK_k1ow2snhc3nl59v3kdwfbnh11;
 
+create table IF NOT EXISTS USERS (
+   id  bigserial not null,
+	PASSWORD varchar(256) not null,
+	ROLES varchar(256) not null,
+	USER_NAME varchar(256) not null,
+	primary key (id)
+);
 
 alter table REQUEST_TYPES
    add constraint IF NOT EXISTS UK_k1ow2snhc3nl59v3kdwfbnh11 unique (NAME);
@@ -74,11 +78,16 @@ alter table REQUESTS
    references USERS;
 
 alter table REQUESTS
-   add constraint IF NOT EXISTS FKd3u31aw9q2yw4iyma118g79gb
+   add constraint IF NOT EXISTS FKbnmklf2ehuv88h1ejpsphn8a5
    foreign key (REQUEST_TYPE_ID)
    references REQUEST_TYPES;
 
-alter table USERS
-   add constraint IF NOT EXISTS FKm7q0f31406tqqathdtcxkjv1t
+alter table RESIDENTS
+   add constraint IF NOT EXISTS FKq1ajexn440ss5h4lp3e5nw96j
    foreign key (ADDRESS_ID)
    references ADDRESSES;
+
+alter table RESIDENTS
+   add constraint IF NOT EXISTS FKmoksj6gw3xcn8phy205yrkaja
+   foreign key (USER_ID)
+   references USERS;

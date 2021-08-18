@@ -64,15 +64,21 @@ export class RussianLanguage {
                 badCredentials: 'Неверные логин/пароль',
                 addressAlreadyUsed: 'Адрес уже зарегистрирован за другим пользователем',
                 notExistingAddress: 'Адрес не существует',
+                newUserRequestAlreadyExists: 'Запрос на регистрацию для пользователя {{user}} уже отправлен',
+                userInfoNotFound: 'Информация о пользователе {{user}} не найдена',
             },
-            usersPage: {
-                users: 'Жители',
+            residentsPage: {
+                residents: 'Жители',
                 user: 'Имя пользователя',
                 newRequests: 'Новые заявки',
                 count: 'Всего',
                 firstName: 'Имя',
                 lastName: 'Фамилия',
-
+                address: 'Адрес',
+                st: 'ул.',
+                h: 'д.',
+                pl: 'уч.',
+                status: 'Состояние заявки',
             },
         };
     }

@@ -17,7 +17,7 @@ public class NewUserRequest implements PredefinedRequestType{
                 .setDurable(true)
                 .setTitle("newUserRequest")
                 .setParameters(Arrays.asList(
-                        new RequestParam().setName("user").setOptional(false).setType(RequestParamType.STRING).setComment("user"),
+                        new RequestParam().setName("userName").setOptional(false).setType(RequestParamType.STRING).setComment("userName"),
                         new RequestParam().setName("firstName").setOptional(false).setType(RequestParamType.STRING).setComment("firstName"),
                         new RequestParam().setName("lastName").setOptional(false).setType(RequestParamType.STRING).setComment("lastName"),
                         new RequestParam().setName("street").setOptional(false).setType(RequestParamType.STRING).setComment("street"),

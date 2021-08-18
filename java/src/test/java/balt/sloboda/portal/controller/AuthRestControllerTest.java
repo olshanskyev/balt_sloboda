@@ -3,14 +3,18 @@ package balt.sloboda.portal.controller;
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.service.DbUserService;
+import balt.sloboda.portal.service.EmailService;
 import balt.sloboda.portal.utils.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -42,9 +46,6 @@ public class AuthRestControllerTest {
     private long ACCESS_TOKEN_VALIDITY;
     @Value("${jwt.refreshTokenValidity}")
     private long REFRESH_TOKEN_VALIDITY;
-
-
-
 
     private JwtResponse login(String userName, String password) throws Exception {
         JwtRequest jwtRequest = new JwtRequest(userName, password);
@@ -174,7 +175,7 @@ public class AuthRestControllerTest {
     }
 
 
-
+    //ToDo use mock MailSender
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -190,15 +191,19 @@ public class AuthRestControllerTest {
     }
 
 
+    @Autowired
+    private EmailService emailService;
+
     @Test
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void registerTest() throws Exception {
-        User alreadyExistsUser = new User().setUser("olshanskyev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(102L));
-        User notExistingAddressUser = new User().setUser("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(111L));
-        User addressAlreadyUsedUser = new User().setUser("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(2L));
-        User nullAddressIdUser = new User().setUser("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(null));
-        User okUser = new User().setUser("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
+
+        Resident alreadyExistsUser = new Resident().setUser(new User().setUserName("olshanskyev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(102L));
+        Resident notExistingAddressUser = new Resident().setUser(new User().setUserName("test@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(111L));
+        Resident addressAlreadyUsedUser = new Resident().setUser(new User().setUserName("test@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(2L));
+        Resident nullAddressIdUser = new Resident().setUser(new User().setUserName("olshanskyevdev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(null));
+        Resident okUser = new Resident().setUser(new User().setUserName("olshanskyevdev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
 
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(alreadyExistsUser))
@@ -228,10 +233,18 @@ public class AuthRestControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error", is("notExistingAddress")));
 
+        Mockito.doNothing().when(emailService).sendUserRegistrationRequestConfirmation(okUser.getUser().getUserName());
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(okUser))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        mvc.perform(post("/auth/register")
+                .content(JsonUtils.asJsonString(okUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error", is("newUserRequestAlreadyExists")));
     }
 
 

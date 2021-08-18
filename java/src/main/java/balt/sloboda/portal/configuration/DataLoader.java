@@ -37,14 +37,6 @@ public class DataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         if (!dbUserService.alreadyExists(adminUser)){
-            Address adminAddress = adminUser.getAddress();
-            Optional<Address> found = dbAddressService.getAddressByAddress(adminAddress);
-            if (found.isPresent()){
-                adminUser.setAddress(found.get()); // update with found
-            } else {
-                adminAddress = dbAddressService.addAddress(adminAddress);
-                adminUser.setAddress(adminAddress); //update with inserted id
-            }
             dbUserService.createUser(adminUser); //save user
         }
         // create NewUserRequest RequestType

@@ -14,11 +14,6 @@ export class UserService extends UserServiceData {
     super();
   }
 
-  getAllUsers(): Observable<User[]> {
-    const _endpoint = this.uri +  '/management/users';
-    return this._http.get<User[]>(_endpoint);
-  }
-
   getUserByName(userName: string): Observable<User> {
     const _endpoint = this.uri +  '/management/users/' + userName;
     return this._http.get<User>(_endpoint);

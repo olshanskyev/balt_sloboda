@@ -1,8 +1,10 @@
 package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.*;
+import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.service.DbAddressService;
 import balt.sloboda.portal.service.DbRequestsService;
+import balt.sloboda.portal.service.DbResidentService;
 import balt.sloboda.portal.service.DbUserService;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
@@ -36,6 +38,9 @@ public class AuthRestController {
     private DbRequestsService dbRequestsService;
 
     @Autowired
+    private DbResidentService dbResidentService;
+
+    @Autowired
     private JwtTokenUtil tokenUtil;
 
 
@@ -56,20 +61,20 @@ public class AuthRestController {
 
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> register(@RequestBody User user) { //ToDo real request and processing
-        if (dbUserService.alreadyExists(user)){
+    public ResponseEntity<?> register(@RequestBody Resident resident) {
+        if (dbUserService.alreadyExists(resident.getUser())){
             return new ResponseEntity<>(new ErrorResponse("userAlreadyExists", new HashMap<String, String>() {{
-                put("user", user.getUser());
+                put("user", resident.getUser().getUserName());
             }}), HttpStatus.CONFLICT);
         }
 
-        if (user.getAddress() != null && user.getAddress().getId() != null) {
-            Optional<Address> addressById = dbAddressService.getAddressById(user.getAddress().getId());
+        if (resident.getAddress() != null && resident.getAddress().getId() != null) {
+            Optional<Address> addressById = dbAddressService.getAddressById(resident.getAddress().getId());
             if (addressById.isPresent()){
-                if (dbUserService.addressAlreadyUsed(addressById.get().getId())) { //address used by another user
+                if (dbResidentService.addressAlreadyUsed(addressById.get().getId())) { //address used by another user
                     return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", null), HttpStatus.CONFLICT);
                 }
-                user.setAddress(addressById.get());
+                resident.setAddress(addressById.get());
             } else {
                 // address not found
                 return new ResponseEntity<>(new ErrorResponse("notExistingAddress", null), HttpStatus.CONFLICT);
@@ -79,7 +84,12 @@ public class AuthRestController {
         }
 
         try {
-            dbRequestsService.createNewUserRequest(user);
+            if (dbRequestsService.newUserRequestAlreadyExists(resident)) {
+                return new ResponseEntity<>(new ErrorResponse("newUserRequestAlreadyExists", new HashMap<String, String>() {{
+                    put("user", resident.getUser().getUserName());
+                }}), HttpStatus.CONFLICT);
+            }
+            dbRequestsService.createNewUserRequest(resident);
             JwtResponse jwtResponse = new JwtResponse((new TokenPair()).setAccessToken("").setRefreshToken("")); // empty jwtResponse
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
         } catch (Exception ex){

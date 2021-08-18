@@ -1,0 +1,19 @@
+<nb-card>
+
+  <nb-card-body>
+    <nb-tabset>
+      <nb-tab tabTitle="{{'residentsPage.residents'|translate}}">
+        <ng2-smart-table [settings]="settings" [source]="source">
+        </ng2-smart-table>
+        {{'residentsPage.count'|translate}}: <b>{{count}}</b>
+
+      </nb-tab>
+      <nb-tab tabTitle="{{'residentsPage.newRequests'|translate}}">
+        <ng2-smart-table [settings]="settingsRequests" [source]="sourceRequests">
+        </ng2-smart-table>
+        {{'residentsPage.count'|translate}}: <b>{{countRequests}}</b>
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+</nb-card>

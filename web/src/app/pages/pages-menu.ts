@@ -38,10 +38,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Users',
     icon: 'people-outline',
-    link: '/pages/management/users',
+    link: '/pages/management/residents',
     data: {
       permission: 'view_page',
-      resource: 'management/users',
+      resource: 'management/residents',
     },
   },
   {

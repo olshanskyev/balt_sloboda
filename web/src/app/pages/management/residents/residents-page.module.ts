@@ -6,7 +6,7 @@ import {
   NbCardModule, NbTabsetModule,
 } from '@nebular/theme';
 
-import { UsersComponent } from './users.component';
+import { ResidentsComponent } from './residents.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 
@@ -19,7 +19,7 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     Ng2SmartTableModule,
   ],
   declarations: [
-    UsersComponent,
+    ResidentsComponent,
   ],
 })
-export class UsersPageModule { }
+export class ResidentsPageModule { }

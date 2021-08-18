@@ -10,11 +10,11 @@ create table $DATABASE_SCHEMA.ADDRESSES (
     
 create table $DATABASE_SCHEMA.REQUEST_PARAMS (
    id  bigserial not null,
-	NAME varchar(64) not null,
-	TYPE varchar(64) not null,
-	OPTIONAL boolean not null,
 	COMMENT varchar(128),
 	DEFAULT_VALUE varchar(256),
+	NAME varchar(64) not null,
+	OPTIONAL boolean not null,
+	TYPE varchar(64) not null,
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -22,8 +22,8 @@ create table $DATABASE_SCHEMA.REQUEST_PARAMS (
 create table $DATABASE_SCHEMA.REQUEST_TYPES (
    id  bigserial not null,
 	DURABLE boolean not null,
-	ROLES varchar(255) not null,
 	NAME varchar(64) not null,
+	ROLES varchar(256) not null,
 	TITLE varchar(256) not null,
 	primary key (id)
 );
@@ -31,9 +31,9 @@ create table $DATABASE_SCHEMA.REQUEST_TYPES (
 create table $DATABASE_SCHEMA.REQUESTS (
    id  bigserial not null,
 	COMMENT varchar(512),
-	PARAM_VALUES varchar(512),
 	CREATION_DATE timestamp,
 	LAST_MODIFIED_DATE timestamp,
+	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
 	SUBJECT varchar(256) not null,
 	LAST_MODIFIED_BY_ID int8 not null,
@@ -42,17 +42,24 @@ create table $DATABASE_SCHEMA.REQUESTS (
 	primary key (id)
 );
     
-create table $DATABASE_SCHEMA.USERS (
+create table $DATABASE_SCHEMA.RESIDENTS (
    id  bigserial not null,
 	FIRST_NAME varchar(256) not null,
 	LAST_NAME varchar(256) not null,
+	ADDRESS_ID int8 not null,
+	USER_ID int8 not null,
+	primary key (id)
+);
+
+    
+create table $DATABASE_SCHEMA.USERS (
+   id  bigserial not null,
 	PASSWORD varchar(256) not null,
 	ROLES varchar(256) not null,
 	USER_NAME varchar(256) not null,
-	ADDRESS_ID int8 not null,
 	primary key (id)
 );
-       
+    
 alter table $DATABASE_SCHEMA.REQUEST_TYPES 
    add constraint UK_k1ow2snhc3nl59v3kdwfbnh11 unique (NAME);
     
@@ -72,11 +79,16 @@ alter table $DATABASE_SCHEMA.REQUESTS
    references $DATABASE_SCHEMA.USERS;
     
 alter table $DATABASE_SCHEMA.REQUESTS 
-   add constraint FKd3u31aw9q2yw4iyma118g79gb 
+   add constraint FKbnmklf2ehuv88h1ejpsphn8a5 
    foreign key (REQUEST_TYPE_ID) 
    references $DATABASE_SCHEMA.REQUEST_TYPES;
     
-alter table $DATABASE_SCHEMA.USERS 
-   add constraint FKm7q0f31406tqqathdtcxkjv1t 
+alter table $DATABASE_SCHEMA.RESIDENTS 
+   add constraint FKq1ajexn440ss5h4lp3e5nw96j 
    foreign key (ADDRESS_ID) 
    references $DATABASE_SCHEMA.ADDRESSES;
+    
+alter table $DATABASE_SCHEMA.RESIDENTS 
+   add constraint FKmoksj6gw3xcn8phy205yrkaja 
+   foreign key (USER_ID) 
+   references $DATABASE_SCHEMA.USERS;

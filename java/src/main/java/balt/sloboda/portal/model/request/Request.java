@@ -22,10 +22,10 @@ public class Request {
     @Column(name="SUBJECT", columnDefinition="varchar(256)", nullable = false)
     private String subject;
 
-    @Column(name="COMMENT", columnDefinition="varchar(512)", nullable = false)
+    @Column(name="COMMENT", columnDefinition="varchar(512)", nullable = true)
     private String comment;
 
-    @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = false)
+    @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = true)
     @Convert(converter = StringMapConverter.class)
     private Map<String, String> paramValues; // in json {["parameterName":"parametervalue"], ...}
 

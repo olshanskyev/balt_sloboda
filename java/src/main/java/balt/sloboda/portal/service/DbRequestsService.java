@@ -1,5 +1,6 @@
 package balt.sloboda.portal.service;
 
+import balt.sloboda.portal.model.Resident;
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.Request;
@@ -37,6 +38,9 @@ public class DbRequestsService {
     private DbUserService dbUserService;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private User adminUser;
 
     // ================================== request types===========================
@@ -66,11 +70,20 @@ public class DbRequestsService {
         return dbRequestsRepository.findByTypeName(requestTypeName);
     }
 
+    public List<Request> getAllRequestByStatus(RequestStatus status){
+        return dbRequestsRepository.findByStatus(status);
+    }
+
+    public List<Request> getAllRequestByStatusAndType(RequestStatus status, String requestTypeName){
+        return dbRequestsRepository.findByStatusAndTypeName(status, requestTypeName);
+    }
+
+
     public List<Request> getAllRequests(){
         return dbRequestsRepository.findAll();
     }
     public List<Request> getAllCurrentUserRequests(){
-        return dbRequestsRepository.findByOwnerUser(webSecurityUtils.getAuthorizedUserName());
+        return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
     }
 
     private List<String> checkMandatoryParameters(Map<String, String> paramValues, RequestType requestType) {
@@ -84,23 +97,24 @@ public class DbRequestsService {
     }
 
 
-    public Request createNewUserRequest(User user){
+    public Request createNewUserRequest(Resident resident){
         Map<String, String> paramValues = new HashMap<String, String>(){{
-            put("user", user.getUser());
-            put("firstName", user.getFirstName());
-            put("lastName", user.getLastName());
-            put("street", user.getAddress().getStreet());
-            put("houseNumber", String.valueOf(user.getAddress().getHouseNumber()));
-            put("plotNumber", String.valueOf(user.getAddress().getPlotNumber()));
+            put("userName", resident.getUser().getUserName());
+            put("firstName", resident.getFirstName());
+            put("lastName", resident.getLastName());
+            put("street", resident.getAddress().getStreet());
+            put("houseNumber", String.valueOf(resident.getAddress().getHouseNumber()));
+            put("plotNumber", String.valueOf(resident.getAddress().getPlotNumber()));
         }} ;
-        // ToDo send mail
-        Optional<User> foundAdmin = dbUserService.findByUserName(adminUser.getUser());
+        Optional<User> foundAdmin = dbUserService.findByUserName(adminUser.getUserName());
 
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-
-        return createRequest((new NewUserRequest()).getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        Request createdRequest = createRequest((new NewUserRequest()).getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        // send confirmation mail
+        emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
+        return createdRequest;
     }
 
     public Request createRequest(String requestTypeName,
@@ -140,6 +154,16 @@ public class DbRequestsService {
                 .setStatus(RequestStatus.NEW);
 
         return dbRequestsRepository.save(newRequest);
+    }
+
+    public boolean newUserRequestAlreadyExists(Resident resident) {
+        List<Request> byTypeName = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName());
+        Optional<Request> found = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName()).stream()
+                .filter(item -> {
+                    String userName = item.getParamValues().get("userName");
+                    return userName != null && userName.equals(resident.getUser().getUserName());
+                }).findFirst();
+        return found.isPresent();
     }
     // ================================== requests ===============================
 

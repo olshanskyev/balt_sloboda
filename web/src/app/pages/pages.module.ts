@@ -7,7 +7,7 @@ import { PagesRoutingModule } from './pages-routing.module';
 import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
 import { NewsPageModule } from './news/news-page.module';
 import { CustomLoginModule } from './login/custom-login.module';
-import { UsersPageModule } from './management/users/users-page.module';
+import { ResidentsPageModule } from './management/residents/residents-page.module';
 
 
 @NgModule({
@@ -18,7 +18,7 @@ import { UsersPageModule } from './management/users/users-page.module';
     MiscellaneousModule,
     NewsPageModule,
     CustomLoginModule,
-    UsersPageModule,
+    ResidentsPageModule,
   ],
   declarations: [
     PagesComponent,

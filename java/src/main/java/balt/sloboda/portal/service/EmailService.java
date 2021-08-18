@@ -1,6 +1,7 @@
 package balt.sloboda.portal.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class EmailService {
     }
 
     public void sendUserRegistrationRequestConfirmation(String to) {
-        sendMail(to, "Запрос на регистрацию получен", "Ваш запрос на регистрацию на портале Балтийская Слобода 2 получен. Ожидайте письма с дальнейшими инструкциями");
+        sendMail(to, "Запрос на регистрацию получен", "Ваш запрос на регистрацию на портале Балтийская Слобода 2 получен. Ожидайте письмо с дальнейшими инструкциями.");
     }
 
 }

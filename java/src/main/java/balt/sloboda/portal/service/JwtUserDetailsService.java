@@ -40,7 +40,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
             @Override
             public String getUsername() {
-                return user.map(User::getUser).orElse(null);
+                return user.map(User::getUserName).orElse(null);
             }
 
             @Override

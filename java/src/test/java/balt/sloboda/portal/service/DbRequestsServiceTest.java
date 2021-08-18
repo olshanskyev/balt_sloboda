@@ -45,5 +45,6 @@ public class DbRequestsServiceTest {
         List<Request> newUserRequest = dbRequestsService.getAllRequestByType("NewUserRequest");
         Assert.assertEquals(1, newUserRequest.size());
 
+        // ToDo request by status and type
     }
 }

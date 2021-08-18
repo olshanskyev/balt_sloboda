@@ -1,14 +1,11 @@
 package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.Application;
-import balt.sloboda.portal.model.Address;
+import balt.sloboda.portal.model.Resident;
+import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
-import balt.sloboda.portal.service.DbAddressService;
-import balt.sloboda.portal.service.DbUserService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,26 +30,31 @@ public class DbUserServiceTest {
     @Autowired
     private DbAddressService dbAddressService;
 
+    @Autowired
+    private DbResidentService dbResidentService;
+
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void getAllUsers() {
 
-        List<User> all = dbUserService.selectAll();
+        List<User> all = dbUserService.selectAllUsers();
         Assert.assertEquals(2, all.size());
-        User olshanskyev = all.stream().filter(item -> item.getUser().equals("olshanskyev@gmail.com")).findFirst().orElseThrow(RuntimeException::new);
-        Assert.assertEquals(172, olshanskyev.getAddress().getPlotNumber());
-        User admin = all.stream().filter(item -> item.getUser().equals("admin@baltsloboda2.ru")).findFirst().orElseThrow(RuntimeException::new);
-        Assert.assertEquals(0, admin.getAddress().getPlotNumber());
+        User olshanskyev = all.stream().filter(item -> item.getUserName().equals("olshanskyev@gmail.com")).findFirst().orElseThrow(RuntimeException::new);
+        Assert.assertTrue(olshanskyev.getRoles().contains(Role.ROLE_USER) && !olshanskyev.getRoles().contains(Role.ROLE_ADMIN));
+        User admin = all.stream().filter(item -> item.getUserName().equals("admin@baltsloboda2.ru")).findFirst().orElseThrow(RuntimeException::new);
+        Assert.assertTrue(admin.getRoles().contains(Role.ROLE_ADMIN));
     }
+
+    //ToDo add addresses and resident tests
 
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void addressAlreadyUsed() {
-        List<User> all = dbUserService.selectAll();
-        Assert.assertTrue(dbUserService.addressAlreadyUsed(all.get(0).getAddress().getId()));
-        Assert.assertFalse(dbUserService.addressAlreadyUsed(1111L));
+        List<Resident> all = dbResidentService.selectAllResidents();
+        Assert.assertTrue(dbResidentService.addressAlreadyUsed(all.get(0).getAddress().getId()));
+        Assert.assertFalse(dbResidentService.addressAlreadyUsed(1111L));
     }
 
 }
