@@ -55,7 +55,7 @@ export class ResidentsComponent {
       this.count = res.length;
     }, err => {
       this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetUsers,
-           `${err.error}. ${this.translations.errors.errorCode}: ${err.status}`);
+           '');
     });
 
     requestsService.getAllNewUserRequests().subscribe(
@@ -63,6 +63,9 @@ export class ResidentsComponent {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
         this.newUserRequestsChanged.emit(this.countRequests);
+      },  err => {
+        this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetRequests,
+             '');
       }
     );
 

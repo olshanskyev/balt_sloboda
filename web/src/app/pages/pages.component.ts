@@ -31,10 +31,11 @@ export class PagesComponent implements OnInit {
     this.menu.forEach(item => {
       this.authMenuItem(item);
     });
+
     //update badge values
     this.residentsComponent.getNewUserRequestsValueChanged().subscribe(
       res => {
-        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0];
+        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0]; //ToDo not subscribes for the first time
         menuItem.badge = {
           text: res.toString(),
           status: 'primary',

@@ -42,7 +42,7 @@ export class AddressesComponent {
       this.count = res.length;
     }, err => {
       this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetAddresses,
-           `${err.error}. ${this.translations.errors.errorCode}: ${err.status}`);
+           '');
     });
 
   }

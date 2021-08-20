@@ -43,6 +43,9 @@ public class RequestsService {
     @Autowired
     private User adminUser;
 
+    @Autowired
+    private NewUserRequest newUserRequest;
+
     // ================================== request types===========================
     public List<RequestType> getAllRequestTypes() {
         return dbRequestTypesRepository.findAll();
@@ -84,7 +87,7 @@ public class RequestsService {
     }
 
     public Optional<Request> getNewUserRequestByUser(String userName){
-        return getAllRequestByStatusAndType(RequestStatus.NEW, (new NewUserRequest().getName())).stream()
+        return getAllRequestByStatusAndType(RequestStatus.NEW, (newUserRequest.getName())).stream()
         .filter(item -> item.getParamValues().get("userName") != null && item.getParamValues().get("userName").equals(userName)).findFirst();
     }
 
@@ -104,20 +107,13 @@ public class RequestsService {
 
 
     public Request createNewUserRequest(NewUserRequestParams newUserRequestParams){
-        Map<String, String> paramValues = new HashMap<String, String>(){{
-            put("userName", newUserRequestParams.getUserName());
-            put("firstName", newUserRequestParams.getFirstName());
-            put("lastName", newUserRequestParams.getLastName());
-            put("street", newUserRequestParams.getAddress().getStreet());
-            put("houseNumber", String.valueOf(newUserRequestParams.getAddress().getHouseNumber()));
-            put("plotNumber", String.valueOf(newUserRequestParams.getAddress().getPlotNumber()));
-        }} ;
+        Map<String, String> paramValues = newUserRequestParams.buildValuesMap();
         Optional<User> foundAdmin = userService.findByUserName(adminUser.getUserName());
 
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-        Request createdRequest = createRequest((new NewUserRequest()).getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        Request createdRequest = createRequest(newUserRequest.getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
         // send confirmation mail
         emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
         return createdRequest;
@@ -131,7 +127,7 @@ public class RequestsService {
         if (authorizedUser.isPresent()) {
             return createRequest(requestTypeName, subject, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
         } else {
-            throw new RuntimeException("unauthorized");
+            throw new RuntimeException("Unauthorized");
         }
     }
 
@@ -163,14 +159,19 @@ public class RequestsService {
     }
 
     public boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
-        //List<Request> byTypeName = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName());
-        Optional<Request> found = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName()).stream()
+        Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequest.getName()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");
                     return userName != null && userName.equals(newUserRequestParams.getUserName());
                 }).findFirst();
         return found.isPresent();
     }
+
+
+    public void updateRequest(Request request) {
+        dbRequestsRepository.save(request);
+    }
+
     // ================================== requests ===============================
 
     // ================================== request params =========================

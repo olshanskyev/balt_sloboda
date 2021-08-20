@@ -174,7 +174,6 @@ public class AuthRestControllerTest {
     }
 
 
-    //ToDo use mock MailSender
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)

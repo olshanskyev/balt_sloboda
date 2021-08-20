@@ -49,7 +49,7 @@ export class CustomRegisterComponent extends NbRegisterComponent {
         this.addressesOnStreet = res;
       }, err => {
         this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetAddresses,
-          `${err.message}. ${this.translations.errors.errorCode}: ${err.status}`);
+          '');
       }
     );
   }

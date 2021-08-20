@@ -65,6 +65,7 @@ public class UserRestControllerTest {
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(3)));
+        // ToDo check status
 
     }
 

@@ -5,6 +5,7 @@ import balt.sloboda.portal.model.Resident;
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.Request;
+import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.repository.DbAddressRepository;
 import balt.sloboda.portal.repository.DbResidentRepository;
 import balt.sloboda.portal.repository.DbUserRepository;
@@ -86,6 +87,8 @@ public class UserService {
                     .setLastName(request.get().getParamValues().get("lastName"))
                     .setUser(user)
                     .setAddress(address));
+            request.get().setStatus(RequestStatus.CLOSED);
+            requestsService.updateRequest(request.get());
             emailService.sendUserRegistrationRequestConfirmation(userName);
         } else {
             throw new RuntimeException("newUserRequestNotFound");

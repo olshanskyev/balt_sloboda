@@ -20,7 +20,7 @@ public class EmailService {
         javaMailSender.send(msg);
     }
 
-    public void sendUserRegistrationRequestConfirmation(String to) {
+    public void sendUserRegistrationRequestConfirmation(String to) { //ToDo build link
         sendMail(to, "Запрос на регистрацию получен", "Ваш запрос на регистрацию на портале Балтийская Слобода 2 получен. Ожидайте письмо с дальнейшими инструкциями.");
     }
 

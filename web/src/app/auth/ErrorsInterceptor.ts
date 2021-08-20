@@ -43,7 +43,6 @@ export class ErrorsInterceptor implements HttpInterceptor{
                     this.translateService.translations[this.translateService.currentLang].errors.error,
                      res);
                 });
-
                 return throwError(err);
             }));
 
