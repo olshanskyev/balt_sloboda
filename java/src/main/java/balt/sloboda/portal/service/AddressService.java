@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class DbAddressService {
+public class AddressService {
 
     @Autowired
     private DbAddressRepository dbAddressRepository;

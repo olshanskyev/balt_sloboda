@@ -23,26 +23,26 @@ import java.util.List;
         "spring.config.location = classpath:application_test.yml",
 })
 @ActiveProfiles("test")
-public class DbRequestsServiceTest {
+public class RequestsServiceTest {
 
     @Autowired
-    private DbRequestsService dbRequestsService;
+    private RequestsService requestsService;
 
     @Test
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void getAllRequestsTest() {
-        List<RequestType> allRequestTypes = dbRequestsService.getAllRequestTypes();
+        List<RequestType> allRequestTypes = requestsService.getAllRequestTypes();
         Assert.assertEquals(2, allRequestTypes.size());
-        List<RequestType> availableForUser = dbRequestsService.getRequestTypesAvailableForUser();
+        List<RequestType> availableForUser = requestsService.getRequestTypesAvailableForUser();
         Assert.assertEquals(1, availableForUser.size());
         availableForUser.
                 forEach(item -> Assert.assertTrue(item.getRoles().contains(Role.ROLE_USER)));
 
-        List<RequestParam> paramsByRequestType = dbRequestsService.getParamsByRequestType("NewUserRequest");
+        List<RequestParam> paramsByRequestType = requestsService.getParamsByRequestType("NewUserRequest");
         Assert.assertEquals(6, paramsByRequestType.size());
 
-        List<Request> newUserRequest = dbRequestsService.getAllRequestByType("NewUserRequest");
+        List<Request> newUserRequest = requestsService.getAllRequestByType("NewUserRequest");
         Assert.assertEquals(1, newUserRequest.size());
 
         // ToDo request by status and type

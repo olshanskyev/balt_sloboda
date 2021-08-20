@@ -56,6 +56,7 @@ create table IF NOT EXISTS USERS (
 	PASSWORD varchar(256) not null,
 	ROLES varchar(256) not null,
 	USER_NAME varchar(256) not null,
+	PASSWORD_RESET_TOKEN varchar(256),
 	primary key (id)
 );
 

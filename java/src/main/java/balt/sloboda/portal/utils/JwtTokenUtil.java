@@ -37,6 +37,9 @@ public class JwtTokenUtil implements Serializable {
     @Value("${jwt.refreshTokenValidity}")
     private long REFRESH_TOKEN_VALIDITY;
 
+    @Value("${jwt.passwordResetTokenValidity}")
+    private long PASSWORD_RESET_TOKEN_VALIDITY;
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -81,6 +84,7 @@ public class JwtTokenUtil implements Serializable {
     private String generateRefreshToken(UserDetails userDetails) {
         return doGenerateJwtToken(new HashMap<>(), userDetails.getUsername(), REFRESH_TOKEN_VALIDITY * 1000);
     }
+
 
 
     //while creating the token -
@@ -182,6 +186,11 @@ public class JwtTokenUtil implements Serializable {
             throw new TokenRefreshException("Cannot refresh Access Token. Stored access token do not correlate with in request presented token");
         }
 
+    }
+
+    public String generatePasswordResetToken(String userName) {
+        Map<String, Object> claims = new HashMap<>();
+        return doGenerateJwtToken(claims, userName, PASSWORD_RESET_TOKEN_VALIDITY * 1000);
     }
 
 

@@ -2,6 +2,7 @@ package balt.sloboda.portal.model.request;
 
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.converter.StringSetConverter;
+import balt.sloboda.portal.model.request.type.RequestTypeParams;
 
 import javax.persistence.*;
 import java.util.ArrayList;

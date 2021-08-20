@@ -26,6 +26,9 @@ public class User {
     @Convert(converter = StringSetConverter.class)
     private Set<Role> roles = new HashSet<>();
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name="PASSWORD_RESET_TOKEN", columnDefinition="varchar(256)", nullable = true)
+    private String passwordResetToken;
     
     public Long getId() {
         return id;
@@ -52,6 +55,16 @@ public class User {
 
     public User setPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    @JsonIgnore
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public User setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
         return this;
     }
 

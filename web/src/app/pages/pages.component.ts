@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
+import { ResidentsComponent } from './management/residents/residents.component';
 
 import { MENU_ITEMS } from './pages-menu';
 
@@ -20,32 +21,33 @@ export class PagesComponent implements OnInit {
   menu = MENU_ITEMS;
   currentLang: string;
 
-  constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService) {
+  constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService, private residentsComponent: ResidentsComponent) {
 
     this.currentLang = this.translateService.currentLang;
   }
-
-
 
 
   ngOnInit(): void {
     this.menu.forEach(item => {
       this.authMenuItem(item);
     });
+    //update badge values
+    this.residentsComponent.getNewUserRequestsValueChanged().subscribe(
+      res => {
+        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0];
+        menuItem.badge = {
+          text: res.toString(),
+          status: 'primary',
+        }
+      }
+    );
   }
-
 
   // hiding and activating menu items
   authMenuItem(menuItem: NbMenuItem) {
 
     const key = menuItem.title;
     const value = this.translateService.translations[this.currentLang].menu[key];
-    /*
-    if (menuItem.link === '/pages/management/residents') do request
-    l[0].badge.text = '2';
-    l[0].badge.status = 'primary';
-    add funktion to call to change badge
-    */
     if (value) {
       menuItem.title = value; // translate menu item
     }

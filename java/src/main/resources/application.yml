@@ -13,6 +13,7 @@ jwt:
   secret: secret  #ToDo secret in env variables
   accessTokenValidity: 3600 # 1 hour
   refreshTokenValidity: 86400 # 24 hours
+  passwordResetTokenValidity: 259200 # 3 days
 ---
 spring:
   profiles: default, docker

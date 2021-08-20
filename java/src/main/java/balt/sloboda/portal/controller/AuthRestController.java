@@ -1,11 +1,11 @@
 package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.*;
-import balt.sloboda.portal.model.request.Request;
-import balt.sloboda.portal.service.DbAddressService;
-import balt.sloboda.portal.service.DbRequestsService;
-import balt.sloboda.portal.service.DbResidentService;
-import balt.sloboda.portal.service.DbUserService;
+import balt.sloboda.portal.model.request.type.NewUserRequestParams;
+import balt.sloboda.portal.service.AddressService;
+import balt.sloboda.portal.service.RequestsService;
+import balt.sloboda.portal.service.ResidentService;
+import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +29,16 @@ public class AuthRestController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Autowired
-    private DbAddressService dbAddressService;
+    private AddressService addressService;
 
     @Autowired
-    private DbRequestsService dbRequestsService;
+    private RequestsService requestsService;
 
     @Autowired
-    private DbResidentService dbResidentService;
+    private ResidentService residentService;
 
     @Autowired
     private JwtTokenUtil tokenUtil;
@@ -61,20 +61,20 @@ public class AuthRestController {
 
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> register(@RequestBody Resident resident) {
-        if (dbUserService.alreadyExists(resident.getUser())){
+    public ResponseEntity<?> register(@RequestBody NewUserRequestParams newUserRequestParams) {
+        if (userService.alreadyExists(newUserRequestParams.getUserName())){
             return new ResponseEntity<>(new ErrorResponse("userAlreadyExists", new HashMap<String, String>() {{
-                put("user", resident.getUser().getUserName());
+                put("user", newUserRequestParams.getUserName());
             }}), HttpStatus.CONFLICT);
         }
 
-        if (resident.getAddress() != null && resident.getAddress().getId() != null) {
-            Optional<Address> addressById = dbAddressService.getAddressById(resident.getAddress().getId());
+        if (newUserRequestParams.getAddress() != null && newUserRequestParams.getAddress().getId() != null) {
+            Optional<Address> addressById = addressService.getAddressById(newUserRequestParams.getAddress().getId());
             if (addressById.isPresent()){
-                if (dbResidentService.addressAlreadyUsed(addressById.get().getId())) { //address used by another user
+                if (residentService.addressAlreadyUsed(addressById.get().getId())) { //address used by another user
                     return new ResponseEntity<>(new ErrorResponse("addressAlreadyUsed", null), HttpStatus.CONFLICT);
                 }
-                resident.setAddress(addressById.get());
+                newUserRequestParams.setAddress(addressById.get());
             } else {
                 // address not found
                 return new ResponseEntity<>(new ErrorResponse("notExistingAddress", null), HttpStatus.CONFLICT);
@@ -84,12 +84,12 @@ public class AuthRestController {
         }
 
         try {
-            if (dbRequestsService.newUserRequestAlreadyExists(resident)) {
+            if (requestsService.newUserRequestAlreadyExists(newUserRequestParams)) {
                 return new ResponseEntity<>(new ErrorResponse("newUserRequestAlreadyExists", new HashMap<String, String>() {{
-                    put("user", resident.getUser().getUserName());
+                    put("user", newUserRequestParams.getUserName());
                 }}), HttpStatus.CONFLICT);
             }
-            dbRequestsService.createNewUserRequest(resident);
+            requestsService.createNewUserRequest(newUserRequestParams);
             JwtResponse jwtResponse = new JwtResponse((new TokenPair()).setAccessToken("").setRefreshToken("")); // empty jwtResponse
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
         } catch (Exception ex){

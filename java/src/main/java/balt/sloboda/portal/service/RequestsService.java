@@ -1,6 +1,5 @@
 package balt.sloboda.portal.service;
 
-import balt.sloboda.portal.model.Resident;
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.Request;
@@ -8,6 +7,7 @@ import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.model.request.predefined.NewUserRequest;
+import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.repository.DbRequestParamsRepository;
 import balt.sloboda.portal.repository.DbRequestTypesRepository;
 import balt.sloboda.portal.repository.DbRequestsRepository;
@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class DbRequestsService {
+public class RequestsService {
 
     @Autowired
     private DbRequestsRepository dbRequestsRepository;
@@ -35,7 +35,7 @@ public class DbRequestsService {
     private WebSecurityUtils webSecurityUtils;
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Autowired
     private EmailService emailService;
@@ -82,6 +82,12 @@ public class DbRequestsService {
     public List<Request> getAllRequests(){
         return dbRequestsRepository.findAll();
     }
+
+    public Optional<Request> getNewUserRequestByUser(String userName){
+        return getAllRequestByStatusAndType(RequestStatus.NEW, (new NewUserRequest().getName())).stream()
+        .filter(item -> item.getParamValues().get("userName") != null && item.getParamValues().get("userName").equals(userName)).findFirst();
+    }
+
     public List<Request> getAllCurrentUserRequests(){
         return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
     }
@@ -97,16 +103,16 @@ public class DbRequestsService {
     }
 
 
-    public Request createNewUserRequest(Resident resident){
+    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams){
         Map<String, String> paramValues = new HashMap<String, String>(){{
-            put("userName", resident.getUser().getUserName());
-            put("firstName", resident.getFirstName());
-            put("lastName", resident.getLastName());
-            put("street", resident.getAddress().getStreet());
-            put("houseNumber", String.valueOf(resident.getAddress().getHouseNumber()));
-            put("plotNumber", String.valueOf(resident.getAddress().getPlotNumber()));
+            put("userName", newUserRequestParams.getUserName());
+            put("firstName", newUserRequestParams.getFirstName());
+            put("lastName", newUserRequestParams.getLastName());
+            put("street", newUserRequestParams.getAddress().getStreet());
+            put("houseNumber", String.valueOf(newUserRequestParams.getAddress().getHouseNumber()));
+            put("plotNumber", String.valueOf(newUserRequestParams.getAddress().getPlotNumber()));
         }} ;
-        Optional<User> foundAdmin = dbUserService.findByUserName(adminUser.getUserName());
+        Optional<User> foundAdmin = userService.findByUserName(adminUser.getUserName());
 
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
@@ -121,7 +127,7 @@ public class DbRequestsService {
                                  String subject,
                                  String comment,
                                  Map<String, String> paramValues) {
-        Optional<User> authorizedUser = dbUserService.findByUserName(webSecurityUtils.getAuthorizedUserName());
+        Optional<User> authorizedUser = userService.findByUserName(webSecurityUtils.getAuthorizedUserName());
         if (authorizedUser.isPresent()) {
             return createRequest(requestTypeName, subject, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
         } else {
@@ -156,12 +162,12 @@ public class DbRequestsService {
         return dbRequestsRepository.save(newRequest);
     }
 
-    public boolean newUserRequestAlreadyExists(Resident resident) {
-        List<Request> byTypeName = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName());
+    public boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
+        //List<Request> byTypeName = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName());
         Optional<Request> found = dbRequestsRepository.findByTypeName((new NewUserRequest()).getName()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");
-                    return userName != null && userName.equals(resident.getUser().getUserName());
+                    return userName != null && userName.equals(newUserRequestParams.getUserName());
                 }).findFirst();
         return found.isPresent();
     }

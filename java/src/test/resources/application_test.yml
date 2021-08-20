@@ -13,6 +13,7 @@ jwt:
   secret: secret  #ToDo secret in env variables
   accessTokenValidity: 2 # seconds
   refreshTokenValidity: 4 # seconds
+  passwordResetTokenValidity: 3 # seconds
 ---
 spring:
   profiles: test

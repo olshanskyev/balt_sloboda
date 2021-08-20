@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component, EventEmitter, Output} from '@angular/core';
 
 import {
   NbToastrService,
@@ -19,10 +19,15 @@ import { Toaster } from '../../Toaster';
   styleUrls: ['./residents.component.scss'],
 })
 
-
 export class ResidentsComponent {
 
   private toaster: Toaster;
+
+  @Output() newUserRequestsChanged: EventEmitter<number> = new EventEmitter();
+
+  getNewUserRequestsValueChanged() {
+    return this.newUserRequestsChanged;
+  }
 
 
   translations: any;
@@ -57,6 +62,7 @@ export class ResidentsComponent {
       res => {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
+        this.newUserRequestsChanged.emit(this.countRequests);
       }
     );
 

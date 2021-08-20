@@ -4,12 +4,14 @@ import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestParamType;
 import balt.sloboda.portal.model.request.RequestType;
+import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 
 import java.util.*;
 
 public class NewUserRequest implements PredefinedRequestType{
 
     private final String name = "NewUserRequest";
+
     @Override
     public RequestType getRequestType(){
         return new RequestType()
@@ -31,4 +33,6 @@ public class NewUserRequest implements PredefinedRequestType{
     public String getName() {
         return name;
     }
+
+
 }

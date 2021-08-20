@@ -18,7 +18,7 @@ import java.util.Optional;
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private DbUserService userService;
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String userName){

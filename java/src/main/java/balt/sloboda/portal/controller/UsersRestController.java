@@ -1,17 +1,13 @@
 package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.ErrorResponse;
-import balt.sloboda.portal.model.Resident;
 import balt.sloboda.portal.model.User;
-import balt.sloboda.portal.service.DbUserService;
+import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -21,14 +17,14 @@ import java.util.Optional;
 public class UsersRestController {
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Autowired
     private WebSecurityUtils webSecurityUtils;
 
     @RequestMapping(value="/management/users", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUsers() throws Exception {
-        return new ResponseEntity<>(dbUserService.selectAllUsers(), HttpStatus.OK);
+        return new ResponseEntity<>(userService.selectAllUsers(), HttpStatus.OK);
     }
 
     @RequestMapping(value="/userInfo", method = RequestMethod.GET)
@@ -38,9 +34,9 @@ public class UsersRestController {
     }
 
     @RequestMapping(value="/management/users/{userName}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUserByName(@PathVariable String userName) throws Exception {
+    public ResponseEntity<?> getUserByName(@PathVariable String userName){
 
-        Optional<User> found = dbUserService.findByUserName(userName);
+        Optional<User> found = userService.findByUserName(userName);
         if (!found.isPresent()) {
             return new ResponseEntity<>(new ErrorResponse("userInfoNotFound", new HashMap<String, String>() {{
                 put("user", userName);
@@ -48,5 +44,15 @@ public class UsersRestController {
         }
         return new ResponseEntity<>(found, HttpStatus.OK);
 
+    }
+
+    @RequestMapping(value="/management/users/{userName}/accept", method = RequestMethod.PUT)
+    public ResponseEntity<?> acceptUser(@PathVariable String userName) {
+        try {
+            userService.acceptUser(userName);
+        } catch (RuntimeException ex){
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(userService.selectAllUsers(), HttpStatus.OK);
     }
 }

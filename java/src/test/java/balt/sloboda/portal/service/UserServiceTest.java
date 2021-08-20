@@ -22,23 +22,23 @@ import java.util.List;
         "spring.config.location = classpath:application_test.yml",
 })
 @ActiveProfiles("test")
-public class DbUserServiceTest {
+public class UserServiceTest {
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Autowired
-    private DbAddressService dbAddressService;
+    private AddressService addressService;
 
     @Autowired
-    private DbResidentService dbResidentService;
+    private ResidentService residentService;
 
     @Test
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void getAllUsers() {
 
-        List<User> all = dbUserService.selectAllUsers();
+        List<User> all = userService.selectAllUsers();
         Assert.assertEquals(2, all.size());
         User olshanskyev = all.stream().filter(item -> item.getUserName().equals("olshanskyev@gmail.com")).findFirst().orElseThrow(RuntimeException::new);
         Assert.assertTrue(olshanskyev.getRoles().contains(Role.ROLE_USER) && !olshanskyev.getRoles().contains(Role.ROLE_ADMIN));
@@ -52,9 +52,9 @@ public class DbUserServiceTest {
     @Sql({"/create_users_data.sql"})
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void addressAlreadyUsed() {
-        List<Resident> all = dbResidentService.selectAllResidents();
-        Assert.assertTrue(dbResidentService.addressAlreadyUsed(all.get(0).getAddress().getId()));
-        Assert.assertFalse(dbResidentService.addressAlreadyUsed(1111L));
+        List<Resident> all = residentService.selectAllResidents();
+        Assert.assertTrue(residentService.addressAlreadyUsed(all.get(0).getAddress().getId()));
+        Assert.assertFalse(residentService.addressAlreadyUsed(1111L));
     }
 
 }

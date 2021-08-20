@@ -1,34 +1,29 @@
 package balt.sloboda.portal.configuration;
 
-import balt.sloboda.portal.model.Address;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.model.request.predefined.NewUserRequest;
-import balt.sloboda.portal.service.DbAddressService;
-import balt.sloboda.portal.service.DbRequestsService;
-import balt.sloboda.portal.service.DbUserService;
+import balt.sloboda.portal.service.AddressService;
+import balt.sloboda.portal.service.RequestsService;
+import balt.sloboda.portal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import java.util.Optional;
 
 @Configuration
 @Profile("!test")
 public class DataLoader implements ApplicationRunner {
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Autowired
-    private DbRequestsService dbRequestsService;
+    private RequestsService requestsService;
 
     @Autowired
-    private DbAddressService dbAddressService;
+    private AddressService addressService;
 
     @Autowired
     private User adminUser;
@@ -36,13 +31,13 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        if (!dbUserService.alreadyExists(adminUser)){
-            dbUserService.createUser(adminUser); //save user ToDo check if user cannot be saved because of id constraint
+        if (!userService.alreadyExists(adminUser.getUserName())){
+            userService.createUser(adminUser); //save user ToDo check if user cannot be saved because of id constraint
         }
         // create NewUserRequest RequestType
         RequestType requestType = new NewUserRequest().getRequestType();
-        if (!dbRequestsService.requestTypeAlreadyExists(requestType)){
-            dbRequestsService.saveRequestType(requestType);
+        if (!requestsService.requestTypeAlreadyExists(requestType)){
+            requestsService.saveRequestType(requestType);
         }
     }
 }

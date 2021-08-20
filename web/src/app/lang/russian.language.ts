@@ -65,6 +65,7 @@ export class RussianLanguage {
                 addressAlreadyUsed: 'Адрес уже зарегистрирован за другим пользователем',
                 notExistingAddress: 'Адрес не существует',
                 newUserRequestAlreadyExists: 'Запрос на регистрацию для пользователя {{user}} уже отправлен',
+                newUserRequestNotFound: 'Запрос на регистрацию пользователя не найден',
                 userInfoNotFound: 'Информация о пользователе {{user}} не найдена',
             },
             residentsPage: {

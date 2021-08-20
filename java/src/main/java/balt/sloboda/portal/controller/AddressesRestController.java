@@ -1,9 +1,6 @@
 package balt.sloboda.portal.controller;
 
-import balt.sloboda.portal.model.User;
-import balt.sloboda.portal.service.DbAddressService;
-import balt.sloboda.portal.service.DbUserService;
-import balt.sloboda.portal.utils.WebSecurityUtils;
+import balt.sloboda.portal.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class AddressesRestController {
 
     @Autowired
-    private DbAddressService dbAddressService;
+    private AddressService addressService;
     
     @RequestMapping(value="/streets", method = RequestMethod.GET)
     public ResponseEntity<?> getAllStreets() {
-        return new ResponseEntity<>(dbAddressService.getAllStreets(), HttpStatus.OK);
+        return new ResponseEntity<>(addressService.getAllStreets(), HttpStatus.OK);
     }
 
     @RequestMapping(value="/addresses", method = RequestMethod.GET)
     public ResponseEntity<?> getAllAddresses() {
-        return new ResponseEntity<>(dbAddressService.getAll(), HttpStatus.OK);
+        return new ResponseEntity<>(addressService.getAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value="/streets/{street}/addresses", method = RequestMethod.GET)
     public ResponseEntity<?> getAddressesOnStreet(@PathVariable("street") String street) {
-        return new ResponseEntity<>(dbAddressService.getAddressesOnStreet(street), HttpStatus.OK);
+        return new ResponseEntity<>(addressService.getAddressesOnStreet(street), HttpStatus.OK);
     }
 }

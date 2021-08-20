@@ -2,7 +2,8 @@ package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.*;
-import balt.sloboda.portal.service.DbUserService;
+import balt.sloboda.portal.model.request.type.NewUserRequestParams;
+import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.service.EmailService;
 import balt.sloboda.portal.utils.JsonUtils;
 import org.junit.Assert;
@@ -13,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -40,14 +39,14 @@ public class AuthRestControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    private DbUserService dbUserService;
+    private UserService userService;
 
     @Value("${jwt.accessTokenValidity}")
     private long ACCESS_TOKEN_VALIDITY;
     @Value("${jwt.refreshTokenValidity}")
     private long REFRESH_TOKEN_VALIDITY;
 
-    private JwtResponse login(String userName, String password) throws Exception {
+    private static JwtResponse login(String userName, String password, MockMvc mvc) throws Exception {
         JwtRequest jwtRequest = new JwtRequest(userName, password);
         MvcResult result = mvc.perform(post("/auth/login")
                 .content(JsonUtils.asJsonString(jwtRequest))
@@ -61,7 +60,7 @@ public class AuthRestControllerTest {
         return jwtResponse;
     }
 
-    private void logOut(String accessToken) throws Exception {
+    public void logOut(String accessToken) throws Exception {
         mvc.perform(delete("/auth/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + accessToken))
@@ -90,12 +89,12 @@ public class AuthRestControllerTest {
 
     }
 
-    private JwtResponse adminLogin() throws Exception {
-        return login("admin@baltsloboda2.ru", "pwd#bs2");
+    public static JwtResponse adminLogin(MockMvc mvc) throws Exception {
+        return login("admin@baltsloboda2.ru", "pwd#bs2", mvc);
     }
 
-    private JwtResponse userLogin() throws Exception {
-        return login("olshanskyev@gmail.com", "Jkmifycrbq");
+    public static JwtResponse userLogin(MockMvc mvc) throws Exception {
+        return login("olshanskyev@gmail.com", "Jkmifycrbq", mvc);
     }
 
 
@@ -121,12 +120,12 @@ public class AuthRestControllerTest {
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void getUsersTest() throws Exception {
         // 1. admin login
-        JwtResponse jwtResponse = adminLogin();
+        JwtResponse jwtResponse = adminLogin(mvc);
         // 2. get users ok
         getUsers_OK(jwtResponse.getToken().getAccessToken());
 
         // 1. user login
-        jwtResponse = userLogin();
+        jwtResponse = userLogin(mvc);
         // 2. get users not ok
         mvc.perform(get("/management/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -140,7 +139,7 @@ public class AuthRestControllerTest {
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void authTest() throws Exception {
         // 1. admin login
-        JwtResponse jwtResponse = adminLogin();
+        JwtResponse jwtResponse = adminLogin(mvc);
         // 2. get users ok
         getUsers_OK(jwtResponse.getToken().getAccessToken());
         // 3. logout, token deleted
@@ -150,7 +149,7 @@ public class AuthRestControllerTest {
 
 
         // 1. admin login
-        jwtResponse = adminLogin();
+        jwtResponse = adminLogin(mvc);
         getUsers_OK(jwtResponse.getToken().getAccessToken());
         // 2. token expires
         Thread.sleep(ACCESS_TOKEN_VALIDITY * 1000);
@@ -181,9 +180,9 @@ public class AuthRestControllerTest {
     @Sql(value = {"/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void multipleAuthTest() throws Exception {
         // 1. first admin login
-        JwtResponse jwtResponse1 = adminLogin();
+        JwtResponse jwtResponse1 = adminLogin(mvc);
         // 2. second admin login
-        JwtResponse jwtResponse2 = adminLogin();
+        JwtResponse jwtResponse2 = adminLogin(mvc);
         // 3. get with second login is ok
         getUsers_OK(jwtResponse2.getToken().getAccessToken());
         // 4. get with first login fails
@@ -199,11 +198,11 @@ public class AuthRestControllerTest {
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void registerTest() throws Exception {
 
-        Resident alreadyExistsUser = new Resident().setUser(new User().setUserName("olshanskyev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(102L));
-        Resident notExistingAddressUser = new Resident().setUser(new User().setUserName("test@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(111L));
-        Resident addressAlreadyUsedUser = new Resident().setUser(new User().setUserName("test@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(2L));
-        Resident nullAddressIdUser = new Resident().setUser(new User().setUserName("olshanskyevdev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(null));
-        Resident okUser = new Resident().setUser(new User().setUserName("olshanskyevdev@gmail.com")).setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
+        NewUserRequestParams alreadyExistsUser = new NewUserRequestParams().setUserName("olshanskyev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(102L));
+        NewUserRequestParams notExistingAddressUser = new NewUserRequestParams().setUserName("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(111L));
+        NewUserRequestParams addressAlreadyUsedUser = new NewUserRequestParams().setUserName("test@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(2L));
+        NewUserRequestParams nullAddressIdUser = new NewUserRequestParams().setUserName("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(null));
+        NewUserRequestParams okUser = new NewUserRequestParams().setUserName("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
 
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(alreadyExistsUser))
@@ -233,7 +232,7 @@ public class AuthRestControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error", is("notExistingAddress")));
 
-        Mockito.doNothing().when(emailService).sendUserRegistrationRequestConfirmation(okUser.getUser().getUserName());
+        Mockito.doNothing().when(emailService).sendUserRegistrationRequestConfirmation(okUser.getUserName());
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(okUser))
                 .contentType(MediaType.APPLICATION_JSON))

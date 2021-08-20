@@ -18,6 +18,9 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     NbTabsetModule,
     Ng2SmartTableModule,
   ],
+  providers: [
+    ResidentsComponent,
+  ],
   declarations: [
     ResidentsComponent,
   ],
