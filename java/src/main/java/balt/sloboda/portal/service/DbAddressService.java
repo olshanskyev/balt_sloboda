@@ -25,6 +25,9 @@ public class DbAddressService {
          return dbAddressRepository.save(address);
     }
 
+    public List<Address> getAll() {
+        return dbAddressRepository.findAll();
+    }
     public List<String> getAllStreets() {
         return dbAddressRepository.findDistinctStreets();
     }
@@ -36,6 +39,7 @@ public class DbAddressService {
     public Optional<Address> getAddressById(Long id){
         return dbAddressRepository.findAddressById(id).stream().findFirst();
     }
+
 
     public Optional<Address> getAddressByAddress(Address address){
         return dbAddressRepository.findAddressByStreetAndHouseNumberAndPlotNumber(address.getStreet(), address.getHouseNumber(), address.getPlotNumber())

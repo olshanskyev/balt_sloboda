@@ -20,8 +20,13 @@ public class AddressesRestController {
     private DbAddressService dbAddressService;
     
     @RequestMapping(value="/streets", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllAddresses() {
+    public ResponseEntity<?> getAllStreets() {
         return new ResponseEntity<>(dbAddressService.getAllStreets(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/addresses", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllAddresses() {
+        return new ResponseEntity<>(dbAddressService.getAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value="/streets/{street}/addresses", method = RequestMethod.GET)

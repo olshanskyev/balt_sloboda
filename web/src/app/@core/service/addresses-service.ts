@@ -24,6 +24,11 @@ export class AddressesService extends AddressesServiceData {
     return this._http.get<Address[]>(_endpoint);
   }
 
+  getAllAddresses(): Observable<Address[]>{
+    const _endpoint = this.uri +  '/addresses';
+    return this._http.get<Address[]>(_endpoint);
+  }
+
 
 
 

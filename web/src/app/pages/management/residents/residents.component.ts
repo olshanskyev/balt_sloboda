@@ -12,6 +12,7 @@ import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
 
 
+
 @Component({
   selector: 'ngx-residents',
   templateUrl: './residents.component.html',
@@ -43,7 +44,6 @@ export class ResidentsComponent {
     this.settingsRequests.columns.status.title = this.translations.residentsPage.status;
 
 
-
     residentsService.getAllResidents().subscribe(
       res => {
       this.source.load(this.getTableView(res));
@@ -58,7 +58,9 @@ export class ResidentsComponent {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
       }
-    )
+    );
+
+
 
   }
 

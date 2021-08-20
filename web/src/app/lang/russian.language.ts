@@ -80,6 +80,12 @@ export class RussianLanguage {
                 pl: 'уч.',
                 status: 'Состояние заявки',
             },
+            addressesPage: {
+                addresses: 'Адреса',
+                street: 'Улица',
+                houseNumber: 'Номер дома',
+                plotNumber: 'Номер участка',
+            }
         };
     }
 }

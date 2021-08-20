@@ -37,7 +37,7 @@ public class DataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         if (!dbUserService.alreadyExists(adminUser)){
-            dbUserService.createUser(adminUser); //save user
+            dbUserService.createUser(adminUser); //save user ToDo check if user cannot be saved because of id constraint
         }
         // create NewUserRequest RequestType
         RequestType requestType = new NewUserRequest().getRequestType();

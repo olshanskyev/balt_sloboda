@@ -8,7 +8,8 @@
         {{'residentsPage.count'|translate}}: <b>{{count}}</b>
 
       </nb-tab>
-      <nb-tab tabTitle="{{'residentsPage.newRequests'|translate}}">
+      <nb-tab tabTitle="{{'residentsPage.newRequests'|translate}}" badgeText="{{countRequests}}"
+      badgeStatus="primary">
         <ng2-smart-table [settings]="settingsRequests" [source]="sourceRequests">
         </ng2-smart-table>
         {{'residentsPage.count'|translate}}: <b>{{countRequests}}</b>

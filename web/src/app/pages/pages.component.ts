@@ -40,6 +40,12 @@ export class PagesComponent implements OnInit {
 
     const key = menuItem.title;
     const value = this.translateService.translations[this.currentLang].menu[key];
+    /*
+    if (menuItem.link === '/pages/management/residents') do request
+    l[0].badge.text = '2';
+    l[0].badge.status = 'primary';
+    add funktion to call to change badge
+    */
     if (value) {
       menuItem.title = value; // translate menu item
     }

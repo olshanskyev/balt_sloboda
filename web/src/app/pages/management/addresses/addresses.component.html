@@ -1,0 +1,14 @@
+<nb-card>
+
+  <nb-card-body>
+    <nb-tabset>
+      <nb-tab tabTitle="{{'addressesPage.addresses'|translate}}">
+        <ng2-smart-table [settings]="settings" [source]="source">
+        </ng2-smart-table>
+        {{'residentsPage.count'|translate}}: <b>{{count}}</b>
+
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+</nb-card>
