@@ -2,7 +2,7 @@ package balt.sloboda.portal.configuration;
 
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.RequestType;
-import balt.sloboda.portal.model.request.predefined.NewUserRequest;
+import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.service.AddressService;
 import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.UserService;
@@ -35,7 +35,7 @@ public class DataLoader implements ApplicationRunner {
             userService.createUser(adminUser); //save user ToDo check if user cannot be saved because of id constraint
         }
         // create NewUserRequest RequestType
-        RequestType requestType = new NewUserRequest().getRequestType();
+        RequestType requestType = new NewUserRequestType().getRequestType();
         if (!requestsService.requestTypeAlreadyExists(requestType)){
             requestsService.saveRequestType(requestType);
         }

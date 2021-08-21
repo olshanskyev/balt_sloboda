@@ -46,4 +46,8 @@ public class AddressService {
                 .stream().findFirst();
     }
 
+    public Address save(Address address){
+        return dbAddressRepository.save(address);
+    }
+
 }

@@ -13,4 +13,5 @@ public interface DbRequestsRepository extends JpaRepository<Request, Long> {
     List<Request> findByStatus(RequestStatus status);
     List<Request> findByStatusAndTypeName(RequestStatus status, String requestTypeName);
     List<Request> findByOwnerUserName(String userName);
+
 }

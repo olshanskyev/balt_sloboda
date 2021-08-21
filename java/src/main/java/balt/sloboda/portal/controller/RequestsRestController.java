@@ -1,5 +1,6 @@
 package balt.sloboda.portal.controller;
 
+import balt.sloboda.portal.model.ErrorResponse;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.service.RequestsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,15 @@ public class RequestsRestController {
         }
     }
 
+
+    @RequestMapping(value="/management/requests/{requestId}/accept", method = RequestMethod.PUT)
+    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId) {
+        try {
+            return new ResponseEntity<>(requestsService.acceptRequest(requestId), HttpStatus.OK);
+        } catch (RuntimeException ex){
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.CONFLICT);
+        }
+    }
 
     @RequestMapping(value="/requests", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUserRequests() {

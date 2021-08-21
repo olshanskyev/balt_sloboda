@@ -3,7 +3,8 @@ import { NgModule} from '@angular/core';
 import { ThemeModule } from '../../../@theme/theme.module';
 
 import {
-  NbCardModule, NbTabsetModule,
+  NbButtonModule,
+  NbCardModule, NbIconModule, NbTabsetModule,
 } from '@nebular/theme';
 
 import { ResidentsComponent } from './residents.component';
@@ -17,6 +18,8 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     NbCardModule,
     NbTabsetModule,
     Ng2SmartTableModule,
+    NbButtonModule,
+    NbIconModule,
   ],
   providers: [
     ResidentsComponent,

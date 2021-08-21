@@ -1,16 +1,17 @@
 package balt.sloboda.portal.service;
 
+import balt.sloboda.portal.model.Address;
+import balt.sloboda.portal.model.Resident;
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
-import balt.sloboda.portal.model.request.predefined.NewUserRequest;
+import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
-import balt.sloboda.portal.repository.DbRequestParamsRepository;
-import balt.sloboda.portal.repository.DbRequestTypesRepository;
-import balt.sloboda.portal.repository.DbRequestsRepository;
+import balt.sloboda.portal.repository.*;
+import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,10 +33,19 @@ public class RequestsService {
     private DbRequestParamsRepository dbRequestParamsRepository;
 
     @Autowired
-    private WebSecurityUtils webSecurityUtils;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private ResidentService residentService;
+
+    @Autowired
+    private AddressService addressService;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private WebSecurityUtils webSecurityUtils;
 
     @Autowired
     private EmailService emailService;
@@ -44,7 +54,7 @@ public class RequestsService {
     private User adminUser;
 
     @Autowired
-    private NewUserRequest newUserRequest;
+    private NewUserRequestType newUserRequestType;
 
     // ================================== request types===========================
     public List<RequestType> getAllRequestTypes() {
@@ -87,7 +97,7 @@ public class RequestsService {
     }
 
     public Optional<Request> getNewUserRequestByUser(String userName){
-        return getAllRequestByStatusAndType(RequestStatus.NEW, (newUserRequest.getName())).stream()
+        return getAllRequestByStatusAndType(RequestStatus.NEW, (newUserRequestType.getName())).stream()
         .filter(item -> item.getParamValues().get("userName") != null && item.getParamValues().get("userName").equals(userName)).findFirst();
     }
 
@@ -113,7 +123,7 @@ public class RequestsService {
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-        Request createdRequest = createRequest(newUserRequest.getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        Request createdRequest = createRequest(newUserRequestType.getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
         // send confirmation mail
         emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
         return createdRequest;
@@ -159,7 +169,7 @@ public class RequestsService {
     }
 
     public boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
-        Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequest.getName()).stream()
+        Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequestType.getName()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");
                     return userName != null && userName.equals(newUserRequestParams.getUserName());
@@ -168,11 +178,49 @@ public class RequestsService {
     }
 
 
-    public void updateRequest(Request request) {
-        dbRequestsRepository.save(request);
+    public Request saveRequest(Request request) {
+       return dbRequestsRepository.save(request);
     }
 
+    private Request acceptNewUserRequest(Request request){ //save all objects in db, update request status, send email with link
+        String userName = request.getParamValues().get("userName");
+        String token = jwtTokenUtil.generatePasswordResetToken(userName);
+        User user = userService.createUser(new User()
+                .setUserName(userName)
+                .setRoles(new HashSet<>(Arrays.asList(Role.ROLE_USER)))
+                .setPassword("")
+                .setPasswordResetToken(token));
+
+        Address address = addressService.save(new Address()
+                .setStreet(request.getParamValues().get("street"))
+                .setHouseNumber(Integer.parseInt(request.getParamValues().get("houseNumber")))
+                .setPlotNumber(Integer.parseInt(request.getParamValues().get("plotNumber"))));
+        residentService.save(new Resident()
+                .setFirstName(request.getParamValues().get("firstName"))
+                .setLastName(request.getParamValues().get("lastName"))
+                .setUser(user)
+                .setAddress(address));
+        request.setStatus(RequestStatus.CLOSED);
+        Request saved = saveRequest(request);
+        emailService.sendUserRegistrationRequestConfirmation(userName);
+        return saved;
+    }
+
+    public Request acceptRequest(Long requestId) {
+        Optional<Request> request = dbRequestsRepository.findById(requestId);
+        if (request.isPresent()){
+            if (request.get().getType().getName().equals(newUserRequestType.getName())){
+                return acceptNewUserRequest(request.get());
+            } else {
+                request.get().setStatus(RequestStatus.ACCEPTED);
+                return saveRequest(request.get());
+            }
+        } else {
+            throw new RuntimeException("newUserRequestNotFound");
+        }
+    }
     // ================================== requests ===============================
+
 
     // ================================== request params =========================
     public List<RequestParam> getParamsByRequestType(String requestTypeName) {

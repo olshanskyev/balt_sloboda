@@ -34,4 +34,8 @@ public class ResidentService {
         return dbResidentRepository.findByUserUserName(userName).stream().findFirst();
     }
 
+    public Resident save(Resident resident){
+        return dbResidentRepository.save(resident);
+    }
+
 }

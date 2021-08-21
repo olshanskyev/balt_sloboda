@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class NewUserRequest implements PredefinedRequestType{
+public class NewUserRequestType implements PredefinedRequestType{
 
     private final String name = "NewUserRequest";
 

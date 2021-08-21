@@ -45,14 +45,4 @@ public class UsersRestController {
         return new ResponseEntity<>(found, HttpStatus.OK);
 
     }
-
-    @RequestMapping(value="/management/users/{userName}/accept", method = RequestMethod.PUT)
-    public ResponseEntity<?> acceptUser(@PathVariable String userName) {
-        try {
-            userService.acceptUser(userName);
-        } catch (RuntimeException ex){
-            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(userService.selectAllUsers(), HttpStatus.OK);
-    }
 }

@@ -81,6 +81,9 @@ export class RussianLanguage {
                 h: 'д.',
                 pl: 'уч.',
                 status: 'Состояние заявки',
+                accept: 'Принять зарос',
+                decline: 'Отклонить запрос',
+                shureAccept: 'Принять запрос от пользователя {{user}}?'
             },
             addressesPage: {
                 addresses: 'Адреса',

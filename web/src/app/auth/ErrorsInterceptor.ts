@@ -29,7 +29,12 @@ export class ErrorsInterceptor implements HttpInterceptor{
                   errorMsg = err.error.error;
                   errorParameters = err.error.parameters
                   if (err.status === 401) {
-                    this.router.navigate(['auth/login']);
+
+                    this.toaster.showToast(this.toaster.types[4],
+                      this.translateService.translations[this.translateService.currentLang].errors.error,
+                      this.translateService.translations[this.translateService.currentLang].errors.Unauthorized);
+                      this.router.navigate(['auth/login']);
+                    return throwError(err);
                   }
 
                 }

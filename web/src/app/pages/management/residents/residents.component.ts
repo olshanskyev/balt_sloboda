@@ -31,7 +31,7 @@ export class ResidentsComponent {
 
 
   translations: any;
-  constructor(private toastrService: NbToastrService, translateService: TranslateService,
+  constructor(private toastrService: NbToastrService, private translateService: TranslateService,
     residentsService: ResidentsService,
     requestsService: RequestService) {
     this.toaster = new Toaster(toastrService);
@@ -47,6 +47,10 @@ export class ResidentsComponent {
     this.settingsRequests.columns.lastName.title = this.translations.residentsPage.lastName;
     this.settingsRequests.columns.address.title = this.translations.residentsPage.address;
     this.settingsRequests.columns.status.title = this.translations.residentsPage.status;
+
+    this.settingsRequests.edit.editButtonContent= '<i class="nb-checkmark" title="' + this.translations.residentsPage.accept + '"></i>',
+    this.settingsRequests.delete.deleteButtonContent= '<i class="nb-close" title="' + this.translations.residentsPage.decline + '"></i>',
+
 
 
     residentsService.getAllResidents().subscribe(
@@ -125,9 +129,11 @@ export class ResidentsComponent {
     });
   }
 
+
   getTableViewRequests(requests: Request[]) {
     return requests.map((item) => { // map json item into table view
       return {
+        id: item.id,
         userName: item.paramValues.userName,
         firstName: item.paramValues.firstName,
         lastName: item.paramValues.lastName,
@@ -142,10 +148,15 @@ export class ResidentsComponent {
   settingsRequests = {
     actions: {
       add: false,
-      edit: false,
-      delete: false,
     },
 
+    edit: {
+      editButtonContent: '',
+    },
+    delete: {
+      deleteButtonContent: '',
+    },
+    mode: 'external',
     columns: {
       userName: {
         title: '',
@@ -175,6 +186,16 @@ export class ResidentsComponent {
 
     },
   };
+
+  onUserAccept(event) : void {
+    this.translateService.get('residentsPage.shureAccept', {user: event.data.userName}).subscribe(
+      res => {
+        if (window.confirm(res)) {
+
+          console.log(event.data); //ToDo real request
+        }
+      });
+  }
 
 
 }

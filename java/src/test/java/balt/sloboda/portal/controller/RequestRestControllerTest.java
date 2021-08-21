@@ -3,9 +3,14 @@ package balt.sloboda.portal.controller;
 import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.Address;
 import balt.sloboda.portal.model.JwtResponse;
+import balt.sloboda.portal.model.request.Request;
+import balt.sloboda.portal.model.request.RequestStatus;
+import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.service.EmailService;
+import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.utils.JsonUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -19,6 +24,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = { "spring.config.location = classpath:application_test.yml",
 })
 @ActiveProfiles("test")
-public class UserRestControllerTest {
+public class RequestRestControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -37,10 +45,13 @@ public class UserRestControllerTest {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private RequestsService requestsService;
+
     @Test
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    public void acceptUser() throws Exception {
+    public void acceptUserRequest() throws Exception {
 
         NewUserRequestParams okUser = new NewUserRequestParams().setUserName("olshanskyevdev@gmail.com").setFirstName("Evgeny").setLastName("Olshansky").setAddress(new Address().setId(4L));
 
@@ -53,8 +64,11 @@ public class UserRestControllerTest {
 
         JwtResponse jwtResponse = AuthRestControllerTest.adminLogin(mvc);
 
+        List<Request> allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.NEW, new NewUserRequestType().getName());
+        Optional<Request> newUserRequest = allRequestByStatusAndType.stream().filter(item -> item.getParamValues().get("userName").equals("olshanskyevdev@gmail.com")).findFirst();
+        Assert.assertTrue(newUserRequest.isPresent());
 
-        mvc.perform(put("/management/users/olshanskyevdev@gmail.com/accept")
+        mvc.perform(put("/management/requests/" + newUserRequest.get().getId() + "/accept")
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk());
 
@@ -65,8 +79,11 @@ public class UserRestControllerTest {
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(3)));
-        // ToDo check status
 
+
+        allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.CLOSED, new NewUserRequestType().getName());
+        newUserRequest = allRequestByStatusAndType.stream().filter(item -> item.getParamValues().get("userName").equals("olshanskyevdev@gmail.com")).findFirst();
+        Assert.assertTrue(newUserRequest.isPresent());
     }
 
 
