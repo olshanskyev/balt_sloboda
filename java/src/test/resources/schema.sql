@@ -63,6 +63,9 @@ create table IF NOT EXISTS USERS (
 alter table REQUEST_TYPES
    add constraint IF NOT EXISTS UK_k1ow2snhc3nl59v3kdwfbnh11 unique (NAME);
 
+alter table USERS
+   add constraint IF NOT EXISTS UK_21q8fvry4wix31petp1awxsx9 unique (USER_NAME);
+
 alter table REQUEST_PARAMS
    add constraint IF NOT EXISTS FKr7o056wpalrxam3mpkb2t1shl
    foreign key (REQUEST_TYPE_ID)

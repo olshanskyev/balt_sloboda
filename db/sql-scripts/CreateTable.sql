@@ -63,6 +63,9 @@ create table $DATABASE_SCHEMA.USERS (
     
 alter table $DATABASE_SCHEMA.REQUEST_TYPES 
    add constraint UK_k1ow2snhc3nl59v3kdwfbnh11 unique (NAME);
+
+alter table $DATABASE_SCHEMA.USERS 
+   add constraint UK_21q8fvry4wix31petp1awxsx9 unique (USER_NAME);
     
 alter table $DATABASE_SCHEMA.REQUEST_PARAMS 
    add constraint FKr7o056wpalrxam3mpkb2t1shl 

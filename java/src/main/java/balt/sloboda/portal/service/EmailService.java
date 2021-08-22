@@ -12,6 +12,8 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    private final String resetPasswordLink = "";
+
     void sendMail(String to, String subject, String text){
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(to);

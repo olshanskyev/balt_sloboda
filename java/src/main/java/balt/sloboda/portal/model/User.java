@@ -15,7 +15,7 @@ public class User {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="USER_NAME", columnDefinition="varchar(256)", nullable = false)
+    @Column(name="USER_NAME", columnDefinition="varchar(256)", nullable = false, unique = true)
     private String userName;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

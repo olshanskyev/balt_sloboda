@@ -17,3 +17,6 @@ java/target
 # idea files
 java/.idea
 *.iml
+
+# cmd
+rebuild_and_install.cmd

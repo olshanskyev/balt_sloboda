@@ -32,8 +32,8 @@ export class ResidentsComponent {
 
   translations: any;
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
-    residentsService: ResidentsService,
-    requestsService: RequestService) {
+    private residentsService: ResidentsService,
+    private requestsService: RequestService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];
@@ -51,18 +51,13 @@ export class ResidentsComponent {
     this.settingsRequests.edit.editButtonContent= '<i class="nb-checkmark" title="' + this.translations.residentsPage.accept + '"></i>',
     this.settingsRequests.delete.deleteButtonContent= '<i class="nb-close" title="' + this.translations.residentsPage.decline + '"></i>',
 
+    this.loadResidents();
+    this.loadNewRequests();
+  }
 
 
-    residentsService.getAllResidents().subscribe(
-      res => {
-      this.source.load(this.getTableView(res));
-      this.count = res.length;
-    }, err => {
-      this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetUsers,
-           '');
-    });
-
-    requestsService.getAllNewUserRequests().subscribe(
+  private loadNewRequests(): void {
+    this.requestsService.getAllNewUserRequests().subscribe(
       res => {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
@@ -72,9 +67,17 @@ export class ResidentsComponent {
              '');
       }
     );
+  }
 
-
-
+  private loadResidents(): void {
+    this.residentsService.getAllResidents().subscribe(
+      res => {
+      this.source.load(this.getTableView(res));
+      this.count = res.length;
+    }, err => {
+      this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetUsers,
+           '');
+    });
   }
 
 
@@ -189,10 +192,12 @@ export class ResidentsComponent {
 
   onUserAccept(event) : void {
     this.translateService.get('residentsPage.shureAccept', {user: event.data.userName}).subscribe(
-      res => {
-        if (window.confirm(res)) {
-
-          console.log(event.data); //ToDo real request
+      translated => {
+        if (window.confirm(translated)) {
+          this.requestsService.acceptRequest(event.data.id).subscribe(() => {
+            this.loadNewRequests();
+            this.loadResidents();
+          });
         }
       });
   }

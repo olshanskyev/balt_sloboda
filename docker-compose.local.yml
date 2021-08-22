@@ -19,6 +19,10 @@ services:
       - DATABASE_NAME=PORTAL
       - DATABASE_PORT=5432
       - DATABASE_SCHEMA=BALTSLOBODA
+      - JWT_SECRET=secret
+      - EMAIL_USERNAME=olshanskyevdev@gmail.com
+      - EMAIL_PASSWORD
+      - GUI_URL=https://localhost:4200
     restart: on-failure
     depends_on:
       - balt_sloboda_db

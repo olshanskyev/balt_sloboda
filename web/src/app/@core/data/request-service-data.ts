@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 
 export abstract class RequestServiceData {
     abstract getAllNewUserRequests(userName: string): Observable<Request[]>;
+    abstract acceptRequest(requestId: number): Observable<Request>;
 }
 
 export class Request {
@@ -15,7 +16,14 @@ export class Request {
     lastModifiedDate?: Date;
     lastModifiedBy?: number;
     owner: number;
+}
 
+export enum RequestStatus {
+    NEW,
+    ACCEPTED,
+    IN_PROGRESS,
+    CLOSED,
+    REJECTED,
 }
 
 

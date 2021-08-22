@@ -10,7 +10,7 @@ server:
       enabled: true
 
 jwt:
-  secret: secret  #ToDo secret in env variables
+  secret: ${JWT_SECRET}
   accessTokenValidity: 3600 # 1 hour
   refreshTokenValidity: 86400 # 24 hours
   passwordResetTokenValidity: 259200 # 3 days
@@ -20,7 +20,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: olshanskyevdev@gmail.com
+    username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
     properties:
       mail:
@@ -49,7 +49,9 @@ admin-user:
   roles:
     -
       ROLE_ADMIN
-
+gui-urls:
+  passwordResetLink:
+    ${GUI_URL}/auth/reset-password
 ---
 spring:
   profiles: local
@@ -72,8 +74,8 @@ datasource:
     defaultSchema:
     maxPoolSize: 20
     hibernate:
-       #hbm2ddl.method: update
-       hbm2ddl.method: none
+       hbm2ddl.method: update
+       #hbm2ddl.method: none
        show_sql: true
        format_sql: true
        dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -85,3 +87,6 @@ admin-user:
   roles:
     -
       ROLE_ADMIN
+gui-urls:
+  passwordResetLink:
+    https://localhost:4200/auth/reset-password

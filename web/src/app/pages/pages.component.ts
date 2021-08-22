@@ -35,6 +35,7 @@ export class PagesComponent implements OnInit {
     //update badge values
     this.residentsComponent.getNewUserRequestsValueChanged().subscribe(
       res => {
+        console.log(res);
         const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0]; //ToDo not subscribes for the first time
         menuItem.badge = {
           text: res.toString(),

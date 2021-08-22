@@ -191,18 +191,22 @@ public class RequestsService {
                 .setPassword("")
                 .setPasswordResetToken(token));
 
-        Address address = addressService.save(new Address()
+        Optional<Address> address = addressService.getAddressByAddress(new Address()
                 .setStreet(request.getParamValues().get("street"))
                 .setHouseNumber(Integer.parseInt(request.getParamValues().get("houseNumber")))
-                .setPlotNumber(Integer.parseInt(request.getParamValues().get("plotNumber"))));
+                .setPlotNumber(Integer.parseInt(request.getParamValues().get("plotNumber")))
+        );
+        if (!address.isPresent()){
+            throw new RuntimeException("addressNotFound");
+        }
         residentService.save(new Resident()
                 .setFirstName(request.getParamValues().get("firstName"))
                 .setLastName(request.getParamValues().get("lastName"))
                 .setUser(user)
-                .setAddress(address));
+                .setAddress(address.get()));
         request.setStatus(RequestStatus.CLOSED);
         Request saved = saveRequest(request);
-        emailService.sendUserRegistrationRequestConfirmation(userName);
+        emailService.sendPasswordResetLink(userName, token);
         return saved;
     }
 

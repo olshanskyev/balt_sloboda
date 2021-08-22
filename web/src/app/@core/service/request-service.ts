@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Request, RequestServiceData } from '../data/request-service-data';
+import { Request, RequestServiceData, RequestStatus } from '../data/request-service-data';
 
 @Injectable()
 export class RequestService extends RequestServiceData {
@@ -17,8 +17,13 @@ export class RequestService extends RequestServiceData {
   }
 
   getAllNewUserRequests(): Observable<Request[]> {
-    const _endpoint = this.uri +  '/management/requests?requestType=' + this.newUserRequestName;
+    const _endpoint = this.uri +  '/management/requests?requestType=' + this.newUserRequestName + '&status=' + RequestStatus[RequestStatus.NEW];
     return this._http.get<Request[]>(_endpoint);
+  }
+
+  acceptRequest(requestId: number): Observable<Request> {
+    const _endpoint = this.uri +  '/management/requests/' + requestId + '/accept';
+    return this._http.put<Request>(_endpoint, null);
   }
 
 }

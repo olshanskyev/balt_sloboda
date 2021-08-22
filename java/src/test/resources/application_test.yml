@@ -10,7 +10,7 @@ server:
       enabled: true
 
 jwt:
-  secret: secret  #ToDo secret in env variables
+  secret: secret
   accessTokenValidity: 2 # seconds
   refreshTokenValidity: 4 # seconds
   passwordResetTokenValidity: 3 # seconds
@@ -49,3 +49,6 @@ admin-user:
   roles:
     -
       ROLE_ADMIN
+gui-urls:
+  passwordResetLink:
+    https://localhost:4200/auth/reset-password
