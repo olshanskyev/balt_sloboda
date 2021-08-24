@@ -68,6 +68,8 @@ export class RussianLanguage {
                 newUserRequestAlreadyExists: 'Запрос на регистрацию для пользователя {{user}} уже отправлен',
                 newUserRequestNotFound: 'Запрос на регистрацию пользователя не найден',
                 userInfoNotFound: 'Информация о пользователе {{user}} не найдена',
+                resetPasswordRequestNotFound: 'Запрос на восстановление пароля истек, либо был использован ранее',
+                passwordsNotMatch: 'Введенные пароли не совпадают',
             },
             residentsPage: {
                 residents: 'Жители',

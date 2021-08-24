@@ -1,6 +1,7 @@
 package balt.sloboda.portal.configuration;
 
 import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.service.EmailService;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -78,6 +78,9 @@ export const NB_CORE_PROVIDERS = [
           method: 'post',
           requireValidToken: true,
         },
+        resetPass: {
+          resetPasswordTokenKey: "token",
+        }
       }),
     ],
   }).providers,

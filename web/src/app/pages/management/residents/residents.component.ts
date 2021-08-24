@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output} from '@angular/core';
+import { Component, EventEmitter, Injectable, Output} from '@angular/core';
 
 import {
   NbToastrService,
@@ -10,6 +10,7 @@ import { Resident } from '../../../@core/data/resident-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
+import { NewRequestsService } from '../../../@core/service/new-requests-service';
 
 
 
@@ -18,22 +19,17 @@ import { Toaster } from '../../Toaster';
   templateUrl: './residents.component.html',
   styleUrls: ['./residents.component.scss'],
 })
-
+@Injectable()
 export class ResidentsComponent {
 
   private toaster: Toaster;
-
-  @Output() newUserRequestsChanged: EventEmitter<number> = new EventEmitter();
-
-  getNewUserRequestsValueChanged() {
-    return this.newUserRequestsChanged;
-  }
 
 
   translations: any;
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
     private residentsService: ResidentsService,
-    private requestsService: RequestService) {
+    private requestsService: RequestService,
+    private newRequeststService: NewRequestsService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];
@@ -61,7 +57,7 @@ export class ResidentsComponent {
       res => {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
-        this.newUserRequestsChanged.emit(this.countRequests);
+        this.newRequeststService.changeNewUserRequestsCount(this.countRequests);
       },  err => {
         this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetRequests,
              '');
@@ -200,6 +196,11 @@ export class ResidentsComponent {
           });
         }
       });
+  }
+
+  onDeclineUser(event) : void {
+    this.countRequests++;
+    this.newRequeststService.changeNewUserRequestsCount(this.countRequests);
   }
 
 

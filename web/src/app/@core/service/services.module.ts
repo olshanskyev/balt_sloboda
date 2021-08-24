@@ -4,6 +4,7 @@ import { UserService } from './users-service';
 import { AddressesService } from './addresses-service';
 import { ResidentsService } from './residents-service';
 import { RequestService } from './request-service';
+import { NewRequestsService } from './new-requests-service';
 
 
 const SERVICES = [
@@ -11,6 +12,7 @@ const SERVICES = [
   AddressesService,
   ResidentsService,
   RequestService,
+  NewRequestsService,
 ];
 
 @NgModule({

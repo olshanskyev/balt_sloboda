@@ -62,7 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 antMatchers("/userInfo").hasAnyRole("ADMIN", "USER").
                 antMatchers("/requests").hasAnyRole("ADMIN", "USER").
                 antMatchers("/streets/**").permitAll().
-                antMatchers("/auth/login", "/auth/refresh-token", "/auth/logout", "/auth/register").permitAll() // don't authenticate this particular request
+                antMatchers("/auth/login", "/auth/refresh-token", "/auth/logout", "/auth/register", "/auth/reset-pass").permitAll() // don't authenticate this particular request
 
 // all other requests need to be authenticated
         .anyRequest().authenticated()

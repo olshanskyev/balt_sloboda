@@ -22,7 +22,6 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     NbIconModule,
   ],
   providers: [
-    ResidentsComponent,
   ],
   declarations: [
     ResidentsComponent,

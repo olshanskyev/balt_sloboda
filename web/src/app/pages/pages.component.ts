@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { ResidentsComponent } from './management/residents/residents.component';
+import { Subscription } from 'rxjs';
+import { NewRequestsService } from '../@core/service/new-requests-service';
 
 import { MENU_ITEMS } from './pages-menu';
 
@@ -16,16 +17,17 @@ import { MENU_ITEMS } from './pages-menu';
     </ngx-one-column-layout>
   `,
 })
-export class PagesComponent implements OnInit {
+export class PagesComponent implements OnInit, OnDestroy {
 
   menu = MENU_ITEMS;
   currentLang: string;
 
-  constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService, private residentsComponent: ResidentsComponent) {
+  newUserRequestsSubscription :Subscription;
+  constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
+    private newRequestsService: NewRequestsService) {
 
     this.currentLang = this.translateService.currentLang;
   }
-
 
   ngOnInit(): void {
     this.menu.forEach(item => {
@@ -33,16 +35,26 @@ export class PagesComponent implements OnInit {
     });
 
     //update badge values
-    this.residentsComponent.getNewUserRequestsValueChanged().subscribe(
+    this.newUserRequestsSubscription = this.newRequestsService.getNewUserRequests().subscribe(
       res => {
-        console.log(res);
-        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0]; //ToDo not subscribes for the first time
-        menuItem.badge = {
-          text: res.toString(),
-          status: 'primary',
+
+        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0];
+        if (res > 0) {
+            menuItem.badge = {
+              text: res.toString(),
+              status: 'primary',
+            }
+        } else {
+          menuItem.badge = {
+            text: null,
+          }
         }
       }
     );
+  }
+
+  ngOnDestroy(): void {
+    this.newUserRequestsSubscription.unsubscribe();
   }
 
   // hiding and activating menu items

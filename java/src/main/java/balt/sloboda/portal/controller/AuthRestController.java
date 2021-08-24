@@ -103,7 +103,7 @@ public class AuthRestController {
         try {
             return ResponseEntity.ok(tokenUtil.refreshTokens(refreshTokenRequest));
         } catch (TokenRefreshException ex) {
-            return new ResponseEntity<>("Token refresh Error", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("tokenRefreshError", HttpStatus.UNAUTHORIZED);
         }
 
     }
@@ -111,6 +111,22 @@ public class AuthRestController {
     @RequestMapping(value = "/logout", method = RequestMethod.DELETE)
     public ResponseEntity<?> logout() throws Exception {
         tokenUtil.deleteTokens();
+        return ResponseEntity.ok("");
+    }
+
+    @RequestMapping(value = "/reset-pass", method = RequestMethod.PUT)
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+
+        Optional<User> byPasswordResetToken = userService.findByPasswordResetToken(resetPasswordRequest.getToken());
+        if (byPasswordResetToken.isPresent()){
+            if (resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())){
+                userService.setNewPassword(byPasswordResetToken.get(), resetPasswordRequest.getPassword());
+            } else {
+                return new ResponseEntity<>(new ErrorResponse("passwordsNotMatch", null), HttpStatus.CONFLICT);
+            }
+        } else {
+            return new ResponseEntity<>(new ErrorResponse("resetPasswordRequestNotFound", null), HttpStatus.NOT_FOUND);
+        }
         return ResponseEntity.ok("");
     }
 }

@@ -10,7 +10,7 @@
       </nb-tab>
       <nb-tab tabTitle="{{'residentsPage.newRequests'|translate}}" badgeText="{{countRequests}}"
       badgeStatus="primary">
-        <ng2-smart-table [settings]="settingsRequests" [source]="sourceRequests" (edit)="onUserAccept($event)">
+        <ng2-smart-table [settings]="settingsRequests" [source]="sourceRequests" (edit)="onUserAccept($event)" (delete)= "onDeclineUser($event)">
         </ng2-smart-table>
         {{'residentsPage.count'|translate}}: <b>{{countRequests}}</b>
       </nb-tab>

@@ -172,7 +172,7 @@ public class RequestsService {
         Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequestType.getName()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");
-                    return userName != null && userName.equals(newUserRequestParams.getUserName());
+                    return userName != null && userName.equals(newUserRequestParams.getUserName()) && item.getStatus() == RequestStatus.NEW;
                 }).findFirst();
         return found.isPresent();
     }
@@ -206,7 +206,7 @@ public class RequestsService {
                 .setAddress(address.get()));
         request.setStatus(RequestStatus.CLOSED);
         Request saved = saveRequest(request);
-        emailService.sendPasswordResetLink(userName, token);
+        emailService.sendNewUserPasswordResetLink(userName, token);
         return saved;
     }
 
