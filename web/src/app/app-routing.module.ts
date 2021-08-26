@@ -3,15 +3,14 @@ import { NgModule } from '@angular/core';
 import {
   NbAuthComponent,
   NbLogoutComponent,
-  NbRegisterComponent,
-  NbRequestPasswordComponent,
-  NbResetPasswordComponent,
 } from '@nebular/auth';
 
 
 import {AuthGuard} from './auth/AuthGuard';
 import { CustomLoginComponent } from './pages/login/custom-login.component';
 import { CustomRegisterComponent } from './pages/login/custom-register.component';
+import { CustomResetPassComponent } from './pages/login/custom-reset-pass.component';
+import { CustomRequestPassComponent } from './pages/login/custom-request-pass.component';
 
 export const routes: Routes = [
   {
@@ -43,11 +42,11 @@ export const routes: Routes = [
       },
       {
         path: 'request-password',
-        component: NbRequestPasswordComponent,
+        component: CustomRequestPassComponent,
       },
       {
         path: 'reset-password',
-        component: NbResetPasswordComponent,
+        component: CustomResetPassComponent,
       },
     ],
   },

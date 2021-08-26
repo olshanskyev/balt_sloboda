@@ -117,15 +117,37 @@ public class AuthRestController {
     @RequestMapping(value = "/reset-pass", method = RequestMethod.PUT)
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
 
+        if (resetPasswordRequest.getToken() == null || resetPasswordRequest.getToken().isEmpty()){
+            return new ResponseEntity<>(new ErrorResponse("emptyPasswordResetToken", null), HttpStatus.NOT_FOUND);
+        }
+
         Optional<User> byPasswordResetToken = userService.findByPasswordResetToken(resetPasswordRequest.getToken());
         if (byPasswordResetToken.isPresent()){
             if (resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())){
+                // validate token
+                if (!tokenUtil.validatePasswordResetToken(resetPasswordRequest.getToken(), byPasswordResetToken.get().getUserName())){
+                    return new ResponseEntity<>(new ErrorResponse("tokenNotValidOrExpired", null), HttpStatus.CONFLICT);
+                }
                 userService.setNewPassword(byPasswordResetToken.get(), resetPasswordRequest.getPassword());
             } else {
                 return new ResponseEntity<>(new ErrorResponse("passwordsNotMatch", null), HttpStatus.CONFLICT);
             }
         } else {
             return new ResponseEntity<>(new ErrorResponse("resetPasswordRequestNotFound", null), HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok("");
+    }
+
+
+    @RequestMapping(value = "/request-pass", method = RequestMethod.POST)
+    public ResponseEntity<?> requestPassword(@RequestBody RequestPasswordRequest requestPasswordRequest) {
+        Optional<User> byUserName = userService.findByUserName(requestPasswordRequest.getEmail());
+        if (byUserName.isPresent()){
+            userService.requestPasswordReset(byUserName.get());
+        } else {
+            return new ResponseEntity<>(new ErrorResponse("userNotFound", new HashMap<String, String>() {{
+                put("user", requestPasswordRequest.getEmail());
+            }}), HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("");
     }

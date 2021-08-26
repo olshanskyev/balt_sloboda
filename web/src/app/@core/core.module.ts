@@ -80,7 +80,11 @@ export const NB_CORE_PROVIDERS = [
         },
         resetPass: {
           resetPasswordTokenKey: "token",
-        }
+          defaultMessages: ['resetPass.successMessage']
+        },
+        requestPass: {
+          defaultMessages: ['requestPass.successMessage']
+        },
       }),
     ],
   }).providers,
@@ -93,8 +97,9 @@ export const NB_CORE_PROVIDERS = [
         view_page: ['news', 'requests'],
       },
       ROLE_ADMIN: {
-        parent: 'USER',
+        parent: 'ROLE_USER',
         view_page: ['*'],
+        read: ['*'],
         create: ['*'],
         edit: ['*'],
         remove: ['*'],

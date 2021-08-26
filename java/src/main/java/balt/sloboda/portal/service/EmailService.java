@@ -32,4 +32,9 @@ public class EmailService {
         sendMail(to, "Пользователь создан", "Пользователь " + to + " добавлен на портал Балтийская Слобода 2. Для завершения регистрации перейдите по ссылке " + link + " и задайте пароль. ");
     }
 
+    public void sendPasswordResetLink(String to, String token){
+        final String link = resetPasswordLink + "?token=" + token;
+        sendMail(to, "Новый пароль", "От вашего имени был отправлен запрос на сброс пароля на портале Балтийская Слобода 2. Для того, чтобы это сделать, перейдите по ссылке  " + link + " и задайте новый пароль. ");
+    }
+
 }

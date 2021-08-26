@@ -6,6 +6,8 @@ import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.service.EmailService;
 import balt.sloboda.portal.utils.JsonUtils;
+import balt.sloboda.portal.utils.JwtTokenUtil;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +24,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import org.mockito.ArgumentMatchers;
+
+
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -45,8 +49,10 @@ public class AuthRestControllerTest {
     private long ACCESS_TOKEN_VALIDITY;
     @Value("${jwt.refreshTokenValidity}")
     private long REFRESH_TOKEN_VALIDITY;
+    @Value("${jwt.passwordResetTokenValidity}")
+    private long PASSWORD_RESET_TOKEN_VALIDITY;
 
-    private static JwtResponse login(String userName, String password, MockMvc mvc) throws Exception {
+    public static JwtResponse login(String userName, String password, MockMvc mvc) throws Exception {
         JwtRequest jwtRequest = new JwtRequest(userName, password);
         MvcResult result = mvc.perform(post("/auth/login")
                 .content(JsonUtils.asJsonString(jwtRequest))
@@ -192,6 +198,13 @@ public class AuthRestControllerTest {
     @Autowired
     private EmailService emailService;
 
+    public static void registerUserOK(MockMvc mvc, NewUserRequestParams okUser) throws Exception {
+        mvc.perform(post("/auth/register")
+                .content(JsonUtils.asJsonString(okUser))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
     @Test
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -232,10 +245,7 @@ public class AuthRestControllerTest {
                 .andExpect(jsonPath("$.error", is("notExistingAddress")));
 
         Mockito.doNothing().when(emailService).sendUserRegistrationRequestConfirmation(okUser.getUserName());
-        mvc.perform(post("/auth/register")
-                .content(JsonUtils.asJsonString(okUser))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        registerUserOK(mvc, okUser);
 
         mvc.perform(post("/auth/register")
                 .content(JsonUtils.asJsonString(okUser))
@@ -246,5 +256,128 @@ public class AuthRestControllerTest {
     }
 
 
+    public static void resetPassOK(MockMvc mvc, ResetPasswordRequest resetPasswordRequest) throws Exception {
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetPasswordRequest))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void resetPassNegativeTest() throws Exception{
+        //String token = jwtTokenUtil.generatePasswordResetToken("olshanskyevdev@gmail.com");
+        ResetPasswordRequest resetEmptyToken = new ResetPasswordRequest().setPassword("test").setConfirmPassword("test").setToken(null);
+        ResetPasswordRequest resetTokenNotFound = new ResetPasswordRequest().setPassword("test").setConfirmPassword("test").setToken("asdf");
+        ResetPasswordRequest resetPassNotMatch = new ResetPasswordRequest().setPassword("test").setConfirmPassword("test2").setToken("PASSWORD_RESET_TOKEN");
+        ResetPasswordRequest resetNotValidToken = new ResetPasswordRequest().setPassword("test").setConfirmPassword("test").setToken("PASSWORD_RESET_TOKEN");
+
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetEmptyToken))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("emptyPasswordResetToken")));
+
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetTokenNotFound))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("resetPasswordRequestNotFound")));
+
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetPassNotMatch))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error", is("passwordsNotMatch")));
+
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetNotValidToken))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error", is("tokenNotValidOrExpired")));
+
+    }
+
+
+    public static void requestPassOK(MockMvc mvc, RequestPasswordRequest requestPasswordRequest) throws Exception {
+        mvc.perform(post("/auth/request-pass")
+                .content(JsonUtils.asJsonString(requestPasswordRequest))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void requestAndResetPassTest() throws Exception{
+
+        RequestPasswordRequest requestNotFound = new RequestPasswordRequest().setEmail("olshanskyev2@gmail.com");
+        RequestPasswordRequest requestOk = new RequestPasswordRequest().setEmail("olshanskyev@gmail.com");
+
+        // 1. request password with not existing user (error)
+        mvc.perform(post("/auth/request-pass")
+                .content(JsonUtils.asJsonString(requestNotFound))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("userNotFound")));
+
+        final String[] args = new String[2];
+        Mockito.doAnswer(i -> {
+            args[0] = (String)i.getArguments()[0];
+            args[1] = (String)i.getArguments()[1];
+            return null;
+        }).when(emailService).sendPasswordResetLink(ArgumentMatchers.eq("olshanskyev@gmail.com"), ArgumentMatchers.anyString());
+        // 2. request password and get token (args[1] from mocking method)
+        requestPassOK(mvc, requestOk);
+        // 3. reset password
+        resetPassOK(mvc, new ResetPasswordRequest().setPassword("1234").setConfirmPassword("1234").setToken(args[1]));
+
+        // 4. login with new password
+        login("olshanskyev@gmail.com", "1234", mvc);
+
+        // 5. check what user has null reset token
+        Assert.assertNull(userService.findByUserName("olshanskyev@gmail.com").get().getPasswordResetToken());
+
+    }
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void requestTokenExpirationTest() throws Exception{
+
+        RequestPasswordRequest requestOk = new RequestPasswordRequest().setEmail("olshanskyev@gmail.com");
+
+        final String[] args = new String[2];
+        Mockito.doAnswer(i -> {
+            args[0] = (String)i.getArguments()[0];
+            args[1] = (String)i.getArguments()[1];
+            return null;
+        }).when(emailService).sendPasswordResetLink(ArgumentMatchers.eq("olshanskyev@gmail.com"), ArgumentMatchers.anyString());
+        // 1. request password and get token (args[1] from mocking method)
+        requestPassOK(mvc, requestOk);
+
+        // 2. wait until token expired
+        Thread.sleep(PASSWORD_RESET_TOKEN_VALIDITY * 1000);
+
+        // 3. reset password
+        ResetPasswordRequest resetExpiredToken = new ResetPasswordRequest().setPassword("test").setConfirmPassword("test").setToken(args[1]);
+        mvc.perform(put("/auth/reset-pass")
+                .content(JsonUtils.asJsonString(resetExpiredToken))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error", is("tokenNotValidOrExpired")));
+
+        // 4. login fails
+        mvc.perform(post("/auth/login")
+                .content(JsonUtils.asJsonString(new JwtRequest("olshanskyev@gmail.com", "1234")))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+    }
 
 }

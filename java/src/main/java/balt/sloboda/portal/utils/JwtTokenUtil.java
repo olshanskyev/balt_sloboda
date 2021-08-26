@@ -193,5 +193,15 @@ public class JwtTokenUtil implements Serializable {
         return doGenerateJwtToken(claims, userName, PASSWORD_RESET_TOKEN_VALIDITY * 1000);
     }
 
+    public Boolean validatePasswordResetToken(String token, String userName) {
+        try {
+            return getUsernameFromToken(token).equals(userName);
+        }  catch (ExpiredJwtException exc) {
+            return false;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
 
 }

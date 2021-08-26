@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,40 +21,34 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   menu = MENU_ITEMS;
   currentLang: string;
+  newRequestsService: NewRequestsService;
 
-  newUserRequestsSubscription :Subscription;
+  newUserRequestsSubscription :Subscription = null;
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
-    private newRequestsService: NewRequestsService) {
+    private injector: Injector
+    ) {
+      accessChecker.isGranted('read', 'requests').subscribe(granted => { // only for admins
+        if (granted) {
+          this.newRequestsService = this.injector.get(NewRequestsService);
+        }
+      });
 
     this.currentLang = this.translateService.currentLang;
   }
+
 
   ngOnInit(): void {
     this.menu.forEach(item => {
       this.authMenuItem(item);
     });
 
-    //update badge values
-    this.newUserRequestsSubscription = this.newRequestsService.getNewUserRequests().subscribe(
-      res => {
-
-        const menuItem: NbMenuItem  =this.menu.filter(item => item.link === '/pages/management/residents')[0];
-        if (res > 0) {
-            menuItem.badge = {
-              text: res.toString(),
-              status: 'primary',
-            }
-        } else {
-          menuItem.badge = {
-            text: null,
-          }
-        }
-      }
-    );
   }
 
   ngOnDestroy(): void {
-    this.newUserRequestsSubscription.unsubscribe();
+    if (this.newUserRequestsSubscription !== null) {
+      this.newUserRequestsSubscription.unsubscribe();
+    }
+
   }
 
   // hiding and activating menu items
@@ -69,6 +63,21 @@ export class PagesComponent implements OnInit, OnDestroy {
     if (menuItem.data && menuItem.data['permission'] && menuItem.data['resource']) {
       this.accessChecker.isGranted(menuItem.data['permission'], menuItem.data['resource']).subscribe(granted => {
         menuItem.hidden = !granted;
+        if (menuItem.link === '/pages/management/residents' && granted) { // update badge values
+          this.newUserRequestsSubscription = this.newRequestsService.getNewUserRequests().subscribe(
+            res => {
+              if (res > 0) {
+                menuItem.badge = {
+                  text: res.toString(),
+                  status: 'primary',
+                }
+              } else {
+                menuItem.badge = {
+                  text: null,
+                }
+              }
+            });
+        }
       });
     } else {
       menuItem.hidden = true;

@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { NbAccessChecker } from "@nebular/security";
 import { BehaviorSubject, Observable } from "rxjs";
 import { RequestService } from "./request-service";
 
@@ -18,8 +19,8 @@ export class NewRequestsService {
    }
 
    constructor(requestsService: RequestService) { // preload for menu icons
-       requestsService.getAllNewUserRequests().subscribe (res => {
+        requestsService.getAllNewUserRequests().subscribe (res => {
             this.changeNewUserRequestsCount(res.length);
-       });
+        });
    }
 }

@@ -10,6 +10,8 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomLoginComponent } from './custom-login.component';
 import { CustomRegisterComponent } from './custom-register.component';
+import { CustomRequestPassComponent } from './custom-request-pass.component';
+import { CustomResetPassComponent } from './custom-reset-pass.component';
 
 
 @NgModule({
@@ -32,6 +34,8 @@ import { CustomRegisterComponent } from './custom-register.component';
   declarations: [
     CustomLoginComponent,
     CustomRegisterComponent,
+    CustomResetPassComponent,
+    CustomRequestPassComponent,
   ],
 })
 export class CustomLoginModule { }

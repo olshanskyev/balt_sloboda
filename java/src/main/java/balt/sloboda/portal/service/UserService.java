@@ -2,8 +2,8 @@ package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.repository.DbUserRepository;
+import balt.sloboda.portal.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,11 @@ public class UserService {
     @Autowired
     private DbUserRepository dbUserRepository;
 
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private EmailService emailService;
 
     public List<User> selectAllUsers(){
         return dbUserRepository.findAll();
@@ -52,8 +57,15 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public void setNewPassword(User user, String password) {
-        user.setPassword(passwordEncoder.encode(password)).setPasswordResetToken("");
+        user.setPassword(passwordEncoder.encode(password)).setPasswordResetToken(null);
         dbUserRepository.save(user);
+    }
+
+    public void requestPasswordReset(User user) {
+        String token = jwtTokenUtil.generatePasswordResetToken(user.getUserName());
+        user.setPasswordResetToken(token);
+        dbUserRepository.save(user);
+        emailService.sendPasswordResetLink(user.getUserName(), token);
     }
 
 
