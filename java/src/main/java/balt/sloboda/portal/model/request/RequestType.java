@@ -24,6 +24,9 @@ public class RequestType {
     @Column(name="TITLE", columnDefinition="varchar(256)", nullable = false)
     private String title;
 
+    @Column(name= "DESCRIPTION", columnDefinition="varchar(512)", nullable = true)
+    private String description;
+
     @Column(name="DURABLE", nullable = false)
     private boolean durable = false;
 
@@ -88,6 +91,15 @@ public class RequestType {
 
     public RequestType setRoles(Set<Role> roles) {
         this.roles = roles;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public RequestType setDescription(String description) {
+        this.description = description;
         return this;
     }
 }

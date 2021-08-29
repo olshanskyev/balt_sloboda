@@ -24,6 +24,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 	NAME varchar(64) not null,
 	ROLES varchar(256) not null,
 	TITLE varchar(256) not null,
+	DESCRIPTION varchar(512),
 	primary key (id)
 );
 

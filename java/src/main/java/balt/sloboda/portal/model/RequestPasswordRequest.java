@@ -1,8 +1,6 @@
 package balt.sloboda.portal.model;
 
-import java.io.Serializable;
-
-public class RequestPasswordRequest implements Serializable {
+public class RequestPasswordRequest {
 
     private String email;
 

@@ -1,0 +1,100 @@
+<nb-card>
+
+  <nb-card-body>
+    <nb-tabset>
+      <nb-tab tabTitle="{{'requestManagerPage.allRequestTypes'|translate}}">
+
+      </nb-tab>
+      <nb-tab tabTitle="{{'requestManagerPage.createNewRequestType'|translate}}">
+
+        <nb-stepper  #stepper  [linear]="false" disableStepNavigation="true" orientation="vertical" class="custom-vertical-stepper">
+          <nb-step label="{{'requestManagerPage.mainInformation'|translate}}" >
+            <form #parametersform="ngForm" aria-labelledby="title">
+              <div class="row">
+                <div class="col-md-12 col-lg-6">
+                  <label class="label" for="input-title">{{'requestManagerPage.title'|translate}}</label>
+                  <input nbInput
+                    [(ngModel)]="newRequestType.title"
+                    #title="ngModel"
+                    id="input-title"
+                    name="title"
+                    placeholder="{{'requestManagerPage.title'|translate}}"
+                    fullWidth
+                    fieldSize="large"
+                    required
+                    [status]="title.dirty ? (title.invalid  ? 'danger' : 'success') : 'basic'"
+                    [required]="true"
+                    [attr.aria-invalid]="title.invalid && title.touched ? true : null">
+
+                  <ng-container *ngIf="title.invalid && title.touched">
+                    <p class="caption status-danger" *ngIf="title.errors?.required">
+                      {{'requestManagerPage.titleRequired'|translate}}
+                    </p>
+                  </ng-container>
+
+                </div>
+                <div class="col-md-12 col-lg-6">
+                  <label class="label" for="input-description">{{'requestManagerPage.description'|translate}}</label>
+                  <textarea
+                      nbInput
+                      [(ngModel)]="newRequestType.description"
+                      #description="ngModel"
+                      id="input-description"
+                      name="description"
+                      fullWidth
+                      placeholder="{{'requestManagerPage.enterDescription'|translate}}"
+                      >
+                  </textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-4 col-xxxl-2">
+                  <label class="label" for="input-durable">{{'requestManagerPage.perform'|translate}}</label>
+                  <nb-radio-group [(value)]="newRequestType.durable" id="durableRadioGroup" name="durableRadioGroup">
+                    <nb-radio [value]="false">{{'requestManagerPage.once'|translate}}</nb-radio>
+                    <nb-radio [value]="true">{{'requestManagerPage.multipleTimes'|translate}}</nb-radio>
+                  </nb-radio-group>
+                </div>
+
+
+
+                <div class="col-lg-4 col-xxxl-2" *ngIf="newRequestType.durable === true">
+                  <label class="label" for="input-periodicity">{{'requestManagerPage.periodicity'|translate}}</label>
+                  <nb-radio-group [(value)]="periodicity" id="periodicityGroup" name="periodicityGroup">
+                    <nb-radio *ngFor="let enum of PERIODICITY | keyvalue" [value]="enum.key">{{'requestManagerPage.' + enum.value|translate}}</nb-radio>
+                  </nb-radio-group>
+                </div>
+
+                <div class="col-lg-4 col-xxxl-2" *ngIf="periodicity === PERIODICITY.Weekly">
+                  <label class="label">{{'requestManagerPage.daysOfWeek'|translate}}</label>
+                  <nb-list>
+                    <nb-list-item *ngFor="let weekDay of keys()">
+                      <nb-checkbox (change)="toggleWeekDay($event.target.checked, weekDay)">{{'common.' + weekDay|translate}}</nb-checkbox>
+                    </nb-list-item>
+                  </nb-list>
+
+                </div>
+
+                <div class="col-lg-12 col-xxxl-6" *ngIf="newRequestType.durable === true">
+                  <ngx-multi-select-calendar #calendar [filter]="filter" (arrayChange)="onChangeArray($event)" [max]="maxDate" [min]="minDate"></ngx-multi-select-calendar>
+                </div>
+
+              </div>
+              <button nbButton status="primary" nbStepperNext class="navigation-button" [disabled]="parametersform.invalid">{{'common.next'|translate}}</button>
+            </form>
+          </nb-step>
+          <nb-step label="{{'requestManagerPage.parameterInput'|translate}}">
+            <button nbButton status="primary" nbStepperNext class="navigation-button" [disabled]="parametersform.invalid">{{'common.next'|translate}}</button>
+            <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.prev'|translate}}</button>
+        </nb-step>
+          <nb-step label="{{'requestManagerPage.view'|translate}}">
+              <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.prev'|translate}}</button>
+              <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.create'|translate}}</button>
+          </nb-step>
+        </nb-stepper>
+
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+</nb-card>

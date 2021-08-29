@@ -7,6 +7,7 @@ import { NewsComponent } from './news/news.component';
 import { PageAccessChecker } from '../auth/PageAccessChecker';
 import { ResidentsComponent } from './management/residents/residents.component';
 import { AddressesComponent } from './management/addresses/addresses.component';
+import { RequestManagerComponent } from './management/request-manager/request-manager.component';
 
 const routes: Routes = [{
   path: '',
@@ -37,6 +38,15 @@ const routes: Routes = [{
       data: {
         permission: 'view_page',
         resource: 'management/addresses',
+      },
+    },
+    {
+      path: 'management/requestManager',
+      component: RequestManagerComponent,
+      canActivate: [PageAccessChecker], // Check rights
+      data: {
+        permission: 'view_page',
+        resource: 'management/requestManager',
       },
     },
     {

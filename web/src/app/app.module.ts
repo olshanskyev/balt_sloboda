@@ -5,7 +5,7 @@
  */
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, LOCALE_ID, NgModule } from '@angular/core';
 import { HttpClientModule, HttpRequest, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
@@ -26,11 +26,16 @@ import {
 import { NbAuthJWTInterceptor, NB_AUTH_TOKEN_INTERCEPTOR_FILTER } from '@nebular/auth';
 import { ErrorsInterceptor } from './auth/ErrorsInterceptor';
 
+import { registerLocaleData } from '@angular/common';
+import localeRu from '@angular/common/locales/ru';
+
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
     return appConfig.loadAppConfig();
   };
 };
+
+registerLocaleData(localeRu, 'ru');
 
 @NgModule({
   declarations: [AppComponent],
@@ -51,6 +56,9 @@ const appInitializerFn = (appConfig: AppConfigService) => {
   ],
   providers: [
     AppConfigService,
+    {
+      provide: LOCALE_ID, useValue: 'ru'
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

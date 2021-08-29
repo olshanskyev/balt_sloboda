@@ -9,6 +9,7 @@ import { NewsPageModule } from './news/news-page.module';
 import { CustomLoginModule } from './login/custom-login.module';
 import { ResidentsPageModule } from './management/residents/residents-page.module';
 import { AddressesPageModule } from './management/addresses/addresses-page.module';
+import { RequestManagerModule } from './management/request-manager/request-manager.module';
 
 
 @NgModule({
@@ -21,6 +22,7 @@ import { AddressesPageModule } from './management/addresses/addresses-page.modul
     CustomLoginModule,
     ResidentsPageModule,
     AddressesPageModule,
+    RequestManagerModule,
   ],
   declarations: [
     PagesComponent,

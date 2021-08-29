@@ -3,10 +3,7 @@
  * Copyright Akveo. All Rights Reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { NbPasswordAuthStrategy } from '@nebular/auth';
-import { NbMenuService } from '@nebular/theme';
+import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AnalyticsService } from './@core/utils/analytics.service';
 import { SeoService } from './@core/utils/seo.service';
@@ -20,14 +17,12 @@ import { RussianLanguage } from './lang/russian.language';
 export class AppComponent implements OnInit {
 
   constructor(private analytics: AnalyticsService, private seoService: SeoService,
-    passwordStrategy: NbPasswordAuthStrategy,
-    private menuService: NbMenuService, private router: Router,
     private translateService: TranslateService,
+    @Inject(LOCALE_ID) public locale: string
     ) {
-
       this.translations();
-      this.translateService.setDefaultLang('ru');
-      this.translateService.use('ru');
+      this.translateService.setDefaultLang(locale);
+      this.translateService.use(locale);
 
   }
 

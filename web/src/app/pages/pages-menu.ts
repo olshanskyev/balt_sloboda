@@ -53,5 +53,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
       resource: 'management/addresses',
     },
   },
+  {
+    title: 'RequestManager',
+    icon: 'cube-outline',
+    link: '/pages/management/requestManager',
+    data: {
+      permission: 'view_page',
+      resource: 'management/requestManager',
+    },
+  },
 
 ];

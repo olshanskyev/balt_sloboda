@@ -1,8 +1,7 @@
 package balt.sloboda.portal.model;
 
-import java.io.Serializable;
 
-public class ResetPasswordRequest implements Serializable {
+public class ResetPasswordRequest {
 
     private String password;
     private String confirmPassword;

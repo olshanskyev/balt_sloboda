@@ -18,6 +18,38 @@ export class Request {
     owner: number;
 }
 
+export class RequestType {
+    id: number;
+    name: string;
+    title: string;
+    description: string;
+    durable: boolean;
+    roles: Array<Role>
+    parameters: Array<RequestParam>
+}
+
+
+export class RequestParam {
+    id: number;
+    requestType: RequestType;
+    name: string;
+    type: RequestParamType;
+    optional: boolean;
+    defaultValue: string;
+    comment: string;
+}
+
+export enum RequestParamType{
+    INTEGER,
+    STRING,
+    ENUM
+}
+
+export enum Role {
+    ROLE_USER,
+    ROLE_ADMIN
+}
+
 export enum RequestStatus {
     NEW,
     ACCEPTED,
