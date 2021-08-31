@@ -15,6 +15,7 @@
   } from '@angular/core';
 
   import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } from '@nebular/theme';
+import { MultiSelectCalendarData } from './multi-select-calendar.component';
 
   @Component({
     selector: 'nb-calendar-range-month-cell',
@@ -25,7 +26,7 @@
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  export class MultiSelectCalendarMonthCellComponent<D> implements NbCalendarCell<D, Array<D>> {
+  export class MultiSelectCalendarMonthCellComponent<D> implements NbCalendarCell<D, MultiSelectCalendarData<D>> {
 
     get month(): string {
       return this.dateService.getMonthName(this.date);
@@ -34,7 +35,7 @@
     @Input() date: D;
     @Input() visibleDate: D;
 
-    @Input() selectedValue: Array<D>;
+    @Input() selectedValue: MultiSelectCalendarData<D>;
     @Input() min: D;
     @Input() max: D;
 
@@ -59,7 +60,7 @@
     @HostBinding('class.in-range')
     get inArray(): boolean {
 
-      return this.isInArray(this.date, this.selectedValue);
+      return this.isInArray(this.date, this.selectedValue.array);
 
     }
 

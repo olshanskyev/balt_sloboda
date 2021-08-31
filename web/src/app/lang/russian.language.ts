@@ -132,9 +132,23 @@ export class RussianLanguage {
                 view: 'Отображение',
                 Weekly: 'Еженедельно',
                 Monthly: 'Ежемесячно',
-                periodicity: 'Периодичность',
+                selectionMode: 'Периодичность',
                 Manually: 'Задать вручную',
                 daysOfWeek: 'Дни недели',
+                every: 'Каждый',
+                first: 'Первый',
+                second: 'Второй',
+                third: 'Третий',
+                fourth: 'Четвертый',
+                last: 'Последний',
+                add: 'Добавить',
+                periodicity: 'Периодичность',
+                parameterName: 'Имя параметра',
+                paramNameRequired: 'Необходимо ввести имя параметра',
+                comment: 'Комментарий',
+                enterParamComment: 'Введите комментарий к параметру'
+
+
             },
             common: {
                 next: 'Далее',
@@ -147,6 +161,7 @@ export class RussianLanguage {
                 Friday: 'Пятница',
                 Saturday: 'Суббота',
                 Sunday: 'Воскресенье',
+                day: 'День',
             }
         };
     }

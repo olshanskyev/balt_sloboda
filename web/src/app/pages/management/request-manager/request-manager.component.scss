@@ -19,5 +19,14 @@ textarea {
 }
 
 nb-list-item {
+    .list-label {
+        padding: 0rem;
+    }
     padding: 0.5rem;
+}
+
+
+.list-label {
+    margin-bottom: 0;
+    padding: 0;
 }

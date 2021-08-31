@@ -10,6 +10,7 @@ import { Component, EventEmitter, Input, Output, Type } from '@angular/core';
 import {
   NbBaseCalendarComponent,
   NbCalendarCell,
+  NbCalendarRangeComponent,
   NbCalendarViewMode,
   NbCalendarViewModeValues
 } from '@nebular/theme';
@@ -18,13 +19,21 @@ import { MultiSelectCalendarMonthCellComponent } from './multi-select-calendar-m
 import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-year-cell.component';
 
 
+  export class MultiSelectCalendarData<D> {
+    array: Array<D>;
+    manualSelection: boolean = true;
+    constructor() {
+      this.array = [];
+    }
+  }
+
  @Component({
    selector: 'ngx-multi-select-calendar',
    template: `
    <nb-base-calendar
    [boundingMonth]="boundingMonth"
    [startView]="startView"
-   [date] = "array"
+   [date] = "multiSelectCalendarData"
    [min]="min"
    [max]="max"
    [filter]="filter"
@@ -40,8 +49,7 @@ import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-ye
   ></nb-base-calendar>
    `,
  })
- export class MultiSelectCalendarComponent<D> extends NbBaseCalendarComponent<D, Array<D>> {
-
+ export class MultiSelectCalendarComponent<D> extends NbBaseCalendarComponent<D, MultiSelectCalendarData<D>> {
 
   /**
    * Defines starting view for the calendar.
@@ -49,41 +57,44 @@ import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-ye
   @Input() startView: NbCalendarViewMode = NbCalendarViewMode.DATE;
   static ngAcceptInputType_startView: NbCalendarViewModeValues;
 
-  array: Array<D> = [];
+  @Input("manualSelection")// manualSelection: boolean = true;
+  set _manualSelection(selection: boolean){
+    this.multiSelectCalendarData.manualSelection = selection;
+  }
 
+  multiSelectCalendarData: MultiSelectCalendarData<D> = new MultiSelectCalendarData();
 
   @Input('dayCellComponent')
-  set _cellComponent(cellComponent: Type<NbCalendarCell<D, Array<D>>>) {
+  set _cellComponent(cellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>>) {
     if (cellComponent) {
       this.dayCellComponent = cellComponent;
     }
   }
-  dayCellComponent: Type<NbCalendarCell<D, Array<D>>> = MultiSelectCalendarDayCellComponent;
+  dayCellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>> = MultiSelectCalendarDayCellComponent;
 
 
   /**
    * Custom month cell component. Have to implement `NbCalendarCell` interface.
    * */
    @Input('monthCellComponent')
-   set _monthCellComponent(cellComponent: Type<NbCalendarCell<D, Array<D>>>) {
+   set _monthCellComponent(cellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>>) {
      if (cellComponent) {
        this.monthCellComponent = cellComponent;
      }
    }
-   @Input() monthCellComponent: Type<NbCalendarCell<D, Array<D>>> = MultiSelectCalendarMonthCellComponent;
+   @Input() monthCellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>> = MultiSelectCalendarMonthCellComponent;
 
 
    /**
    * Custom year cell component. Have to implement `NbCalendarCell` interface.
    * */
     @Input('yearCellComponent')
-    set _yearCellComponent(cellComponent: Type<NbCalendarCell<D, Array<D>>>) {
+    set _yearCellComponent(cellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>>) {
       if (cellComponent) {
         this.yearCellComponent = cellComponent;
       }
     }
-    yearCellComponent: Type<NbCalendarCell<D, Array<D>>> = MultiSelectCalendarYearCellComponent;
-
+    yearCellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>> = MultiSelectCalendarYearCellComponent;
 
 
   /**
@@ -97,59 +108,24 @@ import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-ye
 
   private handleSelected(date: D) {
 
-    const foundIndex = this.array.findIndex(item => {
+    const foundIndex = this.multiSelectCalendarData.array.findIndex(item => {
 
         return this.dateService.compareDates(item, date) === 0;
     });
 
     if (foundIndex > -1) {
-      this.array.splice(foundIndex, 1);
+      this.multiSelectCalendarData.array.splice(foundIndex, 1);
     } else {
-      this.array.push(date);
+      this.multiSelectCalendarData.array.push(date);
     }
 
-    this.arrayChange.emit(this.array);
+    this.arrayChange.emit(this.multiSelectCalendarData.array);
   }
 
-
-  reloadView(){
+  updateView(){
     //ToDo to update cell view how?
     this.prevMonth();
     this.nextMonth();
   }
-  /*public toggleWeekDay(checked: boolean, weekDay: string) {
-
-
-    // remove from array
-    for (let i = this.array.length - 1; i >= 0; i--) {
-      if (this.dateService.getDayOfWeek(this.array[i]) === WeekDay[weekDay]) {
-        this.array.splice(i, 1);
-      }
-    }
-
-    if (checked) { // add new elements into array
-      var item: D = this.dateService.addDay(this.min, 1);
-      var step: number = 1;
-      while(this.dateService.compareDates(item, this.max) < 1) {
-        if (this.dateService.getDayOfWeek(item) === WeekDay[weekDay]) { // find first f.e. Monday
-          this.array.push(item);
-          step = 7;
-        }
-        item = this.dateService.addDay(item, step);
-      }
-    }
-
-
-    //ToDo to update cell view how?
-    this.prevMonth();
-    this.nextMonth();
-
-    this.arrayChange.emit(this.array);
-
-  }*/
-
-
-
-
 
  }

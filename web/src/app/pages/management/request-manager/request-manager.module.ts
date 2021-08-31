@@ -4,7 +4,15 @@ import { ThemeModule } from '../../../@theme/theme.module';
 
 import {
   NbButtonModule,
-  NbCardModule, NbCheckboxModule, NbInputModule, NbListModule, NbRadioModule, NbStepperModule, NbTabsetModule,
+  NbCardModule,
+  NbCheckboxModule,
+  NbIconModule,
+  NbInputModule,
+  NbListModule,
+  NbRadioModule,
+  NbSelectModule,
+  NbStepperModule,
+  NbTabsetModule,
 } from '@nebular/theme';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,6 +34,8 @@ import { CustomComponentsModule } from '../../custom-components/custom-component
     CustomComponentsModule,
     NbCheckboxModule,
     NbListModule,
+    NbSelectModule,
+    NbIconModule,
   ],
   declarations: [
     RequestManagerComponent,

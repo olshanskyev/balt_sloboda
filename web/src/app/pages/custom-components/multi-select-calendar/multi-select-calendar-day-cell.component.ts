@@ -8,6 +8,7 @@ import {
     HostListener,
   } from '@angular/core';
 import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } from '@nebular/theme';
+import { MultiSelectCalendarData } from './multi-select-calendar.component';
 
 
   @Component({
@@ -18,12 +19,14 @@ import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } f
     changeDetection: ChangeDetectionStrategy.OnPush,
 
   })
-  export class MultiSelectCalendarDayCellComponent<D> implements NbCalendarCell<D, Array<D>> {
+  export class MultiSelectCalendarDayCellComponent<D> implements NbCalendarCell<D, MultiSelectCalendarData<D>> {
 
+
+    @Input() test: string;
 
     @Input() date: D;
 
-    @Input() selectedValue: Array<D>;
+    @Input() selectedValue: MultiSelectCalendarData<D>;
 
     @Input() visibleDate: D;
 
@@ -44,7 +47,10 @@ import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } f
     @HostBinding('class.in-range')
     get inArray(): boolean {
         if (this.date) {
-            return this.isInArray(this.date, this.selectedValue);
+            if (!this.selectedValue.manualSelection) {
+                return true;
+            }
+            return this.isInArray(this.date, this.selectedValue.array);
         }
 
         return false;
@@ -96,7 +102,8 @@ import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } f
 
     @HostListener('click')
     onClick() {
-        if (this.disabled || this.empty) {
+
+        if (this.disabled || this.empty || !this.selectedValue.manualSelection) {
             return;
         }
 

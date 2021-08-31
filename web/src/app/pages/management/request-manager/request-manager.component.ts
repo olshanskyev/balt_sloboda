@@ -1,20 +1,18 @@
 import { KeyValue, WeekDay } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { Component, ViewChild} from '@angular/core';
 
 import {
+  NbDateService,
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { RequestType } from '../../../@core/data/request-service-data';
+import { EveryDays, MonthDays, SelectionMode, WeekDays } from '../../../@core/data/calendar-selection.data';
+import { RequestParam, RequestType } from '../../../@core/data/request-service-data';
+import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
 import { MultiSelectCalendarComponent } from '../../custom-components/multi-select-calendar/multi-select-calendar.component';
 
 import { Toaster } from '../../Toaster';
 
-export  enum PERIODICITY {
-  Manually = 'Manually',
-  Weekly = 'Weekly',
-  Monthly = 'Monthly',
-}
 
 @Component({
   selector: 'ngx-request-manager',
@@ -26,46 +24,81 @@ export class RequestManagerComponent{
   private toaster: Toaster;
   newRequestType: RequestType = new RequestType();
 
-  PERIODICITY = PERIODICITY;
-  weekDay = WeekDay;
+  EveryDays = EveryDays;
+  everyDays = EveryDays.first;
 
-  periodicity = PERIODICITY.Manually;
+  SelectionMode = SelectionMode;
+  selectionMode = SelectionMode.Manually;
 
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
 
   minDate: Date = new Date();
   maxDate: Date = new Date();
   translations: any;
-  array: Array<Date> = [];
-  constructor(private toastrService: NbToastrService, translateService: TranslateService) {
+  selectedDays: Array<Date> = [];
+  selectedEveryDay: string = 'first';
+  selectedEveryWeekDay:string = 'Monday';
+
+
+  constructor(private toastrService: NbToastrService, translateService: TranslateService,
+    protected dateService: NbDateService<Date>,
+    private calendarSelectionService: CalendarSelectionService) {
     this.toaster = new Toaster(toastrService);
     this.translations = translateService.translations[translateService.currentLang];
     this.newRequestType.durable = false;
     this.maxDate.setMonth(this.maxDate.getMonth() + 12);
     this.minDate.setDate(this.minDate.getDate() -1);
-
   }
 
   onChangeArray(event) {
-    console.log(event);
+    this.selectedDays = event;
+  }
+
+  originalOrder = (a: KeyValue<number,string>, b: KeyValue<number,string>): number => {
+    return 0;
+  }
+
+  weekDaySelected: boolean = false;
+  toggleWeekDay(checked: boolean, weekDay: WeekDay){
+
+    var weekDays: WeekDays = this.calendarSelectionService.toggleDayOfWeek(weekDay, checked);
+    this.weekDaySelected = false;
+    weekDays.forEach((value, key) => {
+      if (value) {
+        this.weekDaySelected = true;
+        return;
+      }
+    });
+    this.calendar.updateView();
+  }
+
+  convertedDayOfMonth: Array<{dayOfWeek: string, everyDay: string}> = [];
+
+  convertSelectedMonthDays(input: MonthDays) {
+    this.convertedDayOfMonth = [];
+    input.forEach((arrayEveryDay, dayOfWeek) => {
+      arrayEveryDay.forEach(everyDay => {
+        this.convertedDayOfMonth.push(
+            {
+              dayOfWeek: dayOfWeek,
+              everyDay: EveryDays[everyDay]
+            }
+          );
+      });
+    });
+
+  }
+
+  addEvery() {
+    this.convertSelectedMonthDays(this.calendarSelectionService.toggleDayOfMonth(EveryDays[this.selectedEveryDay], WeekDay[this.selectedEveryWeekDay], true));
+    this.calendar.updateView();
+  }
+
+  removeEvery(dayOfWeek: string, everyDay: string) {
+    this.convertSelectedMonthDays(this.calendarSelectionService.toggleDayOfMonth(EveryDays[everyDay], WeekDay[dayOfWeek], false));
+    this.calendar.updateView();
   }
 
 
-  checkedWeekDays: Map<string, boolean> = new Map([
-  ]);
-
-  keys() : Array<string> {
-    var keys = Object.keys(this.weekDay);
-    return keys.slice(keys.length / 2);
-  }
-
-  toggleWeekDay(checked: boolean, weekDay: string){
-    this.checkedWeekDays.set(weekDay, checked);
-    this.calendar.reloadView();
-  }
-
-  filter = (date: Date) => {
-      return (this.checkedWeekDays.get(WeekDay[date.getDay()]));
-  }
-
+  newParameter: RequestParam = new RequestParam();
 }

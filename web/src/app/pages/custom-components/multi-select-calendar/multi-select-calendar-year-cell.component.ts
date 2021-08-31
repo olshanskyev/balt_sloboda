@@ -19,6 +19,7 @@
 
 
   import { NbCalendarCell, NbCalendarSize, NbCalendarSizeValues, NbDateService } from '@nebular/theme';
+import { MultiSelectCalendarData } from './multi-select-calendar.component';
 
   @Component({
     selector: 'nb-calendar-range-year-cell',
@@ -29,11 +30,11 @@
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  export class MultiSelectCalendarYearCellComponent<D> implements NbCalendarCell<D, Array<D>> {
+  export class MultiSelectCalendarYearCellComponent<D> implements NbCalendarCell<D, MultiSelectCalendarData<D>> {
 
     @Input() date: D;
 
-    @Input() selectedValue: Array<D>;
+    @Input() selectedValue: MultiSelectCalendarData<D>;
 
     @Input() min: D;
 
@@ -50,7 +51,7 @@
 
     @HostBinding('class.in-range')
     get inArray(): boolean {
-      return this.isInArray(this.date, this.selectedValue);
+      return this.isInArray(this.date, this.selectedValue.array);
     }
 
     @HostBinding('class.selected')
