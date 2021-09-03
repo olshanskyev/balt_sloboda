@@ -161,6 +161,7 @@ public class RequestsService {
                 .setSubject(subject)
                 .setComment(comment)
                 .setOwner(new User().setId(owner))
+                .setAssignedTo(new User().setId(owner))
                 .setLastModifiedBy(new User().setId(lastModifyBy))
                 .setParamValues(paramValues)
                 .setStatus(RequestStatus.NEW);

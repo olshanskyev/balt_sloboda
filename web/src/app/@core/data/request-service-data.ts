@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
     abstract getAllNewUserRequests(userName: string): Observable<Request[]>;
@@ -14,18 +15,20 @@ export class Request {
     status: string;
     createDateTime: Date;
     lastModifiedDate?: Date;
-    lastModifiedBy?: number;
-    owner: number;
+    lastModifiedBy?: User;
+    owner: User;
+    assignedTo: User;
 }
 
 export class RequestType {
     id: number;
     name: string;
     title: string;
-    description: string;
+    description?: string;
     durable: boolean;
     roles: Array<Role>
-    parameters: Array<RequestParam>
+    assignTo: User
+    parameters?: Array<RequestParam>
 }
 
 
@@ -34,15 +37,16 @@ export class RequestParam {
     requestType: RequestType;
     name: string;
     type: RequestParamType;
+    enumValues?: string[];
     optional: boolean;
-    defaultValue: string;
-    comment: string;
+    defaultValue?: string;
+    comment?: string;
 }
 
 export enum RequestParamType{
-    INTEGER,
-    STRING,
-    ENUM
+    INTEGER = 'INTEGER',
+    STRING = 'STRING',
+    ENUM = 'ENUM'
 }
 
 export enum Role {

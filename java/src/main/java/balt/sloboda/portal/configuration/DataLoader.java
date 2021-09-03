@@ -12,6 +12,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import java.util.Optional;
+
 @Configuration
 @Profile("!test")
 public class DataLoader implements ApplicationRunner {
@@ -31,11 +33,12 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        if (!userService.alreadyExists(adminUser.getUserName())){
-            userService.createUser(adminUser); //save user ToDo check if user cannot be saved because of id constraint
-        }
+        Optional<User> adminOptional = userService.findByUserName(adminUser.getUserName());
+        //save user
+        User admin = adminOptional.orElseGet(() -> userService.createUser(adminUser));
         // create NewUserRequest RequestType
         RequestType requestType = new NewUserRequestType().getRequestType();
+        requestType.setAssignTo(admin);
         if (!requestsService.requestTypeAlreadyExists(requestType)){
             requestsService.saveRequestType(requestType);
         }

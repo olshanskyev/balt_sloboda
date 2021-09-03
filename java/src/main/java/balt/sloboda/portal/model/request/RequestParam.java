@@ -1,8 +1,12 @@
 package balt.sloboda.portal.model.request;
 
+import balt.sloboda.portal.model.converter.RolesToStringSetConverter;
+import balt.sloboda.portal.model.converter.StringToStringSetConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="REQUEST_PARAMS")
@@ -32,6 +36,11 @@ public class RequestParam {
 
     @Column(name="COMMENT", columnDefinition="varchar(128)", nullable = true)
     private String comment;
+
+    @Column(name="ENUM_VALUES", columnDefinition="varchar(512)", nullable = true)
+    @Convert(converter = StringToStringSetConverter.class)
+    private Set<String> enumValues = new HashSet<>(); // enum elements for request param with typ RequestParamType.ENUM
+
 
     public Long getId() {
         return id;
@@ -93,6 +102,15 @@ public class RequestParam {
 
     public RequestParam setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+        return this;
+    }
+
+    public Set<String> getEnumValues() {
+        return enumValues;
+    }
+
+    public RequestParam setEnumValues(Set<String> enumValues) {
+        this.enumValues = enumValues;
         return this;
     }
 }

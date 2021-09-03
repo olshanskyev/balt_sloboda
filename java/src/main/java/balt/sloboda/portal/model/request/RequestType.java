@@ -1,8 +1,8 @@
 package balt.sloboda.portal.model.request;
 
 import balt.sloboda.portal.model.Role;
-import balt.sloboda.portal.model.converter.StringSetConverter;
-import balt.sloboda.portal.model.request.type.RequestTypeParams;
+import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.model.converter.RolesToStringSetConverter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,13 +31,16 @@ public class RequestType {
     private boolean durable = false;
 
     @Column(name="ROLES", columnDefinition="varchar(256)", nullable = false)
-    @Convert(converter = StringSetConverter.class)
+    @Convert(converter = RolesToStringSetConverter.class)
     private Set<Role> roles = new HashSet<>(); // who can create such request
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "REQUEST_TYPE_ID")
     private List<RequestParam> parameters = new ArrayList<>();
 
+    @OneToOne
+    @JoinColumn(name="ASSIGN_TO_ID", nullable = false)
+    private User assignTo;
 
     public Long getId() {
         return id;
@@ -100,6 +103,15 @@ public class RequestType {
 
     public RequestType setDescription(String description) {
         this.description = description;
+        return this;
+    }
+
+    public User getAssignTo() {
+        return assignTo;
+    }
+
+    public RequestType setAssignTo(User assignTo) {
+        this.assignTo = assignTo;
         return this;
     }
 }

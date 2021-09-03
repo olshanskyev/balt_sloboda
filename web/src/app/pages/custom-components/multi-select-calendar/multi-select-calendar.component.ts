@@ -82,7 +82,7 @@ import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-ye
        this.monthCellComponent = cellComponent;
      }
    }
-   @Input() monthCellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>> = MultiSelectCalendarMonthCellComponent;
+   monthCellComponent: Type<NbCalendarCell<D, MultiSelectCalendarData<D>>> = MultiSelectCalendarMonthCellComponent;
 
 
    /**

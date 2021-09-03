@@ -1,0 +1,332 @@
+<nb-stepper  #stepper  [linear]="false" disableStepNavigation="false" orientation="vertical" class="custom-vertical-stepper">
+    <nb-step label="{{'requestManagerPage.mainInformation'|translate}}" >
+        <form #nameForm="ngForm">
+        <div class="row">
+            <div class="col-md-12 col-lg-6">
+            <label class="label" for="input-title">{{'requestManagerPage.title'|translate}}</label>
+            <input nbInput
+                [(ngModel)]="newRequestType.title"
+                #title="ngModel"
+                id="input-title"
+                name="title"
+                placeholder="{{'requestManagerPage.title'|translate}}"
+                fullWidth
+                fieldSize="large"
+                required
+                [status]="title.dirty ? (title.invalid  ? 'danger' : 'success') : 'basic'"
+                [attr.aria-invalid]="title.invalid && title.touched ? true : null">
+            <ng-container *ngIf="title.invalid && title.touched">
+                <p class="caption status-danger" *ngIf="title.errors?.required">
+                {{'requestManagerPage.titleRequired'|translate}}
+                </p>
+            </ng-container>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-6">
+            <label class="label" for="input-description">{{'requestManagerPage.description'|translate}}</label>
+            <textarea
+                nbInput
+                [(ngModel)]="newRequestType.description"
+                #description="ngModel"
+                id="input-description"
+                name="description"
+                fullWidth
+                placeholder="{{'requestManagerPage.enterDescription'|translate}}"
+                >
+            </textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-6">
+            <label class="label" for="input-assignTo">{{'requestManagerPage.assignTo'|translate}}</label>
+            <nb-select
+                name="assignTo"
+                id="assignTo"
+                #assignTo
+                fullWidth
+                [status]="!selectedAssignToId? 'danger' : 'success'"
+                [(selected)]="selectedAssignToId">
+                <nb-option-group *ngFor="let group of userGroups" [title]="group.name">
+                <nb-option *ngFor="let user of group.users" [value]="user.id">
+                    {{ user.userName }}
+                </nb-option>
+                </nb-option-group>
+
+            </nb-select>
+            </div>
+        </div>
+
+        <button nbButton status="primary" nbStepperNext class="navigation-button"
+        [disabled]="nameForm.invalid || !selectedAssignToId"
+        >{{'common.next'|translate}}</button>
+        </form>
+    </nb-step>
+    <nb-step label="{{'requestManagerPage.periodicity'|translate}}">
+        <form #periodicityForm="ngForm">
+        <div class="row">
+            <div class="col-lg-4 col-xxxl-2">
+            <label class="label" for="input-durable">{{'requestManagerPage.perform'|translate}}</label>
+            <nb-radio-group [(value)]="newRequestType.durable" id="durableRadioGroup" name="durableRadioGroup" (valueChange)="durableRadioChanged($event)">
+                <nb-radio [value]="false">{{'requestManagerPage.once'|translate}}</nb-radio>
+                <nb-radio [value]="true">{{'requestManagerPage.multipleTimes'|translate}}</nb-radio>
+            </nb-radio-group>
+            </div>
+
+            <div class="col-lg-4 col-xxxl-2" *ngIf="newRequestType.durable">
+            <label class="label" for="input-selectionMode">{{'requestManagerPage.selectionMode'|translate}}</label>
+            <nb-radio-group [(value)]="selectionMode" id="selectionModeGroup" name="selectionModeGroup">
+                <nb-radio *ngFor="let enum of SelectionMode | keyvalue" [value]="enum.key">{{'requestManagerPage.' + enum.value|translate}}</nb-radio>
+            </nb-radio-group>
+            </div>
+
+            <div class="col-lg-4 col-xxxl-3" *ngIf="selectionMode === SelectionMode.Weekly && newRequestType.durable">
+            <label class="label">{{'requestManagerPage.daysOfWeek'|translate}}</label>
+            <nb-list>
+                <nb-list-item *ngFor="let weekDay of calendarSelectionService.getCheckedWeekDays()| keyvalue: originalOrder">
+                <nb-checkbox [checked]= "weekDay.value" (change)="toggleWeekDay($event.target.checked, weekDay.key)">{{'common.' + weekDay.key|translate}}</nb-checkbox>
+                </nb-list-item>
+            </nb-list>
+            </div>
+
+
+            <div class="col-lg-4 col-xxxl-3" *ngIf="selectionMode === SelectionMode.Monthly && newRequestType.durable">
+            <label class="label">{{'requestManagerPage.every'|translate}}</label>
+
+            <nb-select
+                    name="firstLastWeekDay"
+                    id="firstLastWeekDay"
+                    #firstLastWeekDay
+                    [(selected)]="selectedEveryDay"
+                    fullWidth
+                    >
+                <nb-option *ngFor="let item of calendarSelectionService.getEveryDaysList()" [value]="item">{{'requestManagerPage.' + item|translate}}</nb-option>
+            </nb-select>
+            <label class="label">{{'common.day'|translate}}</label>
+            <nb-select
+                    name="everyWeekDay"
+                    id="everyWeekDay"
+                    #everyWeekDay
+                    [(selected)]="selectedEveryWeekDay"
+                    fullWidth
+                    >
+                <nb-option *ngFor="let weekDay of calendarSelectionService.getCheckedWeekDays()| keyvalue: originalOrder" [value]="weekDay.key">{{'common.' + weekDay.key|translate}}</nb-option>
+            </nb-select>
+
+
+            <button [disabled]="!selectedEveryDay || !selectedEveryWeekDay" type="button" class="btn btn-link" (click)="addEvery()">{{'requestManagerPage.add'|translate}}</button>
+            <nb-list>
+                <nb-list-item class="list-label" *ngFor="let item of convertedDayOfMonth">
+                <label class="list-label">{{'requestManagerPage.' + item.everyDay|translate}} {{'common.' + item.dayOfWeek|translate}}</label>
+                <button nbSuffix nbButton ghost status="primary" nbSuffix
+                (click)="removeEvery(item.dayOfWeek, item.everyDay)">
+                <nb-icon icon="close-outline"></nb-icon></button>
+                </nb-list-item>
+            </nb-list>
+            </div>
+
+            <div class="col-lg-12 col-xxxl-5" *ngIf="newRequestType.durable">
+            <ngx-multi-select-calendar #calendar
+            [boundingMonth]="false"
+            [manualSelection]="(selectionMode === SelectionMode.Manually)"
+            [filter]="(selectionMode !== SelectionMode.Manually)?(selectionMode === SelectionMode.Monthly)?calendarSelectionService.monthFilter:calendarSelectionService.weekFilter:''"
+            (arrayChange)="onChangeArray($event)"
+            [max]="(selectionMode === SelectionMode.Manually)?maxDate:''"
+            [min]="(selectionMode === SelectionMode.Manually)?minDate:''"
+            ></ngx-multi-select-calendar>
+            </div>
+
+        </div>
+        <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.prev'|translate}}</button>
+        <button nbButton status="primary" nbStepperNext class="navigation-button"
+            [disabled]="newRequestType.durable && (
+            (selectionMode === SelectionMode.Manually && selectedDays.length === 0) ||
+            (selectionMode === SelectionMode.Weekly && !weekDaySelected) ||
+            (selectionMode === SelectionMode.Monthly && convertedDayOfMonth.length === 0))"
+            >{{'common.next'|translate}}
+        </button>
+
+        </form>
+    </nb-step>
+    <nb-step label="{{'requestManagerPage.parameterInput'|translate}}">
+
+        <form #parametersForm="ngForm">
+
+        <div class="row">
+            <div class="col-md-12 col-lg-6">
+
+                <label class="label" for="input-param-name">{{'requestManagerPage.parameterName'|translate}}</label>
+                <input nbInput
+                [(ngModel)]="newParameter.name"
+                #paramName="ngModel"
+                id="input-param-name"
+                name="paramName"
+                placeholder="{{'requestManagerPage.parameterName'|translate}}"
+                fullWidth
+                fieldSize="large"
+                required
+                [status]="paramName.dirty ? (paramName.invalid  ? 'danger' : 'success') : 'basic'"
+                [required]="true"
+                [attr.aria-invalid]="paramName.invalid && paramName.touched ? true : null">
+                <ng-container *ngIf="paramName.invalid && paramName.touched">
+                    <p class="caption status-danger" *ngIf="paramName.errors?.required">
+                    {{'requestManagerPage.paramNameRequired'|translate}}
+                    </p>
+                </ng-container>
+
+                <label class="label" for="input-param-comment">{{'requestManagerPage.comment'|translate}}</label>
+                <textarea
+                    nbInput
+                    [(ngModel)]="newParameter.comment"
+                    #paramComment="ngModel"
+                    id="input-param-comment"
+                    name="paramComment"
+                    fullWidth
+                    placeholder="{{'requestManagerPage.enterParamComment'|translate}}"
+                    >
+                </textarea>
+
+            </div>
+
+
+            <div class="col-md-12 col-lg-6">
+            <label class="label" for="input-param-name">{{'requestManagerPage.parameterType'|translate}}</label>
+            <nb-radio-group [(value)]="newParameter.type" id="parameterTypeRadioGroup" name="parameterTypeRadioGroup">
+                <nb-radio *ngFor="let paramType of RequestParamType | keyvalue" [value]="paramType.key">
+                {{'requestManagerPage.'+paramType.key|translate}}
+                </nb-radio>
+            </nb-radio-group>
+
+            <div *ngIf="newParameter.type === RequestParamType.ENUM">
+                <nb-form-field>
+                <input #parameterEnumvalue type="text" nbInput fieldSize="small">
+                <button  nbSuffix nbButton ghost status="primary" (click)="addValueToEnum(parameterEnumvalue.value); parameterEnumvalue.value = ''">
+                    <nb-icon icon="checkmark-outline"
+                            pack="eva">
+                    </nb-icon>
+                </button>
+                </nb-form-field>
+                <ng-container *ngIf="newParameterEnumValues.length === 0">
+                <p class="caption status-danger">
+                    {{'requestManagerPage.enumValueRequired'|translate}}
+                </p>
+                </ng-container>
+
+                <nb-list>
+                <nb-list-item class="list-label" *ngFor="let item of newParameterEnumValues">
+                    <label class="list-label">{{item}}</label>
+                    <button nbSuffix nbButton ghost status="primary" nbSuffix
+                    (click)="removeFromNewParameterEnumValues(item)">
+                    <nb-icon icon="close-outline"></nb-icon></button>
+                </nb-list-item>
+                </nb-list>
+            </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-6">
+                <label class="label" for="input-param-default-value">{{'requestManagerPage.defaultValue'|translate}}</label>
+                <input nbInput *ngIf="newParameter.type !== RequestParamType.ENUM"
+                [(ngModel)]="newParameter.defaultValue"
+                #paramDefaultValue="ngModel"
+                id="input-param-default-value"
+                name="paramDefaultValue"
+                [type]="(newParameter.type === RequestParamType.INTEGER)? 'number': 'text'"
+                placeholder="{{'requestManagerPage.defaultValue'|translate}}"
+                fullWidth
+                fieldSize="large"
+                >
+
+                <nb-select *ngIf="newParameter.type === RequestParamType.ENUM"
+                    name="defaultEnumbValueSelect"
+                    id="defaultEnumbValueSelect"
+                    #defaultEnumbValueSelect
+                    fullWidth
+                    [(selected)]="newParameter.defaultValue"
+                    >
+                    <nb-option *ngFor="let item of newParameterEnumValues" [value]="item">{{item}}</nb-option>
+                </nb-select>
+            </div>
+            <div class="col-md-12 col-lg-6">
+            <label class="label" for="input-param-optional">{{'requestManagerPage.notOptional'|translate}}</label>
+            <nb-radio-group [(value)]="newParameter.optional" id="newParameterOptional" name="newParameterOptional">
+                <nb-radio [value]="false">{{'common.yes'|translate}}</nb-radio>
+                <nb-radio [value]="true">{{'common.no'|translate}}</nb-radio>
+            </nb-radio-group>
+            </div>
+        </div>
+
+        <button
+        [disabled]="parametersForm.invalid || (newParameter.type === RequestParamType.ENUM && newParameterEnumValues.length === 0)"
+            size="small" nbButton status="primary" (click)="addNewParam()">
+            <nb-icon icon="plus-outline"
+                    pack="eva">
+            </nb-icon>
+            {{'requestManagerPage.create'|translate}}
+        </button>
+
+        <nb-list>
+            <nb-list-item class="list-params" *ngFor="let item of newParameters">
+            <label class="list-label">
+                <b>{{item.name}}</b> ({{(item.type === RequestParamType.ENUM)?item.enumValues.join(", "):'requestManagerPage.'+item.type|translate}}),
+                <b>{{(item.optional)?('requestManagerPage.optional'|translate):('requestManagerPage.notOptional'|translate)}}</b>
+            </label>
+                    <button nbSuffix nbButton ghost status="primary" nbSuffix
+                    (click)="removeFromNewParameters(item)">
+                    <nb-icon icon="close-outline"></nb-icon></button>
+            </nb-list-item>
+        </nb-list>
+
+        </form>
+        <button nbButton status="primary" nbStepperPrevious class="navigation-button">{{'common.prev'|translate}}</button>
+        <button nbButton status="primary" nbStepperNext class="navigation-button">{{'common.next'|translate}}</button>
+    </nb-step>
+    <nb-step label="{{'requestManagerPage.view'|translate}}">
+
+        <div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="label">{{'common.icon'|translate}} </label><p>
+                    <nb-icon size="large" [icon]="selectedIcon" status="basic" class="selected-icon"
+                                pack="eva">
+                    </nb-icon>
+
+                </div>
+                <div class="col-md-12">
+                    <button size="small" nbButton status="primary" (click)="chooseIcon()">
+                        {{'requestManagerPage.chooseIcon'|translate}}
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="label">{{'requestManagerPage.showInMainRequestMenu'|translate}}</label><p>
+                    <nb-radio-group [(value)]="showInMenu">
+                        <nb-radio [value]="true">
+                            {{'common.yes'|translate}}
+                        </nb-radio>
+                        <nb-radio [value]="false">
+                            {{'common.no'|translate}}
+                        </nb-radio>
+                    </nb-radio-group>
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+
+
+
+        <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.prev'|translate}}</button>
+        <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.create'|translate}}</button>
+</nb-step>
+</nb-stepper>

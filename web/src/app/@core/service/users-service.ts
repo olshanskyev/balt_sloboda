@@ -7,7 +7,6 @@ import { environment } from '../../../environments/environment';
 @Injectable()
 export class UserService extends UserServiceData {
 
-
   private uri: string = environment.baseEndpoint;
 
   constructor(private _http: HttpClient) {
@@ -22,6 +21,11 @@ export class UserService extends UserServiceData {
   getUserInfo(): Observable<User> {
     const _endpoint = this.uri +  '/userInfo';
     return this._http.get<User>(_endpoint);
+  }
+
+  getAllUsers(): Observable<User[]> {
+    const _endpoint = this.uri +  '/management/users';
+    return this._http.get<User[]>(_endpoint);
   }
 
 

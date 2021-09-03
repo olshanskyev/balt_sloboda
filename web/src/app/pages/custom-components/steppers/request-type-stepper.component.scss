@@ -1,0 +1,39 @@
+
+::ng-deep nb-stepper {
+    &.custom-vertical-stepper {
+        .step-content {
+            width: 100%;
+        }
+    }
+
+}
+
+textarea {
+    height: 100px;
+}
+
+.navigation-button {
+    margin-top: 2rem;
+    margin-right: 0.5rem;
+}
+
+nb-list-item {
+    .list-label {
+        padding: 0rem;
+    }
+    padding: 0.5rem;
+}
+
+
+.list-label {
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.row {
+    margin-bottom: 1.5rem;
+}
+
+.selected-icon {
+    font-size: 2.5rem;
+}

@@ -2,7 +2,6 @@ package balt.sloboda.portal.model.request;
 
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.converter.StringMapConverter;
-import balt.sloboda.portal.model.converter.StringSetConverter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -42,7 +41,6 @@ public class Request {
     @Column(name="STATUS", nullable = false)
     private RequestStatus status = RequestStatus.NEW;
 
-
     @Column(name="LAST_MODIFIED_DATE")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @UpdateTimestamp
@@ -51,6 +49,10 @@ public class Request {
     @OneToOne
     @JoinColumn(name="OWNER_ID", nullable = false)
     private User owner;
+
+    @OneToOne
+    @JoinColumn(name="ASSIGNED_TO_ID", nullable = false)
+    private User assignedTo;
 
     @OneToOne
     @JoinColumn(name="LAST_MODIFIED_BY_ID", nullable = false)
@@ -136,6 +138,15 @@ public class Request {
 
     public Request setParamValues(Map<String, String> paramValues) {
         this.paramValues = paramValues;
+        return this;
+    }
+
+    public User getAssignedTo() {
+        return assignedTo;
+    }
+
+    public Request setAssignedTo(User assignedTo) {
+        this.assignedTo = assignedTo;
         return this;
     }
 }

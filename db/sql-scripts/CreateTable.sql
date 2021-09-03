@@ -12,6 +12,7 @@ create table $DATABASE_SCHEMA.REQUEST_PARAMS (
    id  bigserial not null,
 	COMMENT varchar(128),
 	DEFAULT_VALUE varchar(256),
+	ENUM_VALUES varchar(512),
 	NAME varchar(64) not null,
 	OPTIONAL boolean not null,
 	TYPE varchar(64) not null,
@@ -26,6 +27,7 @@ create table $DATABASE_SCHEMA.REQUEST_TYPES (
 	ROLES varchar(256) not null,
 	TITLE varchar(256) not null,
 	DESCRIPTION varchar(512),
+	ASSIGN_TO_ID int8 not null,
 	primary key (id)
 );
     
@@ -39,6 +41,7 @@ create table $DATABASE_SCHEMA.REQUESTS (
 	SUBJECT varchar(256) not null,
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
+	ASSIGNED_TO_ID int8 not null,
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -72,6 +75,11 @@ alter table $DATABASE_SCHEMA.REQUEST_PARAMS
    add constraint FKr7o056wpalrxam3mpkb2t1shl 
    foreign key (REQUEST_TYPE_ID) 
    references $DATABASE_SCHEMA.REQUEST_TYPES;
+   
+alter table $DATABASE_SCHEMA.REQUEST_TYPES 
+   add constraint FKljexdsmuw47pm59ftv8dlyrhf 
+   foreign key (ASSIGN_TO_ID) 
+   references $DATABASE_SCHEMA.USERS;   
     
 alter table $DATABASE_SCHEMA.REQUESTS 
    add constraint FKdwduqkdgt2ge0nnax41vegc2v 
@@ -82,7 +90,12 @@ alter table $DATABASE_SCHEMA.REQUESTS
    add constraint FKfeh055doroq6kr7fdvsfcpuxs 
    foreign key (OWNER_ID) 
    references $DATABASE_SCHEMA.USERS;
-    
+
+alter table $DATABASE_SCHEMA.REQUESTS 
+   add constraint FKd3xrr7siw4p7lj946u5au8wv0 
+   foreign key (ASSIGNED_TO_ID) 
+   references $DATABASE_SCHEMA.USERS;
+	   
 alter table $DATABASE_SCHEMA.REQUESTS 
    add constraint FKbnmklf2ehuv88h1ejpsphn8a5 
    foreign key (REQUEST_TYPE_ID) 

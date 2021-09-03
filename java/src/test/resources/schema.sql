@@ -11,6 +11,7 @@ create table IF NOT EXISTS REQUEST_PARAMS (
    id  bigserial not null,
 	COMMENT varchar(128),
 	DEFAULT_VALUE varchar(256),
+	ENUM_VALUES varchar(512),
 	NAME varchar(64) not null,
 	OPTIONAL boolean not null,
 	TYPE varchar(64) not null,
@@ -25,6 +26,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 	ROLES varchar(256) not null,
 	TITLE varchar(256) not null,
 	DESCRIPTION varchar(512),
+	ASSIGN_TO_ID int8 not null,
 	primary key (id)
 );
 
@@ -38,6 +40,7 @@ create table IF NOT EXISTS REQUESTS (
 	SUBJECT varchar(256) not null,
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
+	ASSIGNED_TO_ID int8 not null,
 	REQUEST_TYPE_ID int8 not null,
 	primary key (id)
 );
@@ -72,6 +75,11 @@ alter table REQUEST_PARAMS
    foreign key (REQUEST_TYPE_ID)
    references REQUEST_TYPES;
 
+alter table REQUEST_TYPES
+   add constraint IF NOT EXISTS FKljexdsmuw47pm59ftv8dlyrhf
+   foreign key (ASSIGN_TO_ID)
+   references USERS;
+
 alter table REQUESTS
    add constraint IF NOT EXISTS FKdwduqkdgt2ge0nnax41vegc2v
    foreign key (LAST_MODIFIED_BY_ID)
@@ -80,6 +88,11 @@ alter table REQUESTS
 alter table REQUESTS
    add constraint IF NOT EXISTS FKfeh055doroq6kr7fdvsfcpuxs
    foreign key (OWNER_ID)
+   references USERS;
+
+alter table REQUESTS
+   add constraint IF NOT EXISTS FKd3xrr7siw4p7lj946u5au8wv0
+   foreign key (ASSIGNED_TO_ID)
    references USERS;
 
 alter table REQUESTS

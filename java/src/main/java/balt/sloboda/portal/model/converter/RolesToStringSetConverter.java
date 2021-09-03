@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 @Converter
-public class StringSetConverter implements AttributeConverter<Set<Role>, String> {
+public class RolesToStringSetConverter implements AttributeConverter<Set<Role>, String> {
 
   @Override
   public String convertToDatabaseColumn(Set<Role> set) {
@@ -20,11 +20,15 @@ public class StringSetConverter implements AttributeConverter<Set<Role>, String>
   @Override
   public Set<Role> convertToEntityAttribute(String joined) {
     HashSet<Role> myHashSet = new HashSet<>();
+    if (joined == null) {
+      return myHashSet;
+    }
     StringTokenizer st = new StringTokenizer(joined, ",");
     while(st.hasMoreTokens())
       myHashSet.add(Role.valueOf(st.nextToken()));
 
     return myHashSet;
   }
+
 
 }

@@ -142,12 +142,23 @@ export class RussianLanguage {
                 fourth: 'Четвертый',
                 last: 'Последний',
                 add: 'Добавить',
+                create: 'Создать',
                 periodicity: 'Периодичность',
                 parameterName: 'Имя параметра',
+                parameterType: 'Тип параметра',
                 paramNameRequired: 'Необходимо ввести имя параметра',
                 comment: 'Комментарий',
-                enterParamComment: 'Введите комментарий к параметру'
-
+                enterParamComment: 'Введите комментарий к параметру',
+                assignTo: 'Назначить пользователю',
+                ENUM: 'Список значений',
+                INTEGER: 'Число',
+                STRING: 'Текст',
+                defaultValue: 'Значение по умолчанию',
+                optional: 'Необязательный',
+                notOptional: 'Обязательный',
+                enumValueRequired: 'Необходимо добавить значение',
+                chooseIcon: 'Выбрать иконку',
+                showInMainRequestMenu: 'Показывать в основном меню'
 
             },
             common: {
@@ -162,6 +173,9 @@ export class RussianLanguage {
                 Saturday: 'Суббота',
                 Sunday: 'Воскресенье',
                 day: 'День',
+                yes: 'Да',
+                no: 'Нет',
+                icon: 'Иконка',
             }
         };
     }
