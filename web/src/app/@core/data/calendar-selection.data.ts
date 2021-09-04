@@ -22,13 +22,11 @@ export enum EveryDays {
 export type MonthDays = Map<string, Array<EveryDays>>;
 export type WeekDays = Map<string, boolean>;
 export class CalendarSelectionData {
-  private selectionMode: SelectionMode;
-  private monthDays: MonthDays;
-  private weekDays: WeekDays;
-  private selectedDays: Array<Date>;
-
-  private constructor() {
-  }
+  id?: number;
+  selectionMode: SelectionMode;
+  monthDays: MonthDays;
+  weekDays: WeekDays;
+  selectedDays: Array<Date>;
 
   public createManualSelection(selectedDays: Array<Date>): CalendarSelectionData {
     this.selectedDays = selectedDays;

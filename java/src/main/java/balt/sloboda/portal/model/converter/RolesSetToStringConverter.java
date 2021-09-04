@@ -10,17 +10,20 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 @Converter
-public class RolesToStringSetConverter implements AttributeConverter<Set<Role>, String> {
+public class RolesSetToStringConverter implements AttributeConverter<Set<Role>, String> {
 
   @Override
   public String convertToDatabaseColumn(Set<Role> set) {
+    if (set == null) {
+      return "";
+    }
     return set.stream().map(Enum::toString).collect(Collectors.joining(","));
   }
 
   @Override
   public Set<Role> convertToEntityAttribute(String joined) {
     HashSet<Role> myHashSet = new HashSet<>();
-    if (joined == null) {
+    if (joined == null || joined.isEmpty()) {
       return myHashSet;
     }
     StringTokenizer st = new StringTokenizer(joined, ",");

@@ -1,5 +1,5 @@
 import { KeyValue, WeekDay } from '@angular/common';
-import { Component, ViewChild} from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild} from '@angular/core';
 
 import {
   NbDateService,
@@ -7,7 +7,7 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { EveryDays, MonthDays, SelectionMode, WeekDays } from '../../../@core/data/calendar-selection.data';
+import { CalendarSelectionData, EveryDays, MonthDays, SelectionMode, WeekDays } from '../../../@core/data/calendar-selection.data';
 import { RequestParam, RequestParamType, RequestType } from '../../../@core/data/request-service-data';
 import { User } from '../../../@core/data/user-service-data';
 import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
@@ -16,6 +16,7 @@ import { MultiSelectCalendarComponent } from '../multi-select-calendar/multi-sel
 
 import { Toaster } from '../../Toaster';
 import { IconPickerWindowComponent } from '../icon-picker/icon-picker-window.component';
+
 
 export interface UserGroup {
   name: string;
@@ -28,6 +29,9 @@ export interface UserGroup {
   styleUrls: ['./request-type-stepper.component.scss'],
 })
 export class RequestTypeStepperComponent{
+
+
+  @Output() requestTypeCreated: EventEmitter<RequestType> = new EventEmitter();
 
   private toaster: Toaster;
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
@@ -66,7 +70,7 @@ export class RequestTypeStepperComponent{
 
   newParameters: RequestParam[] = [];
 
-  selectedIcon: string = 'plus-outline';
+  selectedIcon: string;
   showInMenu: boolean = true;
 
   initNewParams() {
@@ -74,6 +78,17 @@ export class RequestTypeStepperComponent{
     this.newParameter.type = RequestParamType.STRING;
     this.newParameter.optional = false;
     this.newParameterEnumValues = [];
+  }
+
+  init() {
+    this.newRequestType = new RequestType();
+    this.newRequestType.durable = false;
+    this.selectedDays = [];
+    this.convertedDayOfMonth = [];
+    this.newParameterEnumValues = [];
+    this.newParameters = [];
+    this.initNewParams();
+    this.selectedIcon = 'plus-outline';
   }
 
   constructor(private toastrService: NbToastrService, translateService: TranslateService,
@@ -88,7 +103,7 @@ export class RequestTypeStepperComponent{
     this.minDate.setDate(this.minDate.getDate() -1);
 
     this.loadUsers();
-    this.initNewParams();
+    this.init();
 
   }
 
@@ -197,8 +212,42 @@ export class RequestTypeStepperComponent{
       },
     })
     .onClose.subscribe(result => {
-      console.log(result);
+      this.selectedIcon = result;
     });
+  }
+
+
+  createRequestType() {
+    this.newRequestType.parameters = this.newParameters;
+    if (this.newRequestType.durable) {
+      switch(this.selectionMode){
+        case SelectionMode.Manually: {
+          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createManualSelection(this.selectedDays);
+          break;
+        }
+        case SelectionMode.Monthly: {
+          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createMonthSelection(this.calendarSelectionService.getMonthDays());
+          break;
+        }
+        case SelectionMode.Weekly: {
+          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createWeekSelection(this.calendarSelectionService.getWeekDays());
+          break;
+        }
+      }
+    }
+
+    this.newRequestType.displayOptions = {
+      icon: this.selectedIcon,
+      showInMainRequestMenu: this.showInMenu,
+    };
+
+    var assigneToUser: User = new User();
+    assigneToUser.id = this.selectedAssignToId;
+    this.newRequestType.assignTo = assigneToUser;
+
+    this.requestTypeCreated.emit(this.newRequestType);
+    this.init();
+
   }
 
 

@@ -1,4 +1,4 @@
-<nb-stepper  #stepper  [linear]="false" disableStepNavigation="false" orientation="vertical" class="custom-vertical-stepper">
+<nb-stepper  #stepper  [linear]="true" disableStepNavigation="true" orientation="vertical" class="custom-vertical-stepper">
     <nb-step label="{{'requestManagerPage.mainInformation'|translate}}" >
         <form #nameForm="ngForm">
         <div class="row">
@@ -85,7 +85,7 @@
             <div class="col-lg-4 col-xxxl-3" *ngIf="selectionMode === SelectionMode.Weekly && newRequestType.durable">
             <label class="label">{{'requestManagerPage.daysOfWeek'|translate}}</label>
             <nb-list>
-                <nb-list-item *ngFor="let weekDay of calendarSelectionService.getCheckedWeekDays()| keyvalue: originalOrder">
+                <nb-list-item *ngFor="let weekDay of calendarSelectionService.getWeekDays()| keyvalue: originalOrder">
                 <nb-checkbox [checked]= "weekDay.value" (change)="toggleWeekDay($event.target.checked, weekDay.key)">{{'common.' + weekDay.key|translate}}</nb-checkbox>
                 </nb-list-item>
             </nb-list>
@@ -112,7 +112,7 @@
                     [(selected)]="selectedEveryWeekDay"
                     fullWidth
                     >
-                <nb-option *ngFor="let weekDay of calendarSelectionService.getCheckedWeekDays()| keyvalue: originalOrder" [value]="weekDay.key">{{'common.' + weekDay.key|translate}}</nb-option>
+                <nb-option *ngFor="let weekDay of calendarSelectionService.getWeekDays()| keyvalue: originalOrder" [value]="weekDay.key">{{'common.' + weekDay.key|translate}}</nb-option>
             </nb-select>
 
 
@@ -322,11 +322,7 @@
         </div>
 
 
-
-
-
-
-        <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.prev'|translate}}</button>
-        <button nbButton status="primary" nbStepperPrevious class="navigation-button" [disabled]="false">{{'common.create'|translate}}</button>
-</nb-step>
+        <button nbButton status="primary" nbStepperPrevious class="navigation-button">{{'common.prev'|translate}}</button>
+        <button nbButton status="primary" class="navigation-button" (click)="createRequestType(); stepper.reset();">{{'common.create'|translate}}</button>
+    </nb-step>
 </nb-stepper>

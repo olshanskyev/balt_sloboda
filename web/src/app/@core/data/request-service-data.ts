@@ -1,9 +1,13 @@
 import { Observable } from 'rxjs';
+import { CalendarSelectionData } from './calendar-selection.data';
 import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
     abstract getAllNewUserRequests(userName: string): Observable<Request[]>;
     abstract acceptRequest(requestId: number): Observable<Request>;
+    abstract createRequestType(requestType: RequestType): Observable<RequestType>;
+    abstract getAllUserRequestTypes():  Observable<RequestType[]>;
+    abstract getAllRequestTypes():  Observable<RequestType[]>;
 }
 
 export class Request {
@@ -26,9 +30,11 @@ export class RequestType {
     title: string;
     description?: string;
     durable: boolean;
-    roles: Array<Role>
-    assignTo: User
-    parameters?: Array<RequestParam>
+    roles: Array<Role>;
+    assignTo: User;
+    parameters?: Array<RequestParam>;
+    displayOptions?: any;
+    calendarSelection?: CalendarSelectionData;
 }
 
 
@@ -46,12 +52,12 @@ export class RequestParam {
 export enum RequestParamType{
     INTEGER = 'INTEGER',
     STRING = 'STRING',
-    ENUM = 'ENUM'
+    ENUM = 'ENUM',
 }
 
 export enum Role {
     ROLE_USER,
-    ROLE_ADMIN
+    ROLE_ADMIN,
 }
 
 export enum RequestStatus {

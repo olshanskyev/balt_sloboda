@@ -7,6 +7,15 @@ create table IF NOT EXISTS ADDRESSES (
 	primary key (id)
 );
 
+create table IF NOT EXISTS CALENDAR_SELECTION (
+   id  bigserial not null,
+    MONTH_DAYS varchar(512),
+    SELECTED_DAYS varchar(512),
+    SELECTION_MODE varchar(64) not null,
+    WEEK_DAYS varchar(256),
+    primary key (id)
+);
+
 create table IF NOT EXISTS REQUEST_PARAMS (
    id  bigserial not null,
 	COMMENT varchar(128),
@@ -27,6 +36,8 @@ create table IF NOT EXISTS REQUEST_TYPES (
 	TITLE varchar(256) not null,
 	DESCRIPTION varchar(512),
 	ASSIGN_TO_ID int8 not null,
+	DISPLAY_OPTIONS varchar(512),
+	CALENDAR_SELECTION_ID int8,
 	primary key (id)
 );
 
@@ -79,6 +90,11 @@ alter table REQUEST_TYPES
    add constraint IF NOT EXISTS FKljexdsmuw47pm59ftv8dlyrhf
    foreign key (ASSIGN_TO_ID)
    references USERS;
+
+alter table REQUEST_TYPES
+   add constraint IF NOT EXISTS FKoe6uxgp58h1bql73tq6ffj6te
+   foreign key (CALENDAR_SELECTION_ID)
+   references CALENDAR_SELECTION;
 
 alter table REQUESTS
    add constraint IF NOT EXISTS FKdwduqkdgt2ge0nnax41vegc2v

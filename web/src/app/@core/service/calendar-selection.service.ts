@@ -29,7 +29,7 @@ export class CalendarSelectionService {
     return this.weekDays;
   }
 
-  public getCheckedWeekDays(): WeekDays {
+  public getWeekDays(): WeekDays {
     return this.weekDays;
   }
 
@@ -54,6 +54,10 @@ export class CalendarSelectionService {
       }
     }
 
+    return this.monthDays;
+  }
+
+  public getMonthDays(): MonthDays {
     return this.monthDays;
   }
 

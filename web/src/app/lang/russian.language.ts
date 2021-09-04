@@ -94,6 +94,7 @@ export class RussianLanguage {
                 userNotFound: 'Пользователь {{user}} не найден',
                 tokenNotValidOrExpired: 'Запрос на восстановление пароля истек',
                 emptyPasswordResetToken: 'Неверный запрос на восстановление пароля',
+                requestTypeAlreadyExists: 'Заявка с таким именем уже существует',
             },
             residentsPage: {
                 residents: 'Жители',
@@ -158,13 +159,15 @@ export class RussianLanguage {
                 notOptional: 'Обязательный',
                 enumValueRequired: 'Необходимо добавить значение',
                 chooseIcon: 'Выбрать иконку',
-                showInMainRequestMenu: 'Показывать в основном меню'
+                showInMainRequestMenu: 'Показывать в основном меню',
+                requestTypeCreated: 'Новая заявка создана',
 
             },
             common: {
                 next: 'Далее',
                 prev: 'Назад',
                 create: 'Создать',
+                close: 'Закрыть',
                 Monday: 'Понедельник',
                 Tuesday: 'Вторник',
                 Wednesday: 'Среда',

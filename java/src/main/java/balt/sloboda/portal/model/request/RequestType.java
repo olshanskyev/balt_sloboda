@@ -1,14 +1,14 @@
 package balt.sloboda.portal.model.request;
 
+import balt.sloboda.portal.model.CalendarSelectionData;
 import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.User;
-import balt.sloboda.portal.model.converter.RolesToStringSetConverter;
+import balt.sloboda.portal.model.converter.RolesSetToStringConverter;
+import balt.sloboda.portal.model.converter.GenericStringMapConverter;
+import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name="REQUEST_TYPES")
@@ -31,7 +31,7 @@ public class RequestType {
     private boolean durable = false;
 
     @Column(name="ROLES", columnDefinition="varchar(256)", nullable = false)
-    @Convert(converter = RolesToStringSetConverter.class)
+    @Convert(converter = RolesSetToStringConverter.class)
     private Set<Role> roles = new HashSet<>(); // who can create such request
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -41,6 +41,14 @@ public class RequestType {
     @OneToOne
     @JoinColumn(name="ASSIGN_TO_ID", nullable = false)
     private User assignTo;
+
+    @Column(name="DISPLAY_OPTIONS", columnDefinition="varchar(512)", nullable = true)
+    @Convert(converter = StringsMapToStringConverter.class)
+    private Map<String, String> displayOptions; // in json {["parameterName":"parametervalue"], ...}
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="CALENDAR_SELECTION_ID", nullable = true)
+    private CalendarSelectionData calendarSelection;
 
     public Long getId() {
         return id;
@@ -112,6 +120,24 @@ public class RequestType {
 
     public RequestType setAssignTo(User assignTo) {
         this.assignTo = assignTo;
+        return this;
+    }
+
+    public Map<String, String> getDisplayOptions() {
+        return displayOptions;
+    }
+
+    public RequestType setDisplayOptions(Map<String, String> displayOptions) {
+        this.displayOptions = displayOptions;
+        return this;
+    }
+
+    public CalendarSelectionData getCalendarSelection() {
+        return calendarSelection;
+    }
+
+    public RequestType setCalendarSelection(CalendarSelectionData calendarSelection) {
+        this.calendarSelection = calendarSelection;
         return this;
     }
 }

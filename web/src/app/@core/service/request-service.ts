@@ -2,11 +2,10 @@ import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Request, RequestServiceData, RequestStatus } from '../data/request-service-data';
+import { Request, RequestServiceData, RequestStatus, RequestType } from '../data/request-service-data';
 
 @Injectable()
 export class RequestService extends RequestServiceData {
-
 
   newUserRequestName: string = 'NewUserRequest';
 
@@ -25,5 +24,22 @@ export class RequestService extends RequestServiceData {
     const _endpoint = this.uri +  '/management/requests/' + requestId + '/accept';
     return this._http.put<Request>(_endpoint, null);
   }
+
+  createRequestType(requestType: RequestType): Observable<RequestType> {
+    const _endpoint = this.uri +  '/management/requestTypes';
+    return this._http.post<RequestType>(_endpoint, requestType);
+  }
+
+  getAllRequestTypes(): Observable<RequestType[]> {
+    const _endpoint = this.uri +  '/management/requestTypes';
+    return this._http.get<RequestType[]>(_endpoint);
+  }
+
+  getAllUserRequestTypes(): Observable<RequestType[]> {
+    const _endpoint = this.uri +  '/requestTypes';
+    return this._http.get<RequestType[]>(_endpoint);
+  }
+
+
 
 }

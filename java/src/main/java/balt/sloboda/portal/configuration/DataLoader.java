@@ -6,6 +6,7 @@ import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.service.AddressService;
 import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.UserService;
+import balt.sloboda.portal.service.exceptions.AlreadyExistsExeption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -39,8 +40,10 @@ public class DataLoader implements ApplicationRunner {
         // create NewUserRequest RequestType
         RequestType requestType = new NewUserRequestType().getRequestType();
         requestType.setAssignTo(admin);
-        if (!requestsService.requestTypeAlreadyExists(requestType)){
+        try {
             requestsService.saveRequestType(requestType);
+        } catch (AlreadyExistsExeption ignored){
         }
+
     }
 }

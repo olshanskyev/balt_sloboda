@@ -1,6 +1,6 @@
 package balt.sloboda.portal.model;
 
-import balt.sloboda.portal.model.converter.RolesToStringSetConverter;
+import balt.sloboda.portal.model.converter.RolesSetToStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,7 +23,7 @@ public class User {
     private String password;
 
     @Column(name="ROLES", columnDefinition="varchar(256)", nullable = false)
-    @Convert(converter = RolesToStringSetConverter.class)
+    @Convert(converter = RolesSetToStringConverter.class)
     private Set<Role> roles = new HashSet<>();
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

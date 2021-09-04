@@ -7,17 +7,19 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 @Converter
-public class StringToStringSetConverter implements AttributeConverter<Set<String>, String> {
+public class StringsSetToStringConverter implements AttributeConverter<Set<String>, String> {
 
   @Override
   public String convertToDatabaseColumn(Set<String> set) {
+    if (set == null)
+      return "";
     return String.join(",", set);
   }
 
   @Override
   public Set<String> convertToEntityAttribute(String joined) {
     HashSet<String> myHashSet = new HashSet<>();
-    if (joined == null)
+    if (joined == null || joined.isEmpty())
       return myHashSet;
     StringTokenizer st = new StringTokenizer(joined, ",");
     while(st.hasMoreTokens())

@@ -7,5 +7,4 @@ public class TokenRefreshException extends Exception {
     TokenRefreshException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }

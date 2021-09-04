@@ -1,7 +1,6 @@
 package balt.sloboda.portal.model.request;
 
-import balt.sloboda.portal.model.converter.RolesToStringSetConverter;
-import balt.sloboda.portal.model.converter.StringToStringSetConverter;
+import balt.sloboda.portal.model.converter.StringsSetToStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -38,7 +37,7 @@ public class RequestParam {
     private String comment;
 
     @Column(name="ENUM_VALUES", columnDefinition="varchar(512)", nullable = true)
-    @Convert(converter = StringToStringSetConverter.class)
+    @Convert(converter = StringsSetToStringConverter.class)
     private Set<String> enumValues = new HashSet<>(); // enum elements for request param with typ RequestParamType.ENUM
 
 

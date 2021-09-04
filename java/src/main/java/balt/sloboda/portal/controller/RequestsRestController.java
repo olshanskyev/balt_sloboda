@@ -2,7 +2,9 @@ package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.ErrorResponse;
 import balt.sloboda.portal.model.request.RequestStatus;
+import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.service.RequestsService;
+import balt.sloboda.portal.service.exceptions.AlreadyExistsExeption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +51,27 @@ public class RequestsRestController {
     @RequestMapping(value="/requests", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUserRequests() {
         return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value="/management/requestTypes", method = RequestMethod.POST)
+    public ResponseEntity<?> createRequestType(@RequestBody RequestType requestType) {
+
+        try {
+            return new ResponseEntity<>( requestsService.saveRequestType(requestType), HttpStatus.OK);
+        } catch (AlreadyExistsExeption existsExeption) {
+            return new ResponseEntity<>(new ErrorResponse(existsExeption.getMessage(), null), HttpStatus.CONFLICT);
+        }
+
+    }
+
+    @RequestMapping(value="/management/requestTypes", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllRequestTypes() {
+        return new ResponseEntity<>(requestsService.getAllRequestTypes(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/requestTypes", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllUserRequestTypes() {
+        return new ResponseEntity<>(requestsService.getRequestTypesAvailableForUser(), HttpStatus.OK);
     }
 }

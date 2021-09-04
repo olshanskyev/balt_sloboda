@@ -1,7 +1,8 @@
 package balt.sloboda.portal.model.request;
 
 import balt.sloboda.portal.model.User;
-import balt.sloboda.portal.model.converter.StringMapConverter;
+import balt.sloboda.portal.model.converter.GenericStringMapConverter;
+import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -25,7 +26,7 @@ public class Request {
     private String comment;
 
     @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = true)
-    @Convert(converter = StringMapConverter.class)
+    @Convert(converter = StringsMapToStringConverter.class)
     private Map<String, String> paramValues; // in json {["parameterName":"parametervalue"], ...}
 
     @OneToOne

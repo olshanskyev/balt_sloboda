@@ -11,7 +11,9 @@ import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.repository.*;
+import balt.sloboda.portal.service.exceptions.AlreadyExistsExeption;
 import balt.sloboda.portal.utils.JwtTokenUtil;
+import balt.sloboda.portal.utils.Transcriptor;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -69,13 +71,26 @@ public class RequestsService {
         return dbRequestTypesRepository.findByName(requestTypeName).stream().findFirst();
     }
 
-    public boolean requestTypeAlreadyExists(RequestType requestType){
+    private boolean requestTypeAlreadyExists(RequestType requestType){
         return getRequestTypeByName(requestType.getName()).isPresent();
     }
 
-    public RequestType saveRequestType(RequestType requestType){
-        return dbRequestTypesRepository.save(requestType);
+    public RequestType saveRequestType(RequestType requestType) throws AlreadyExistsExeption {
+        if (requestType.getName() == null || requestType.getName().isEmpty()) { // generate name from title
+            requestType.setName(Transcriptor.transliterate(requestType.getTitle())/*.replace(" ", "")*/);
+        }
+
+        if (requestType.getRoles() == null || requestType.getRoles().isEmpty()) {
+            requestType.setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_USER)));
+        }
+
+        if (requestTypeAlreadyExists(requestType)) {
+            throw new AlreadyExistsExeption("requestTypeAlreadyExists");
+        } else {
+            return dbRequestTypesRepository.save(requestType);
+        }
     }
+
     // ================================== request types===========================
 
     // ================================== requests ===============================
@@ -90,7 +105,6 @@ public class RequestsService {
     public List<Request> getAllRequestByStatusAndType(RequestStatus status, String requestTypeName){
         return dbRequestsRepository.findByStatusAndTypeName(status, requestTypeName);
     }
-
 
     public List<Request> getAllRequests(){
         return dbRequestsRepository.findAll();
@@ -116,7 +130,10 @@ public class RequestsService {
     }
 
 
-    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams){
+    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams) throws AlreadyExistsExeption {
+        if (newUserRequestAlreadyExists(newUserRequestParams)){
+            throw new AlreadyExistsExeption("newUserRequestAlreadyExists");
+        }
         Map<String, String> paramValues = newUserRequestParams.buildValuesMap();
         Optional<User> foundAdmin = userService.findByUserName(adminUser.getUserName());
 
@@ -169,7 +186,7 @@ public class RequestsService {
         return dbRequestsRepository.save(newRequest);
     }
 
-    public boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
+    private boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
         Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequestType.getName()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");

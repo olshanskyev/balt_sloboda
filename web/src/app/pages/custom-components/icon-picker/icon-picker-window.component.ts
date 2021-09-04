@@ -18,8 +18,8 @@ import { NbDialogRef, NbIconLibraries } from "@nebular/theme";
 
     }
 
-    close() {
-        this.ref.close(this.selectedIcon);
+    close(icon: string) {
+      this.ref.close(icon);
     }
 
   }

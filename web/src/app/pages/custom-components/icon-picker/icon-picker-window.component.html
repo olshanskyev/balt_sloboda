@@ -1,12 +1,20 @@
 <div class="row">
 <div class="col-md-6 offset-md-3">
   <nb-card size="large">
-      <nb-card-header>Choose Icon</nb-card-header>
+      <nb-card-header>{{'requestManagerPage.chooseIcon'|translate}}</nb-card-header>
       <nb-card-body>
-        <nb-icon *ngFor="let icon of evaIcons" [icon]="icon" pack="eva"></nb-icon>
+        <button type="button" class="btn btn-link item-icon" (click)="close(icon)" [title]="icon"
+          *ngFor="let icon of evaIcons"
+        >
+          <nb-icon
+          [icon]="icon" pack="eva"
+          [options]="{ animation: { type: 'zoom' } }"
+          >
+          </nb-icon>
+        </button>
       </nb-card-body>
       <nb-card-footer>
-        <button nbButton (click)="close()">Close</button>
+        <button nbButton (click)="close(selectedIcon)">{{'common.close'|translate}}</button>
       </nb-card-footer>
     </nb-card>
 </div>

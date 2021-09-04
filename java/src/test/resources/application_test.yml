@@ -11,9 +11,9 @@ server:
 
 jwt:
   secret: secret
-  accessTokenValidity: 2 # seconds
-  refreshTokenValidity: 4 # seconds
-  passwordResetTokenValidity: 2 # seconds
+  accessTokenValidity: 3 # seconds
+  refreshTokenValidity: 5 # seconds
+  passwordResetTokenValidity: 3 # seconds
 ---
 spring:
   profiles: test
