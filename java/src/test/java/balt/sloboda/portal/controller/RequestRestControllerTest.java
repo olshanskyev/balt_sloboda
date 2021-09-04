@@ -171,4 +171,31 @@ public class RequestRestControllerTest {
 
 
 
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void getUserRequestTypeTest() throws Exception {
+        // 1. Login with user
+        JwtResponse jwtResponse = AuthRestControllerTest.userLogin(mvc);
+        // 2 check request types
+        mvc.perform(get("/requestTypes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("GarbageRemovalRequest")))
+                .andExpect(jsonPath("$[0].roles", hasItem("ROLE_USER")));
+
+        // 3. Login with admin
+        jwtResponse = AuthRestControllerTest.adminLogin(mvc);
+        // 4 check request types
+        mvc.perform(get("/requestTypes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+
 }

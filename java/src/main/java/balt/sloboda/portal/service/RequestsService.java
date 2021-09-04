@@ -17,10 +17,12 @@ import balt.sloboda.portal.utils.Transcriptor;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RequestsService {
@@ -64,7 +66,7 @@ public class RequestsService {
     }
 
     public List<RequestType> getRequestTypesAvailableForUser() {
-        return dbRequestTypesRepository.findAll().stream().filter(item -> item.getRoles().contains(Role.ROLE_USER)).collect(Collectors.toList());
+        return dbRequestTypesRepository.findAll().stream().filter(item -> webSecurityUtils.authorizedUserHasAnyRole(item.getRoles())).collect(Collectors.toList());
     }
 
     public Optional<RequestType> getRequestTypeByName(String requestTypeName){

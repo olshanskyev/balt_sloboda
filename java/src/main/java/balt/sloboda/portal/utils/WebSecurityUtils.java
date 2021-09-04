@@ -1,5 +1,6 @@
 package balt.sloboda.portal.utils;
 
+import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -7,12 +8,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 public class WebSecurityUtils {
@@ -78,6 +84,15 @@ public class WebSecurityUtils {
             return ((UserDetails)authentication).getUsername();
         else
             return null;
+    }
+
+    public boolean authorizedUserHasAnyRole(Set<Role> roles) {
+        Object authentication = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authentication instanceof UserDetails) {
+            return ((UserDetails) authentication).getAuthorities().stream().map(item -> Role.valueOf(item.getAuthority())).anyMatch(roles::contains);
+        }
+         else
+            return false;
     }
 
 }

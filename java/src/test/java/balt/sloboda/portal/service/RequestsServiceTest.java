@@ -1,7 +1,6 @@
 package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.Application;
-import balt.sloboda.portal.model.Role;
 import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestType;
@@ -25,19 +24,16 @@ import java.util.List;
 @ActiveProfiles("test")
 public class RequestsServiceTest {
 
+
     @Autowired
     private RequestsService requestsService;
 
     @Test
     @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    public void getAllRequestsTest() {
+    public void getAllRequestsTest() throws Exception{
         List<RequestType> allRequestTypes = requestsService.getAllRequestTypes();
         Assert.assertEquals(2, allRequestTypes.size());
-        List<RequestType> availableForUser = requestsService.getRequestTypesAvailableForUser();
-        Assert.assertEquals(1, availableForUser.size());
-        availableForUser.
-                forEach(item -> Assert.assertTrue(item.getRoles().contains(Role.ROLE_USER)));
 
         List<RequestParam> paramsByRequestType = requestsService.getParamsByRequestType("NewUserRequest");
         Assert.assertEquals(6, paramsByRequestType.size());

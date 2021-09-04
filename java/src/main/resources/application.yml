@@ -87,6 +87,8 @@ admin-user:
   roles:
     -
       ROLE_ADMIN
+    -
+      ROLE_USER
 gui-urls:
   passwordResetLink:
     https://localhost:4200/auth/reset-password
