@@ -4,13 +4,11 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { supportsPassiveEventListeners } from '@angular/cdk/platform';
-import { WeekDay } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, Type } from '@angular/core';
 import {
   NbBaseCalendarComponent,
   NbCalendarCell,
-  NbCalendarRangeComponent,
   NbCalendarViewMode,
   NbCalendarViewModeValues
 } from '@nebular/theme';
@@ -60,6 +58,13 @@ import { MultiSelectCalendarYearCellComponent } from './multi-select-calendar-ye
   @Input("manualSelection")// manualSelection: boolean = true;
   set _manualSelection(selection: boolean){
     this.multiSelectCalendarData.manualSelection = selection;
+  }
+
+  preselectedDays: Array<D>;
+
+  @Input("days") // selected days
+  set _days(daysArray: Array<D>) {
+    this.multiSelectCalendarData.array = daysArray;
   }
 
   multiSelectCalendarData: MultiSelectCalendarData<D> = new MultiSelectCalendarData();

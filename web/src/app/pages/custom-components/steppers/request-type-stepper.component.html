@@ -135,6 +135,7 @@
             (arrayChange)="onChangeArray($event)"
             [max]="(selectionMode === SelectionMode.Manually)?maxDate:''"
             [min]="(selectionMode === SelectionMode.Manually)?minDate:''"
+            [days]="selectedDays"
             ></ngx-multi-select-calendar>
             </div>
 
@@ -270,7 +271,7 @@
         </button>
 
         <nb-list>
-            <nb-list-item class="list-params" *ngFor="let item of newParameters">
+            <nb-list-item class="list-params" *ngFor="let item of newRequestType.parameters">
             <label class="list-label">
                 <b>{{item.name}}</b> ({{(item.type === RequestParamType.ENUM)?item.enumValues.join(", "):'requestManagerPage.'+item.type|translate}}),
                 <b>{{(item.optional)?('requestManagerPage.optional'|translate):('requestManagerPage.notOptional'|translate)}}</b>
@@ -323,6 +324,8 @@
 
 
         <button nbButton status="primary" nbStepperPrevious class="navigation-button">{{'common.prev'|translate}}</button>
-        <button nbButton status="primary" class="navigation-button" (click)="createRequestType(); stepper.reset();">{{'common.create'|translate}}</button>
+        <button nbButton status="primary" class="navigation-button" (click)="createRequestType(); stepper.reset();">
+            {{(mode === 'create')?('common.create'|translate):'common.saveChanges'|translate}}
+        </button>
     </nb-step>
 </nb-stepper>

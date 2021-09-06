@@ -16,8 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Component
@@ -84,6 +83,10 @@ public class WebSecurityUtils {
             return ((UserDetails)authentication).getUsername();
         else
             return null;
+    }
+
+    public boolean isAdmin() {
+        return authorizedUserHasAnyRole(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));
     }
 
     public boolean authorizedUserHasAnyRole(Set<Role> roles) {

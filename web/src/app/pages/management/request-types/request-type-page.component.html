@@ -1,0 +1,11 @@
+<nb-card>
+  <nb-card-header>
+
+    <a [routerLink]="['../../requestManager']">{{'menu.RequestManager'|translate}}</a> /
+    <b><a *ngIf="gotRequestType" [routerLink]="['./']">{{gotRequestType.title}}</a></b>
+  </nb-card-header>
+  <nb-card-body>
+
+    <ngx-request-type-stepper [basedOn]="gotRequestType" mode="update" (requestTypeUpdated)="updateRequestType($event)"></ngx-request-type-stepper>
+  </nb-card-body>
+</nb-card>

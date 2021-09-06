@@ -9,7 +9,9 @@ import { NewsPageModule } from './news/news-page.module';
 import { CustomLoginModule } from './login/custom-login.module';
 import { ResidentsPageModule } from './management/residents/residents-page.module';
 import { AddressesPageModule } from './management/addresses/addresses-page.module';
-import { RequestManagerModule } from './management/request-manager/request-manager.module';
+import { RequestManagerPageModule } from './management/request-manager/request-manager-page.module';
+import { RequestTypePageModule } from './management/request-types/request-type-page.module';
+import { CreateRequestPageModule } from './requests/create-request/create-request-page.module';
 
 
 @NgModule({
@@ -22,7 +24,9 @@ import { RequestManagerModule } from './management/request-manager/request-manag
     CustomLoginModule,
     ResidentsPageModule,
     AddressesPageModule,
-    RequestManagerModule,
+    RequestManagerPageModule,
+    RequestTypePageModule,
+    CreateRequestPageModule
   ],
   declarations: [
     PagesComponent,

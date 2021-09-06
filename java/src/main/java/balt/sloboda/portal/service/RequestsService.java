@@ -11,18 +11,18 @@ import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.repository.*;
-import balt.sloboda.portal.service.exceptions.AlreadyExistsExeption;
+import balt.sloboda.portal.service.exceptions.AlreadyExistsException;
+import balt.sloboda.portal.service.exceptions.NotFoundException;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.Transcriptor;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class RequestsService {
@@ -35,6 +35,9 @@ public class RequestsService {
 
     @Autowired
     private DbRequestParamsRepository dbRequestParamsRepository;
+
+    @Autowired
+    private DbCalendarSelectionRepository dbCalendarSelectionRepository;
 
     @Autowired
     private UserService userService;
@@ -66,6 +69,8 @@ public class RequestsService {
     }
 
     public List<RequestType> getRequestTypesAvailableForUser() {
+        if (webSecurityUtils.isAdmin())
+            return dbRequestTypesRepository.findAll();
         return dbRequestTypesRepository.findAll().stream().filter(item -> webSecurityUtils.authorizedUserHasAnyRole(item.getRoles())).collect(Collectors.toList());
     }
 
@@ -77,7 +82,7 @@ public class RequestsService {
         return getRequestTypeByName(requestType.getName()).isPresent();
     }
 
-    public RequestType saveRequestType(RequestType requestType) throws AlreadyExistsExeption {
+    public RequestType saveRequestType(RequestType requestType) throws AlreadyExistsException {
         if (requestType.getName() == null || requestType.getName().isEmpty()) { // generate name from title
             requestType.setName(Transcriptor.transliterate(requestType.getTitle())/*.replace(" ", "")*/);
         }
@@ -87,10 +92,32 @@ public class RequestsService {
         }
 
         if (requestTypeAlreadyExists(requestType)) {
-            throw new AlreadyExistsExeption("requestTypeAlreadyExists");
+            throw new AlreadyExistsException("requestTypeAlreadyExists");
         } else {
             return dbRequestTypesRepository.save(requestType);
         }
+    }
+    public RequestType getRequestTypeById(long id) throws NotFoundException {
+        return dbRequestTypesRepository.findById(id).orElseThrow(() -> new NotFoundException("requestTypeNotFound"));
+    }
+
+    @Transactional
+    public RequestType updateRequestType(long requestTypeId, RequestType requestType) throws NotFoundException {
+        RequestType byId = dbRequestTypesRepository.findById(requestTypeId).orElseThrow(() -> new NotFoundException("requestTypeNotFound"));
+        // 1. delete params by request type id
+        deleteParamsByRequestTypId(requestTypeId);
+
+        // 2. delete Calendar Selection Data by request type id
+        if (byId.getCalendarSelection() != null && byId.getCalendarSelection().getId() != null){
+            dbCalendarSelectionRepository.deleteById(byId.getCalendarSelection().getId());
+        }
+
+        // save new params, new calendar selection and new request type
+        return dbRequestTypesRepository.save(requestType.setId(requestTypeId));
+    }
+
+    public void deleteRequestType(long id) {
+        dbRequestTypesRepository.deleteById(id);
     }
 
     // ================================== request types===========================
@@ -112,11 +139,6 @@ public class RequestsService {
         return dbRequestsRepository.findAll();
     }
 
-    public Optional<Request> getNewUserRequestByUser(String userName){
-        return getAllRequestByStatusAndType(RequestStatus.NEW, (newUserRequestType.getName())).stream()
-        .filter(item -> item.getParamValues().get("userName") != null && item.getParamValues().get("userName").equals(userName)).findFirst();
-    }
-
     public List<Request> getAllCurrentUserRequests(){
         return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
     }
@@ -132,9 +154,9 @@ public class RequestsService {
     }
 
 
-    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams) throws AlreadyExistsExeption {
+    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams) throws AlreadyExistsException {
         if (newUserRequestAlreadyExists(newUserRequestParams)){
-            throw new AlreadyExistsExeption("newUserRequestAlreadyExists");
+            throw new AlreadyExistsException("newUserRequestAlreadyExists");
         }
         Map<String, String> paramValues = newUserRequestParams.buildValuesMap();
         Optional<User> foundAdmin = userService.findByUserName(adminUser.getUserName());
@@ -198,7 +220,7 @@ public class RequestsService {
     }
 
 
-    public Request saveRequest(Request request) {
+    private Request saveRequest(Request request) {
        return dbRequestsRepository.save(request);
     }
 
@@ -230,7 +252,7 @@ public class RequestsService {
         return saved;
     }
 
-    public Request acceptRequest(Long requestId) {
+    public Request acceptRequest(Long requestId) throws NotFoundException{
         Optional<Request> request = dbRequestsRepository.findById(requestId);
         if (request.isPresent()){
             if (request.get().getType().getName().equals(newUserRequestType.getName())){
@@ -240,7 +262,7 @@ public class RequestsService {
                 return saveRequest(request.get());
             }
         } else {
-            throw new RuntimeException("newUserRequestNotFound");
+            throw new NotFoundException("newUserRequestNotFound");
         }
     }
     // ================================== requests ===============================
@@ -249,6 +271,10 @@ public class RequestsService {
     // ================================== request params =========================
     public List<RequestParam> getParamsByRequestType(String requestTypeName) {
         return dbRequestParamsRepository.findByRequestTypeName(requestTypeName);
+    }
+
+    private void deleteParamsByRequestTypId(long requestTypeId){
+        dbRequestParamsRepository.deleteByRequestTypeId(requestTypeId);
     }
     // ================================== request params =========================
 

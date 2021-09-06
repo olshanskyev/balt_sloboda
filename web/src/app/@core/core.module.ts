@@ -94,7 +94,7 @@ export const NB_CORE_PROVIDERS = [
   NbSecurityModule.forRoot({
     accessControl: {
       ROLE_USER: {
-        view_page: ['news', 'requests'],
+        view_page: ['news', 'requests', 'createRequest'],
       },
       ROLE_ADMIN: {
         parent: 'ROLE_USER',

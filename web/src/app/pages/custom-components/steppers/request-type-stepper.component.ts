@@ -1,5 +1,5 @@
 import { KeyValue, WeekDay } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
 
 import {
   NbDateService,
@@ -7,7 +7,7 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { CalendarSelectionData, EveryDays, MonthDays, SelectionMode, WeekDays } from '../../../@core/data/calendar-selection.data';
+import { CalendarSelectionDataBuilder, EveryDays, MonthDays, SelectionMode, WeekDays } from '../../../@core/data/calendar-selection.data';
 import { RequestParam, RequestParamType, RequestType } from '../../../@core/data/request-service-data';
 import { User } from '../../../@core/data/user-service-data';
 import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
@@ -28,10 +28,16 @@ export interface UserGroup {
   templateUrl: './request-type-stepper.component.html',
   styleUrls: ['./request-type-stepper.component.scss'],
 })
-export class RequestTypeStepperComponent{
+export class RequestTypeStepperComponent implements OnChanges {
 
 
   @Output() requestTypeCreated: EventEmitter<RequestType> = new EventEmitter();
+
+  @Output() requestTypeUpdated: EventEmitter<RequestType> = new EventEmitter();
+
+  @Input() basedOn: RequestType;
+
+  @Input() mode: string = 'create';
 
   private toaster: Toaster;
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
@@ -68,12 +74,10 @@ export class RequestTypeStepperComponent{
   RequestParamType = RequestParamType;
   newParameterEnumValues: string[] = [];
 
-  newParameters: RequestParam[] = [];
-
   selectedIcon: string;
   showInMenu: boolean = true;
 
-  initNewParams() {
+  initNewParam() {
     this.newParameter = new RequestParam();
     this.newParameter.type = RequestParamType.STRING;
     this.newParameter.optional = false;
@@ -82,20 +86,63 @@ export class RequestTypeStepperComponent{
 
   init() {
     this.newRequestType = new RequestType();
+    this.newRequestType.parameters = [];
     this.newRequestType.durable = false;
     this.selectedDays = [];
     this.convertedDayOfMonth = [];
     this.newParameterEnumValues = [];
-    this.newParameters = [];
-    this.initNewParams();
+    this.initNewParam();
     this.selectedIcon = 'plus-outline';
+    this.calendarSelectionService.resetWeeDays();
+    this.calendarSelectionService.resetMonthDays();
+  }
+
+  initBasedOn() {
+    this.newRequestType = this.basedOn;
+
+    if (this.basedOn.durable) {
+      this.selectionMode = this.basedOn.calendarSelection.selectionMode;
+      switch (this.selectionMode) {
+        case SelectionMode.Manually: {
+          this.selectedDays= CalendarSelectionDataBuilder.convertDaysFromStringArray(this.basedOn.calendarSelection.selectedDays, this.dateService);
+          break;
+        }
+        case SelectionMode.Weekly: {
+          Object.entries(this.basedOn.calendarSelection.weekDays).forEach(item => {
+            // item[0] = day
+            // item[1] = checked
+            this.calendarSelectionService.toggleDayOfWeek(WeekDay[item[0]], item[1])
+            if (item[1]) {
+              this.weekDaySelected = true;
+            }
+          });
+          break;
+        }
+        case SelectionMode.Monthly: { // ToDo
+          Object.entries(this.basedOn.calendarSelection.monthDays).forEach(item => {
+
+            // item[0] = day
+            // item[1] Array<EveryDays>
+            item[1].forEach(day => {
+              this.convertSelectedMonthDays(this.calendarSelectionService.toggleDayOfMonth(day, WeekDay[item[0]], true));
+            });
+
+          });
+          break;
+        }
+      }
+    }
+    this.selectedAssignToId = this.newRequestType.assignTo.id;
+    this.selectedIcon = this.newRequestType.displayOptions['icon'];
+    this.showInMenu = Boolean(JSON.parse(this.newRequestType.displayOptions['showInMainRequestMenu']));
   }
 
   constructor(private toastrService: NbToastrService, translateService: TranslateService,
     protected dateService: NbDateService<Date>,
     private calendarSelectionService: CalendarSelectionService,
     private userService: UserService,
-    private dialogService: NbDialogService) {
+    private dialogService: NbDialogService,
+    ) {
     this.toaster = new Toaster(toastrService);
     this.translations = translateService.translations[translateService.currentLang];
     this.newRequestType.durable = false;
@@ -104,7 +151,6 @@ export class RequestTypeStepperComponent{
 
     this.loadUsers();
     this.init();
-
   }
 
   onChangeArray(event) {
@@ -191,16 +237,16 @@ export class RequestTypeStepperComponent{
     if (this.newParameter.type === RequestParamType.ENUM) {
       this.newParameter.enumValues = this.newParameterEnumValues;
     }
-    if (!this.newParameters.find(item => item.name === this.newParameter.name)) {
+    if (!this.newRequestType.parameters.find(item => item.name === this.newParameter.name)) {
       this.newParameter.enumValues = this.newParameterEnumValues;
-      this.newParameters.push(this.newParameter);
-      this.initNewParams();
+      this.newRequestType.parameters.push(this.newParameter);
+      this.initNewParam();
     }
   }
 
   removeFromNewParameters(item: RequestParam) {
-    this.newParameters.forEach((element,index)=>{
-      if (element.name === item.name) this.newParameters.splice(index,1);
+    this.newRequestType.parameters.forEach((element,index)=>{
+      if (element.name === item.name) this.newRequestType.parameters.splice(index,1);
     });
   }
 
@@ -218,21 +264,24 @@ export class RequestTypeStepperComponent{
 
 
   createRequestType() {
-    this.newRequestType.parameters = this.newParameters;
     if (this.newRequestType.durable) {
-      switch(this.selectionMode){
+      switch(this.selectionMode) {
         case SelectionMode.Manually: {
-          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createManualSelection(this.selectedDays);
+          this.newRequestType.calendarSelection = CalendarSelectionDataBuilder.createManualSelection(this.selectedDays, this.dateService);
           break;
         }
         case SelectionMode.Monthly: {
-          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createMonthSelection(this.calendarSelectionService.getMonthDays());
+          this.newRequestType.calendarSelection = CalendarSelectionDataBuilder.createMonthSelection(this.calendarSelectionService.getMonthDays());
           break;
         }
         case SelectionMode.Weekly: {
-          this.newRequestType.calendarSelection = (new CalendarSelectionData()).createWeekSelection(this.calendarSelectionService.getWeekDays());
+          this.newRequestType.calendarSelection = CalendarSelectionDataBuilder.createWeekSelection(this.calendarSelectionService.getWeekDays());
           break;
         }
+      }
+    } else {
+      if (this.newRequestType.calendarSelection) {
+        this.newRequestType.calendarSelection = null;
       }
     }
 
@@ -245,8 +294,28 @@ export class RequestTypeStepperComponent{
     assigneToUser.id = this.selectedAssignToId;
     this.newRequestType.assignTo = assigneToUser;
 
-    this.requestTypeCreated.emit(this.newRequestType);
-    this.init();
+    if (this.mode === 'create') {
+      this.requestTypeCreated.emit(this.newRequestType);
+      this.init();
+    } else {
+      this.requestTypeUpdated.emit(this.newRequestType);
+    }
+
+
+  }
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if (changes['basedOn'] && changes['basedOn'].currentValue) {
+      this.basedOn = changes['basedOn'].currentValue;
+      this.initBasedOn();
+    }
+
+    if (changes['mode'] && changes['mode'].currentValue &&
+    (changes['mode'].currentValue === 'create' || changes['mode'].currentValue === 'update')) {
+      this.mode =  changes['mode'].currentValue;
+    }
 
   }
 

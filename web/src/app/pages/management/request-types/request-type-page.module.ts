@@ -4,11 +4,11 @@ import { ThemeModule } from '../../../@theme/theme.module';
 
 import {
   NbCardModule,
-  NbTabsetModule,
 } from '@nebular/theme';
 
+import { RequestTypePageComponent } from './request-type-page.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { RequestManagerComponent } from './request-manager.component';
+import { RouterModule } from '@angular/router';
 import { CustomComponentsModule } from '../../custom-components/custom-components.module';
 
 @NgModule({
@@ -16,14 +16,11 @@ import { CustomComponentsModule } from '../../custom-components/custom-component
     TranslateModule.forChild(),
     ThemeModule,
     NbCardModule,
-    NbTabsetModule,
-
+    RouterModule,
     CustomComponentsModule,
-
-
   ],
   declarations: [
-    RequestManagerComponent,
+    RequestTypePageComponent,
   ],
 })
-export class RequestManagerModule { }
+export class RequestTypePageModule { }

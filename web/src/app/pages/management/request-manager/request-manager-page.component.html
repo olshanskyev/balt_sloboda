@@ -1,0 +1,22 @@
+<nb-card>
+
+  <nb-card-body>
+    <nb-tabset>
+      <nb-tab tabTitle="{{'requestManagerPage.allRequestTypes'|translate}}">
+          <div class="show-system-requests">
+            <nb-checkbox ghost class="show-system-requests" status="info" [(checked)]= "showSystemRequests" (change)="refreshTable()">{{'requestManagerPage.showSystemRequests'|translate}}</nb-checkbox>
+          </div>
+
+          <ng2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event)" (delete)= "onDelete($event)">
+          </ng2-smart-table>
+
+      </nb-tab>
+      <nb-tab tabTitle="{{'requestManagerPage.createNewRequestType'|translate}}">
+
+        <ngx-request-type-stepper (requestTypeCreated)="createRequestType($event)"></ngx-request-type-stepper>
+
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+</nb-card>

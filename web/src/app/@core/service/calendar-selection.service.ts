@@ -25,12 +25,34 @@ export class CalendarSelectionService {
   }
 
   public toggleDayOfWeek(weekDay: WeekDay, checked: boolean): WeekDays{
-    this.weekDays.set('' + weekDay, checked);
+
+    if (Number.isInteger(weekDay)) {
+      this.weekDays.set(WeekDay[weekDay], checked);
+    } else {
+      this.weekDays.set('' + weekDay, checked);
+    }
+
     return this.weekDays;
   }
 
   public getWeekDays(): WeekDays {
     return this.weekDays;
+  }
+
+  public resetWeeDays() {
+    this.weekDays = new Map([
+      ['Monday', false],
+      ['Tuesday', false],
+      ['Wednesday', false],
+      ['Thursday', false],
+      ['Friday', false],
+      ['Saturday', false],
+      ['Sunday', false],
+    ]);
+  }
+
+  public resetMonthDays() {
+    this.monthDays = new Map([]);
   }
 
 
@@ -77,7 +99,7 @@ export class CalendarSelectionService {
         var rem: number = date.getDate() % 7;
         numberInMonth = (rem === 0)? date.getDate() / 7: ((date.getDate() - rem) / 7) + 1
 
-        if (every === -1) {
+        if (every === 5) {
           if (numberInMonth === 5) { // 5th day is always last
             found = true;
           }

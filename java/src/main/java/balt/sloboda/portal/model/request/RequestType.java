@@ -34,8 +34,10 @@ public class RequestType {
     @Convert(converter = RolesSetToStringConverter.class)
     private Set<Role> roles = new HashSet<>(); // who can create such request
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "REQUEST_TYPE_ID")
+    @Column(name="SYSTEM_REQUEST", nullable = false)
+    private boolean systemRequest = false;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "requestType")
     private List<RequestParam> parameters = new ArrayList<>();
 
     @OneToOne
@@ -138,6 +140,15 @@ public class RequestType {
 
     public RequestType setCalendarSelection(CalendarSelectionData calendarSelection) {
         this.calendarSelection = calendarSelection;
+        return this;
+    }
+
+    public boolean isSystemRequest() {
+        return systemRequest;
+    }
+
+    public RequestType setSystemRequest(boolean systemRequest) {
+        this.systemRequest = systemRequest;
         return this;
     }
 }

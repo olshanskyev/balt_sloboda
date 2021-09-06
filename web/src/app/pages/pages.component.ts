@@ -3,7 +3,9 @@ import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { NewRequestsService } from '../@core/service/new-requests-service';
+import { RequestType } from '../@core/data/request-service-data';
+import { InterconnectionService } from '../@core/service/interconnection-service';
+import { RequestService } from '../@core/service/request-service';
 
 import { MENU_ITEMS } from './pages-menu';
 
@@ -21,15 +23,20 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   menu = MENU_ITEMS;
   currentLang: string;
-  newRequestsService: NewRequestsService;
+  interconnectionService: InterconnectionService;
+
+  requestsDisplayOptions: any[];
 
   newUserRequestsSubscription :Subscription = null;
+  requestListChangedSubscription :Subscription = null;
+
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
-    private injector: Injector
+    private injector: Injector,
+    private requestsService: RequestService
     ) {
       accessChecker.isGranted('read', 'requests').subscribe(granted => { // only for admins
         if (granted) {
-          this.newRequestsService = this.injector.get(NewRequestsService);
+          this.interconnectionService = this.injector.get(InterconnectionService);
         }
       });
 
@@ -37,9 +44,42 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
 
+  private loadRequestsMenu() {
+    var requestMenuItem: NbMenuItem = this.menu.filter(item => item.data && item.data.id && item.data.id === 'Requests')[0];
+
+    // remove childs if already initialized saving all requests menu
+    var allRequestsMenuItem: NbMenuItem = {
+      title: 'allRequests',
+      link: '/pages/requests/all',
+      icon: 'list-outline',
+    };
+    requestMenuItem.children = [];
+
+    this.requestsService.getAllUserRequestTypes().subscribe(res => {
+      res.filter(item => !item.systemRequest).forEach(requestType => {
+        if (Boolean(JSON.parse(requestType.displayOptions.showInMainRequestMenu))) {
+          requestMenuItem.children.push({ //requestMenuItem.children.push({
+            title: requestType.title,
+            icon: requestType.displayOptions.icon,
+            link: '/pages/requests/' + requestType.name + '/create',
+          });
+        }
+      });
+      requestMenuItem.children.push(allRequestsMenuItem);
+      this.authAndTranslateMenuItem(requestMenuItem); // translate created request menu
+    });
+
+  }
+
   ngOnInit(): void {
-    this.menu.forEach(item => {
-      this.authMenuItem(item);
+
+    // always called on initialization without emit
+    this.requestListChangedSubscription = this.interconnectionService.getRequestsListChanged().subscribe(() => {
+      this.loadRequestsMenu();
+    });
+
+    this.menu.forEach(item => { //translate and check permissions
+      this.authAndTranslateMenuItem(item);
     });
 
   }
@@ -48,23 +88,25 @@ export class PagesComponent implements OnInit, OnDestroy {
     if (this.newUserRequestsSubscription !== null) {
       this.newUserRequestsSubscription.unsubscribe();
     }
+    if (this.requestListChangedSubscription !== null) {
+      this.requestListChangedSubscription.unsubscribe();
+    }
 
   }
 
   // hiding and activating menu items
-  authMenuItem(menuItem: NbMenuItem) {
+  authAndTranslateMenuItem(menuItem: NbMenuItem) {
 
     const key = menuItem.title;
     const value = this.translateService.translations[this.currentLang].menu[key];
     if (value) {
       menuItem.title = value; // translate menu item
     }
-
     if (menuItem.data && menuItem.data['permission'] && menuItem.data['resource']) {
       this.accessChecker.isGranted(menuItem.data['permission'], menuItem.data['resource']).subscribe(granted => {
         menuItem.hidden = !granted;
-        if (menuItem.link === '/pages/management/residents' && granted) { // update badge values
-          this.newUserRequestsSubscription = this.newRequestsService.getNewUserRequests().subscribe(
+        if (key === 'Users' && granted) { // update badge values
+          this.newUserRequestsSubscription = this.interconnectionService.getNewUserRequests().subscribe(
             res => {
               if (res > 0) {
                 menuItem.badge = {
@@ -82,7 +124,9 @@ export class PagesComponent implements OnInit, OnDestroy {
     } else {
       menuItem.hidden = true;
     }
-    if (!menuItem.hidden && menuItem.children != null) {
+
+
+    if (!menuItem.hidden && menuItem.children != null) { // menu childs
       menuItem.children.forEach(item => {
         const innerKey = item.title;
         const innerValue = this.translateService.translations[this.currentLang].menu[innerKey];

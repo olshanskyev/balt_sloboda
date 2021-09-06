@@ -3,13 +3,11 @@ import { NgModule} from '@angular/core';
 import { ThemeModule } from '../../../@theme/theme.module';
 
 import {
-  NbButtonModule,
-  NbCardModule, NbIconModule, NbTabsetModule,
+  NbCardModule, NbTabsetModule,
 } from '@nebular/theme';
 
-import { ResidentsPageComponent } from './residents-page.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { CreateRequestPageComponent } from './create-request-page.component';
 
 @NgModule({
   imports: [
@@ -17,14 +15,9 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     ThemeModule,
     NbCardModule,
     NbTabsetModule,
-    Ng2SmartTableModule,
-    NbButtonModule,
-    NbIconModule,
-  ],
-  providers: [
   ],
   declarations: [
-    ResidentsPageComponent,
+    CreateRequestPageComponent,
   ],
 })
-export class ResidentsPageModule { }
+export class CreateRequestPageModule { }

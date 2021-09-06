@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DbRequestParamsRepository extends JpaRepository<RequestParam, Long> {
     List<RequestParam> findByRequestTypeName(String requestTypeName);
+    void deleteByRequestTypeId(long requestTypeId);
 }

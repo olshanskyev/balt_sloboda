@@ -46,6 +46,7 @@ import { MultiSelectCalendarData } from './multi-select-calendar.component';
 
     @HostBinding('class.in-range')
     get inArray(): boolean {
+
         if (this.date) {
             if (!this.selectedValue.manualSelection) {
                 return true;

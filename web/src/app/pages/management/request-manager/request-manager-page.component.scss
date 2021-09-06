@@ -1,0 +1,20 @@
+
+::ng-deep nb-checkbox {
+    &.show-system-requests {
+        .text {
+            font-size: 0.7rem;
+        }
+        .custom-checkbox {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+}
+
+.show-system-requests {
+    position: static;
+    text-align: right;
+    margin-bottom: 0.5rem;
+    margin-top: -0.5rem
+}

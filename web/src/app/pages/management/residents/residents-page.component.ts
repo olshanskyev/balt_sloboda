@@ -10,17 +10,17 @@ import { Resident } from '../../../@core/data/resident-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
-import { NewRequestsService } from '../../../@core/service/new-requests-service';
+import { InterconnectionService } from '../../../@core/service/interconnection-service';
 
 
 
 @Component({
   selector: 'ngx-residents',
-  templateUrl: './residents.component.html',
-  styleUrls: ['./residents.component.scss'],
+  templateUrl: './residents-page.component.html',
+  styleUrls: ['./residents-page.component.scss'],
 })
 @Injectable()
-export class ResidentsComponent {
+export class ResidentsPageComponent {
 
   private toaster: Toaster;
 
@@ -29,7 +29,7 @@ export class ResidentsComponent {
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
     private residentsService: ResidentsService,
     private requestsService: RequestService,
-    private newRequeststService: NewRequestsService) {
+    private interconnectionService: InterconnectionService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];
@@ -44,8 +44,8 @@ export class ResidentsComponent {
     this.settingsRequests.columns.address.title = this.translations.residentsPage.address;
     this.settingsRequests.columns.status.title = this.translations.residentsPage.status;
 
-    this.settingsRequests.edit.editButtonContent= '<i class="nb-checkmark" title="' + this.translations.residentsPage.accept + '"></i>',
-    this.settingsRequests.delete.deleteButtonContent= '<i class="nb-close" title="' + this.translations.residentsPage.decline + '"></i>',
+    this.settingsRequests.edit.editButtonContent= '<i class="nb-checkmark" title="' + this.translations.residentsPage.accept + '"></i>';
+    this.settingsRequests.delete.deleteButtonContent= '<i class="nb-close" title="' + this.translations.residentsPage.decline + '"></i>';
 
     this.loadResidents();
     this.loadNewRequests();
@@ -57,7 +57,7 @@ export class ResidentsComponent {
       res => {
         this.sourceRequests.load(this.getTableViewRequests(res));
         this.countRequests = res.length;
-        this.newRequeststService.changeNewUserRequestsCount(this.countRequests);
+        this.interconnectionService.changeNewUserRequestsCount(this.countRequests);
       },  err => {
         this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetRequests,
              '');
@@ -198,9 +198,9 @@ export class ResidentsComponent {
       });
   }
 
-  onDeclineUser(event) : void {
+  onDeclineUser(event) : void { // todo ask to decline
     this.countRequests++;
-    this.newRequeststService.changeNewUserRequestsCount(this.countRequests);
+    this.interconnectionService.changeNewUserRequestsCount(this.countRequests);
   }
 
 

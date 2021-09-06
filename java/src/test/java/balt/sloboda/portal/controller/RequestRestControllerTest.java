@@ -139,7 +139,7 @@ public class RequestRestControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)));
 
         // as string because of problem while parsing LocalDate as json
-        String requestDays = "{\"durable\":true,\"title\":\"Request Заявка\",\"description\":\"\",\"parameters\":[{\"type\":\"ENUM\",\"optional\":false,\"name\":\"Объем бака\",\"defaultValue\":\"240\",\"enumValues\":[\"120\",\"240\"]}],\"calendarSelection\":{\"selectedDays\":[\"2021-09-13T21:00:00.000Z\",\"2021-09-17T21:00:00.000Z\"],\"selectionMode\":\"Manually\"},\"displayOptions\":{\"icon\":\"bell\",\"showInMainRequestMenu\":true},\"assignTo\":{\"id\":2}}";
+        String requestDays = "{\"durable\":true,\"title\":\"Request Заявка\",\"description\":\"\",\"parameters\":[{\"type\":\"ENUM\",\"optional\":false,\"name\":\"Объем бака\",\"defaultValue\":\"240\",\"enumValues\":[\"120\",\"240\"]}],\"calendarSelection\":{\"selectedDays\":[\"2021-09-13\",\"2021-09-17\"],\"selectionMode\":\"Manually\"},\"displayOptions\":{\"icon\":\"bell\",\"showInMainRequestMenu\":true},\"assignTo\":{\"id\":2}}";
 
 
         // 3.1. create new weekly request type

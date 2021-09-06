@@ -40,6 +40,21 @@ export class RequestService extends RequestServiceData {
     return this._http.get<RequestType[]>(_endpoint);
   }
 
+  deleteRequestType(id: number): Observable<void> {
+    const _endpoint = this.uri +  '/management/requestTypes/' + id;
+    return this._http.delete<void>(_endpoint);
+  }
+
+  getRequestTypeById(id: number): Observable<RequestType> {
+    const _endpoint = this.uri +  '/management/requestTypes/' + id;
+    return this._http.get<RequestType>(_endpoint);
+  }
+
+  updateRequestType(id: number, requestType: RequestType): Observable<RequestType> {
+    const _endpoint = this.uri +  '/management/requestTypes/' + id;
+    return this._http.put<RequestType>(_endpoint, requestType);
+  }
+
 
 
 }

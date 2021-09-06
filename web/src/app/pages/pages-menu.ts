@@ -15,14 +15,8 @@ export const MENU_ITEMS: NbMenuItem[] = [
     title: 'Requests',
     icon: 'edit-2-outline',
     expanded: true,
-    children: [
-      {
-        title: 'GarbageRemoval',
-        link: '/pages/management/requests/garbageRemoval',
-        icon: 'trash-2-outline',
-      },
-    ],
     data: {
+      id: 'Requests',
       permission: 'view_page',
       resource: 'requests',
     },

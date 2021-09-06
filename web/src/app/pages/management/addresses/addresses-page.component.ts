@@ -6,21 +6,18 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 
 import { LocalDataSource } from 'ng2-smart-table';
-import { Address } from '../../../@core/data/addresses-service-data';
-import { Resident } from '../../../@core/data/resident-service-data';
 import { AddressesService } from '../../../@core/service/addresses-service';
-import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
 
 
 @Component({
   selector: 'ngx-addresses',
-  templateUrl: './addresses.component.html',
-  styleUrls: ['./addresses.component.scss'],
+  templateUrl: './addresses-page.component.html',
+  styleUrls: ['./addresses-page.component.scss'],
 })
 
 
-export class AddressesComponent {
+export class AddressesPageComponent {
 
   private toaster: Toaster;
 

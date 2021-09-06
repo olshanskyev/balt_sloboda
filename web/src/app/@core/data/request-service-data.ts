@@ -8,6 +8,9 @@ export abstract class RequestServiceData {
     abstract createRequestType(requestType: RequestType): Observable<RequestType>;
     abstract getAllUserRequestTypes():  Observable<RequestType[]>;
     abstract getAllRequestTypes():  Observable<RequestType[]>;
+    abstract deleteRequestType(id: number): Observable<void>;
+    abstract getRequestTypeById(id: number): Observable<RequestType>;
+    abstract updateRequestType(id: number, requestType: RequestType): Observable<RequestType>;
 }
 
 export class Request {
@@ -35,6 +38,7 @@ export class RequestType {
     parameters?: Array<RequestParam>;
     displayOptions?: any;
     calendarSelection?: CalendarSelectionData;
+    systemRequest: boolean;
 }
 
 

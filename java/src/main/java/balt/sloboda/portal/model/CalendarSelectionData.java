@@ -1,11 +1,12 @@
 package balt.sloboda.portal.model;
 
 import balt.sloboda.portal.model.converter.BooleansMapToStringConverter;
-import balt.sloboda.portal.model.converter.DatesSetToStringConverter;
 import balt.sloboda.portal.model.converter.EveryDaysMapToStringConverter;
+import balt.sloboda.portal.model.converter.StringsSetToStringConverter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,15 +24,15 @@ public class CalendarSelectionData {
 
     @Column(name="MONTH_DAYS", columnDefinition="varchar(512)", nullable = true)
     @Convert(converter = EveryDaysMapToStringConverter.class)
-    private Map<String, EveryDays[]> monthDays;
+    private Map<String, List<Integer>> monthDays;
 
     @Column(name="WEEK_DAYS", columnDefinition="varchar(256)", nullable = true)
     @Convert(converter = BooleansMapToStringConverter.class)
     private Map<String, Boolean> weekDays;
 
     @Column(name="SELECTED_DAYS", columnDefinition="varchar(512)", nullable = true)
-    @Convert(converter = DatesSetToStringConverter.class)
-    private Set<LocalDate> selectedDays;
+    @Convert(converter = StringsSetToStringConverter.class)
+    private Set<String> selectedDays;
 
     public Long getId() {
         return id;
@@ -51,11 +52,11 @@ public class CalendarSelectionData {
         return this;
     }
 
-    public Map<String, EveryDays[]> getMonthDays() {
+    public Map<String, List<Integer>> getMonthDays() {
         return monthDays;
     }
 
-    public CalendarSelectionData setMonthDays(Map<String, EveryDays[]> monthDays) {
+    public CalendarSelectionData setMonthDays(Map<String, List<Integer>> monthDays) {
         this.monthDays = monthDays;
         return this;
     }
@@ -69,11 +70,11 @@ public class CalendarSelectionData {
         return this;
     }
 
-    public Set<LocalDate> getSelectedDays() {
+    public Set<String> getSelectedDays() {
         return selectedDays;
     }
 
-    public CalendarSelectionData setSelectedDays(Set<LocalDate> selectedDays) {
+    public CalendarSelectionData setSelectedDays(Set<String> selectedDays) {
         this.selectedDays = selectedDays;
         return this;
     }

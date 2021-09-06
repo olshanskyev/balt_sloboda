@@ -1,6 +1,6 @@
-INSERT INTO REQUEST_TYPES (id, DURABLE, NAME, TITLE, ROLES, ASSIGN_TO_ID) VALUES
-('1', 'true', 'GarbageRemovalRequest', 'Request for Garbage Removal', 'ROLE_USER,ROLE_ADMIN', '1'),
-('2', 'false', 'NewUserRequest', 'New user Request', 'ROLE_ADMIN', '1')
+INSERT INTO REQUEST_TYPES (id, DURABLE, NAME, TITLE, ROLES, ASSIGN_TO_ID, SYSTEM_REQUEST) VALUES
+('1', 'true', 'GarbageRemovalRequest', 'Request for Garbage Removal', 'ROLE_USER,ROLE_ADMIN', '1', 'false'),
+('2', 'false', 'NewUserRequest', 'New user Request', 'ROLE_ADMIN', '1', 'true')
 ;
 
 INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE, OPTIONAL, COMMENT) VALUES

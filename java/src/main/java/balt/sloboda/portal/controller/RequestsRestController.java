@@ -4,12 +4,14 @@ import balt.sloboda.portal.model.ErrorResponse;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.service.RequestsService;
-import balt.sloboda.portal.service.exceptions.AlreadyExistsExeption;
+import balt.sloboda.portal.service.exceptions.AlreadyExistsException;
+import balt.sloboda.portal.service.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -43,8 +45,8 @@ public class RequestsRestController {
     public ResponseEntity<?> acceptRequest(@PathVariable Long requestId) {
         try {
             return new ResponseEntity<>(requestsService.acceptRequest(requestId), HttpStatus.OK);
-        } catch (RuntimeException ex){
-            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.CONFLICT);
+        } catch (NotFoundException ex){
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -59,10 +61,15 @@ public class RequestsRestController {
 
         try {
             return new ResponseEntity<>( requestsService.saveRequestType(requestType), HttpStatus.OK);
-        } catch (AlreadyExistsExeption existsExeption) {
+        } catch (AlreadyExistsException existsExeption) {
             return new ResponseEntity<>(new ErrorResponse(existsExeption.getMessage(), null), HttpStatus.CONFLICT);
         }
 
+    }
+
+    @RequestMapping(value="/requestTypes", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllUserRequestTypes() {
+        return new ResponseEntity<>(requestsService.getRequestTypesAvailableForUser(), HttpStatus.OK);
     }
 
     @RequestMapping(value="/management/requestTypes", method = RequestMethod.GET)
@@ -70,8 +77,27 @@ public class RequestsRestController {
         return new ResponseEntity<>(requestsService.getAllRequestTypes(), HttpStatus.OK);
     }
 
-    @RequestMapping(value="/requestTypes", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUserRequestTypes() {
-        return new ResponseEntity<>(requestsService.getRequestTypesAvailableForUser(), HttpStatus.OK);
+    @RequestMapping(value="/management/requestTypes/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getRequestTypeById(@PathVariable Long id) {
+        try {
+            return new ResponseEntity<>(requestsService.getRequestTypeById(id), HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage(), null), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value="/management/requestTypes/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteRequestType(@PathVariable Long id) {
+        requestsService.deleteRequestType(id);
+        return new ResponseEntity(HttpStatus.OK); // ToDo catch exception if not found
+    }
+
+    @RequestMapping(value="/management/requestTypes/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateRequestType(@PathVariable Long id, @RequestBody RequestType requestType) {
+        try {
+            return new ResponseEntity<>(requestsService.updateRequestType(id, requestType), HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage(), null), HttpStatus.NOT_FOUND);
+        }
     }
 }

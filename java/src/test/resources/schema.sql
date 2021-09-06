@@ -38,6 +38,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 	ASSIGN_TO_ID int8 not null,
 	DISPLAY_OPTIONS varchar(512),
 	CALENDAR_SELECTION_ID int8,
+	SYSTEM_REQUEST boolean not null,
 	primary key (id)
 );
 

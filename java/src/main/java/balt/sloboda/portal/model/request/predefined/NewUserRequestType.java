@@ -16,10 +16,12 @@ public class NewUserRequestType implements PredefinedRequestType{
     public RequestType getRequestType(){
         return new RequestType()
                 .setName(name)
-                .setDurable(true)
+                .setDurable(false)
                 .setTitle("newUserRequest")
+                .setDescription("Used to create a new user request on registration page")
                 .setParameters(NewUserRequestParams.getParamsDefinition())
-                .setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));
+                .setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)))
+                .setSystemRequest(true);
     }
 
     @Override

@@ -64,7 +64,7 @@ export class RussianLanguage {
             menu: {
                 News: 'Новости',
                 Requests: 'Заявки',
-                GarbageRemoval: 'Вывоз мусора',
+                allRequests: 'Все заявки',
                 Management: 'Управление',
                 Users: 'Жители',
                 Addresses: 'Адреса',
@@ -95,6 +95,7 @@ export class RussianLanguage {
                 tokenNotValidOrExpired: 'Запрос на восстановление пароля истек',
                 emptyPasswordResetToken: 'Неверный запрос на восстановление пароля',
                 requestTypeAlreadyExists: 'Заявка с таким именем уже существует',
+                systemActionCannotBeDeleted: 'Нельзя удалить системную заявку',
             },
             residentsPage: {
                 residents: 'Жители',
@@ -161,7 +162,10 @@ export class RussianLanguage {
                 chooseIcon: 'Выбрать иконку',
                 showInMainRequestMenu: 'Показывать в основном меню',
                 requestTypeCreated: 'Новая заявка создана',
-
+                durable: 'Продолжительный',
+                showSystemRequests: 'Показать системные заявки',
+                shureDeleteRequest: 'Уверены, что хотите удалить заявку \"{{request}}\"?',
+                requestTypeDeleted: 'Заявка удалена',
             },
             common: {
                 next: 'Далее',
@@ -179,6 +183,11 @@ export class RussianLanguage {
                 yes: 'Да',
                 no: 'Нет',
                 icon: 'Иконка',
+                edit: 'Изменить',
+                delete: 'Удалить',
+                actions: 'Действия',
+                saveChanges: 'Сохранить изменения',
+                changesSaved: 'Изменения сохранены',
             }
         };
     }

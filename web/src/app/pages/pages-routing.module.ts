@@ -5,9 +5,11 @@ import { PagesComponent } from './pages.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 import { NewsComponent } from './news/news.component';
 import { PageAccessChecker } from '../auth/PageAccessChecker';
-import { ResidentsComponent } from './management/residents/residents.component';
-import { AddressesComponent } from './management/addresses/addresses.component';
-import { RequestManagerComponent } from './management/request-manager/request-manager.component';
+import { ResidentsPageComponent } from './management/residents/residents-page.component';
+import { AddressesPageComponent } from './management/addresses/addresses-page.component';
+import { RequestManagerPageComponent } from './management/request-manager/request-manager-page.component';
+import { RequestTypePageComponent } from './management/request-types/request-type-page.component';
+import { CreateRequestPageComponent } from './requests/create-request/create-request-page.component';
 
 const routes: Routes = [{
   path: '',
@@ -24,7 +26,7 @@ const routes: Routes = [{
     },
     {
       path: 'management/residents',
-      component: ResidentsComponent,
+      component: ResidentsPageComponent,
       canActivate: [PageAccessChecker], // Check rights
       data: {
         permission: 'view_page',
@@ -33,7 +35,7 @@ const routes: Routes = [{
     },
     {
       path: 'management/addresses',
-      component: AddressesComponent,
+      component: AddressesPageComponent,
       canActivate: [PageAccessChecker], // Check rights
       data: {
         permission: 'view_page',
@@ -42,11 +44,30 @@ const routes: Routes = [{
     },
     {
       path: 'management/requestManager',
-      component: RequestManagerComponent,
+      component: RequestManagerPageComponent,
       canActivate: [PageAccessChecker], // Check rights
       data: {
         permission: 'view_page',
         resource: 'management/requestManager',
+      },
+    },
+    {
+      path: 'management/requestTypes/:requestTypeId',
+      component: RequestTypePageComponent,
+      canActivate: [PageAccessChecker], // Check rights
+      data: {
+        permission: 'view_page',
+        resource: 'management/requestTypes',
+      },
+    },
+
+    {
+      path: 'requests/:requestTypeName/create',
+      component: CreateRequestPageComponent,
+      canActivate: [PageAccessChecker], // Check rights
+      data: {
+        permission: 'view_page',
+        resource: 'createRequest',
       },
     },
     {
