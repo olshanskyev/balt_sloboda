@@ -11,7 +11,8 @@ import { LocalDataSource, Ng2SmartTableComponent } from 'ng2-smart-table';
 import { RequestType } from '../../../@core/data/request-service-data';
 
 import { User } from '../../../@core/data/user-service-data';
-import { InterconnectionService } from '../../../@core/service/interconnection-service';
+import { InterconnectionService } from '../../../@core/service/interconnection-service copy';
+
 import { RequestService } from '../../../@core/service/request-service';
 import { UserService } from '../../../@core/service/users-service';
 

@@ -69,7 +69,9 @@ export class CalendarSelectionDataBuilder {
   public static convertDaysFromStringArray(selectedDays: Array<string>, dateService: NbDateService<Date>): Array<Date> {
     var toReturn: Array<Date> = []
     selectedDays.forEach(item => {
-      toReturn.push(dateService.parse(item, 'YYYY-MM-DD'))
+      var date: Date = dateService.parse(item, 'YYYY-MM-DD');
+      date.setHours(0); // to escape + hours because of timezone
+      toReturn.push(date);
     });
     return toReturn;
   }

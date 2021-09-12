@@ -6,7 +6,7 @@ import {
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { RequestType } from '../../../@core/data/request-service-data';
-import { InterconnectionService } from '../../../@core/service/interconnection-service';
+import { InterconnectionService } from '../../../@core/service/interconnection-service copy';
 import { RequestService } from '../../../@core/service/request-service';
 
 import { Toaster } from '../../Toaster';

@@ -50,6 +50,11 @@ export class RequestService extends RequestServiceData {
     return this._http.get<RequestType>(_endpoint);
   }
 
+  getRequestTypeByName(name: string): Observable<RequestType> {
+    const _endpoint = this.uri +  '/requestTypes/' + name;
+    return this._http.get<RequestType>(_endpoint);
+  }
+
   updateRequestType(id: number, requestType: RequestType): Observable<RequestType> {
     const _endpoint = this.uri +  '/management/requestTypes/' + id;
     return this._http.put<RequestType>(_endpoint, requestType);

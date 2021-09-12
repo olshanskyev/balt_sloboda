@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +71,25 @@ public class RequestsRestController {
     @RequestMapping(value="/requestTypes", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUserRequestTypes() {
         return new ResponseEntity<>(requestsService.getRequestTypesAvailableForUser(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/requestTypes/{name}", method = RequestMethod.GET)
+    public ResponseEntity<?> getUserRequestTypeByName(@PathVariable String name) {
+        try {
+            RequestType requestTypeByName = requestsService.getRequestTypeByName(name);
+            if (requestsService.isRequestTypeAvailableForUser(requestTypeByName) && !requestTypeByName.isSystemRequest()) {
+                return new ResponseEntity<>(requestTypeByName, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ErrorResponse("requestTypeNotAvailableForUser", new HashMap<String, String>() {{
+                    put("requestType",name);
+                }}), HttpStatus.CONFLICT);
+            }
+
+        } catch (NotFoundException notFoundException) {
+            return new ResponseEntity<>(new ErrorResponse(notFoundException.getMessage(), new HashMap<String, String>() {{
+                put("requestType",name);
+            }}), HttpStatus.NOT_FOUND);
+        }
     }
 
     @RequestMapping(value="/management/requestTypes", method = RequestMethod.GET)

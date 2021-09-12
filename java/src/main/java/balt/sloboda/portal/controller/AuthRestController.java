@@ -7,6 +7,7 @@ import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.ResidentService;
 import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.service.exceptions.AlreadyExistsException;
+import balt.sloboda.portal.service.exceptions.NotFoundException;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.TokenRefreshException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +92,8 @@ public class AuthRestController {
                 return new ResponseEntity<>(new ErrorResponse(alreadyExistsException.getMessage(), new HashMap<String, String>() {{
                     put("user", newUserRequestParams.getUserName());
                 }}), HttpStatus.CONFLICT);
+            } catch (NotFoundException notFoundException){
+                return new ResponseEntity<>(new ErrorResponse(notFoundException.getMessage(), null), HttpStatus.NOT_FOUND);
             }
             JwtResponse jwtResponse = new JwtResponse((new TokenPair()).setAccessToken("").setRefreshToken("")); // empty jwtResponse
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);

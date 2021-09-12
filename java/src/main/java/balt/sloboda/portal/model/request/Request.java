@@ -3,6 +3,7 @@ package balt.sloboda.portal.model.request;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.converter.GenericStringMapConverter;
 import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
+import balt.sloboda.portal.model.converter.StringsSetToStringConverter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Table(name="REQUESTS")
@@ -18,9 +20,6 @@ public class Request {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name="SUBJECT", columnDefinition="varchar(256)", nullable = false)
-    private String subject;
 
     @Column(name="COMMENT", columnDefinition="varchar(512)", nullable = true)
     private String comment;
@@ -32,6 +31,10 @@ public class Request {
     @OneToOne
     @JoinColumn(name="REQUEST_TYPE_ID", nullable = false)
     private RequestType type;
+
+    @Column(name="SELECTED_DAYS", columnDefinition="varchar(512)", nullable = true)
+    @Convert(converter = StringsSetToStringConverter.class)
+    private Set<String> selectedDays;
 
     @Column(name="CREATION_DATE")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -66,15 +69,6 @@ public class Request {
 
     public Request setId(Long id) {
         this.id = id;
-        return this;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public Request setSubject(String subject) {
-        this.subject = subject;
         return this;
     }
 
@@ -148,6 +142,15 @@ public class Request {
 
     public Request setAssignedTo(User assignedTo) {
         this.assignedTo = assignedTo;
+        return this;
+    }
+
+    public Set<String> getSelectedDays() {
+        return selectedDays;
+    }
+
+    public Request setSelectedDays(Set<String> selectedDays) {
+        this.selectedDays = selectedDays;
         return this;
     }
 }

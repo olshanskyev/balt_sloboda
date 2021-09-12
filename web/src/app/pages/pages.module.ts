@@ -11,7 +11,7 @@ import { ResidentsPageModule } from './management/residents/residents-page.modul
 import { AddressesPageModule } from './management/addresses/addresses-page.module';
 import { RequestManagerPageModule } from './management/request-manager/request-manager-page.module';
 import { RequestTypePageModule } from './management/request-types/request-type-page.module';
-import { CreateRequestPageModule } from './requests/create-request/create-request-page.module';
+import { SingleRequestPageModule } from './requests/single-request/single-request-page.module';
 
 
 @NgModule({
@@ -26,7 +26,7 @@ import { CreateRequestPageModule } from './requests/create-request/create-reques
     AddressesPageModule,
     RequestManagerPageModule,
     RequestTypePageModule,
-    CreateRequestPageModule
+    SingleRequestPageModule
   ],
   declarations: [
     PagesComponent,

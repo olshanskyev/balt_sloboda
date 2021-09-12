@@ -1,20 +1,26 @@
 <div class="row">
 <div class="col-md-6 offset-md-3">
   <nb-card size="large">
-      <nb-card-header>{{'requestManagerPage.chooseIcon'|translate}}</nb-card-header>
+      <nb-card-header>{{'requestManagerPage.chooseIcon'|translate}}
+        <label class="label select-pack-label">{{'common.iconPack'|translate}}</label>
+        <nb-select
+          [(selected)]="pack" class="select-pack" (selectedChange)="changePack($event)">
+            <nb-option *ngFor="let pack of packs" [value]="pack">{{pack}}</nb-option>
+        </nb-select>
+      </nb-card-header>
       <nb-card-body>
-        <button type="button" class="btn btn-link item-icon" (click)="close(icon)" [title]="icon"
-          *ngFor="let icon of evaIcons"
+        <button type="button" class="btn btn-link item-icon" (click)="close(icon, pack)" [title]="icon"
+          *ngFor="let icon of icons"
         >
           <nb-icon
-          [icon]="icon" pack="eva"
+          [icon]="icon" [pack]="pack"
           [options]="{ animation: { type: 'zoom' } }"
           >
           </nb-icon>
         </button>
       </nb-card-body>
       <nb-card-footer>
-        <button nbButton (click)="close(selectedIcon)">{{'common.close'|translate}}</button>
+        <button nbButton (click)="close(selectedIcon, pack)">{{'common.close'|translate}}</button>
       </nb-card-footer>
     </nb-card>
 </div>

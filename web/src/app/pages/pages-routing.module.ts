@@ -9,7 +9,7 @@ import { ResidentsPageComponent } from './management/residents/residents-page.co
 import { AddressesPageComponent } from './management/addresses/addresses-page.component';
 import { RequestManagerPageComponent } from './management/request-manager/request-manager-page.component';
 import { RequestTypePageComponent } from './management/request-types/request-type-page.component';
-import { CreateRequestPageComponent } from './requests/create-request/create-request-page.component';
+import { SingleRequestPageComponent } from './requests/single-request/single-request-page.component';
 
 const routes: Routes = [{
   path: '',
@@ -62,12 +62,12 @@ const routes: Routes = [{
     },
 
     {
-      path: 'requests/:requestTypeName/create',
-      component: CreateRequestPageComponent,
+      path: 'requests/:requestTypeName',
+      component: SingleRequestPageComponent,
       canActivate: [PageAccessChecker], // Check rights
       data: {
         permission: 'view_page',
-        resource: 'createRequest',
+        resource: 'singleRequest',
       },
     },
     {

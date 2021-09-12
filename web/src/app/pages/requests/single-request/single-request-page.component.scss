@@ -1,0 +1,48 @@
+
+.request-icon {
+    font-size: 2.5rem;
+}
+
+.request-params {
+    margin-top: 2rem;
+}
+
+.request-description {
+    margin-top: 1rem;
+}
+
+.param-input {
+    margin-left: 3rem;
+}
+
+.help-icon {
+    margin-left: 1rem;
+}
+
+.label-input {
+    position: relative;
+    .h7-label {
+        width: 200px;
+        margin: 0.2rem auto;
+    }
+
+    nb-select {
+        margin: 0.2rem auto;
+        width: 200px;
+        display: inline-block;
+    }
+
+    input {
+        margin: 0.2rem auto;
+        width: 200px;
+        display: inline-block;
+    }
+
+    ngx-multi-select-calendar {
+        display: inline-block;
+    }
+}
+
+.create-request-button {
+    margin-top: 2rem;
+}

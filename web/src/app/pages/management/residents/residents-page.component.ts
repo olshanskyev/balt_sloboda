@@ -10,7 +10,7 @@ import { Resident } from '../../../@core/data/resident-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
-import { InterconnectionService } from '../../../@core/service/interconnection-service';
+import { NewUserRequestsInterconnectionService } from '../../../@core/service/new-user-request-interconnection-service';
 
 
 
@@ -29,7 +29,7 @@ export class ResidentsPageComponent {
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
     private residentsService: ResidentsService,
     private requestsService: RequestService,
-    private interconnectionService: InterconnectionService) {
+    private interconnectionService: NewUserRequestsInterconnectionService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];

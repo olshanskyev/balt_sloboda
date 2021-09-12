@@ -293,8 +293,12 @@
             <div class="row">
                 <div class="col-md-12">
                     <label class="label">{{'common.icon'|translate}} </label><p>
-                    <nb-icon size="large" [icon]="selectedIcon" status="basic" class="selected-icon"
-                                pack="eva">
+                    <nb-icon *ngIf="selectedIconPack === 'eva'" size="large" [icon]="selectedIcon" status="basic" class="selected-icon"
+                                [pack]="selectedIconPack">
+                    </nb-icon>
+
+                    <nb-icon *ngIf="selectedIconPack !== 'eva'" size="large" [icon]="selectedIcon" status="basic" class="selected-icon"
+                                [pack]="selectedIconPack">
                     </nb-icon>
 
                 </div>

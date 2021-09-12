@@ -50,7 +50,7 @@ create table $DATABASE_SCHEMA.REQUESTS (
 	LAST_MODIFIED_DATE timestamp,
 	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
-	SUBJECT varchar(256) not null,
+	SELECTED_DAYS varchar(512),	
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,

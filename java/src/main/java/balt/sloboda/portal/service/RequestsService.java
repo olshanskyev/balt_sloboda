@@ -71,20 +71,30 @@ public class RequestsService {
     public List<RequestType> getRequestTypesAvailableForUser() {
         if (webSecurityUtils.isAdmin())
             return dbRequestTypesRepository.findAll();
-        return dbRequestTypesRepository.findAll().stream().filter(item -> webSecurityUtils.authorizedUserHasAnyRole(item.getRoles())).collect(Collectors.toList());
+        return dbRequestTypesRepository.findAll().stream().filter(this::isRequestTypeAvailableForUser).collect(Collectors.toList());
     }
 
-    public Optional<RequestType> getRequestTypeByName(String requestTypeName){
-        return dbRequestTypesRepository.findByName(requestTypeName).stream().findFirst();
+    public boolean isRequestTypeAvailableForUser(RequestType requestType){
+        if (webSecurityUtils.isAdmin())
+            return true;
+        return webSecurityUtils.authorizedUserHasAnyRole(requestType.getRoles());
+    }
+
+    public RequestType getRequestTypeByName(String requestTypeName) throws NotFoundException{
+        return dbRequestTypesRepository.findByName(requestTypeName).stream().findFirst().orElseThrow(() -> new NotFoundException("requestTypeNotFound"));
     }
 
     private boolean requestTypeAlreadyExists(RequestType requestType){
-        return getRequestTypeByName(requestType.getName()).isPresent();
+        try {
+            return getRequestTypeByName(requestType.getName()) != null;
+        } catch (NotFoundException ignore) {
+            return false;
+        }
     }
 
     public RequestType saveRequestType(RequestType requestType) throws AlreadyExistsException {
         if (requestType.getName() == null || requestType.getName().isEmpty()) { // generate name from title
-            requestType.setName(Transcriptor.transliterate(requestType.getTitle())/*.replace(" ", "")*/);
+            requestType.setName(Transcriptor.transliterate(requestType.getTitle()));
         }
 
         if (requestType.getRoles() == null || requestType.getRoles().isEmpty()) {
@@ -97,6 +107,7 @@ public class RequestsService {
             return dbRequestTypesRepository.save(requestType);
         }
     }
+
     public RequestType getRequestTypeById(long id) throws NotFoundException {
         return dbRequestTypesRepository.findById(id).orElseThrow(() -> new NotFoundException("requestTypeNotFound"));
     }
@@ -154,7 +165,7 @@ public class RequestsService {
     }
 
 
-    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams) throws AlreadyExistsException {
+    public Request createNewUserRequest(NewUserRequestParams newUserRequestParams) throws AlreadyExistsException, NotFoundException {
         if (newUserRequestAlreadyExists(newUserRequestParams)){
             throw new AlreadyExistsException("newUserRequestAlreadyExists");
         }
@@ -164,7 +175,7 @@ public class RequestsService {
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-        Request createdRequest = createRequest(newUserRequestType.getName(), "Create New User", "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        Request createdRequest = createRequest(newUserRequestType.getName(), "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
         // send confirmation mail
         emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
         return createdRequest;
@@ -173,33 +184,28 @@ public class RequestsService {
     public Request createRequest(String requestTypeName,
                                  String subject,
                                  String comment,
-                                 Map<String, String> paramValues) {
+                                 Map<String, String> paramValues) throws NotFoundException {
         Optional<User> authorizedUser = userService.findByUserName(webSecurityUtils.getAuthorizedUserName());
         if (authorizedUser.isPresent()) {
-            return createRequest(requestTypeName, subject, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
+            return createRequest(requestTypeName, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
         } else {
             throw new RuntimeException("Unauthorized");
         }
     }
 
     private Request createRequest(String requestTypeName,
-                                  String subject,
                                   String comment,
                                   Map<String, String> paramValues,
                                   Long owner,
-                                  Long lastModifyBy) {
-        Optional<RequestType> requestType = getRequestTypeByName(requestTypeName);
-        if (!requestType.isPresent()){
-            throw new DataIntegrityViolationException("requestTypeNotFound");
-        }
-        List<String> missingParams = checkMandatoryParameters(paramValues, requestType.get());
+                                  Long lastModifyBy) throws NotFoundException {
+        RequestType requestType = getRequestTypeByName(requestTypeName);
+        List<String> missingParams = checkMandatoryParameters(paramValues, requestType);
         if (missingParams.size() > 0){
             throw new DataIntegrityViolationException("missingParameters");
         }
 
         Request newRequest = new Request()
-                .setType(requestType.get())
-                .setSubject(subject)
+                .setType(requestType)
                 .setComment(comment)
                 .setOwner(new User().setId(owner))
                 .setAssignedTo(new User().setId(owner))

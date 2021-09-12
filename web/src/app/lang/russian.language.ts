@@ -95,7 +95,10 @@ export class RussianLanguage {
                 tokenNotValidOrExpired: 'Запрос на восстановление пароля истек',
                 emptyPasswordResetToken: 'Неверный запрос на восстановление пароля',
                 requestTypeAlreadyExists: 'Заявка с таким именем уже существует',
+                requestTypeNotFound: 'Тип заявки {{requestType}} не найден',
                 systemActionCannotBeDeleted: 'Нельзя удалить системную заявку',
+                requestTypeNotAvailableForUser: 'Тип заявки {{requestType}} недоступен пользователю',
+
             },
             residentsPage: {
                 residents: 'Жители',
@@ -120,8 +123,8 @@ export class RussianLanguage {
                 plotNumber: 'Номер участка',
             },
             requestManagerPage: {
-                allRequestTypes: 'Все заявки',
-                createNewRequestType: 'Создать новую заявку',
+                allRequestTypes: 'Все типы заявок',
+                createNewRequestType: 'Создать новый тип заявки',
                 parameterInput: 'Ввод параметров',
                 mainInformation: 'Общая информация',
                 title: 'Заголовок',
@@ -188,6 +191,13 @@ export class RussianLanguage {
                 actions: 'Действия',
                 saveChanges: 'Сохранить изменения',
                 changesSaved: 'Изменения сохранены',
+                iconPack: 'Набор иконок',
+            },
+            singleRequestPage: {
+                createRequest: 'Создать новую заявку',
+                myRequests: 'Мои заявки',
+                requiredParameter: 'Обязательный параметр',
+                selectDays: 'Выберите дни',
             }
         };
     }

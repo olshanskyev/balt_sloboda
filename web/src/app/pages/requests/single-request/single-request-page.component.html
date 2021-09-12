@@ -1,0 +1,87 @@
+<nb-card>
+  <nb-card-header>
+
+    <a [routerLink]="['../']">{{'menu.allRequests'|translate}}</a> /
+    <b><a *ngIf="gotRequestType" [routerLink]="['./']">{{gotRequestType.title}}</a></b>
+  </nb-card-header>
+  <nb-card-body>
+    <nb-tabset *ngIf="gotRequestType">
+      <nb-tab tabTitle="{{'singleRequestPage.createRequest'|translate}}">
+        <div class="row request-description">
+          <div class="col-sm-2 col-md-1">
+            <nb-icon *ngIf="gotRequestType.displayOptions.iconPack === 'eva'" [icon]="gotRequestType.displayOptions.icon" status="basic" class="request-icon" [pack]="gotRequestType.displayOptions.iconPack"></nb-icon>
+            <nb-icon *ngIf="gotRequestType.displayOptions.iconPack !== 'eva'" [icon]="gotRequestType.displayOptions.icon" status="basic" class="request-icon" [pack]="gotRequestType.displayOptions.iconPack"></nb-icon>
+          </div>
+          <div class="col-sm-10 col-md-11">
+            <h5 class="text-basic">{{gotRequestType.title}}</h5>
+            <h7 class="text-hint">{{gotRequestType.description}}</h7>
+          </div>
+        </div>
+
+        <div class="row request-params">
+          <form #paramsForm="ngForm">
+            <nb-list>
+              <nb-list-item *ngFor="let param of gotRequestType.parameters">
+                <div class="label-input">
+                  <label class="h7-label"><h7 class="text-hint">{{param.name}}</h7></label>
+                  <nb-select class="param-input" *ngIf="param.type === RequestParamType.ENUM"
+                    [name]="param.name"
+                    [selected]="param.defaultValue"
+                    (selectedChange)="paramValueChanged(param.name, $event)"
+                    status="primary">
+                    <nb-option *ngFor="let enumItem of param.enumValues" [value]="enumItem"> {{ enumItem }}</nb-option>
+                  </nb-select>
+
+                  <input nbInput class="param-input" *ngIf="param.type !== RequestParamType.ENUM"
+                    [name]="param.name"
+                    [value]="param.defaultValue"
+                    [type]="(param.type === RequestParamType.INTEGER)? 'number': 'text'"
+                    [required]="!param.optional"
+                    (input)="paramValueChanged(param.name, $event.srcElement.value)"
+                  >
+                  <nb-icon *ngIf="param.comment" [nbTooltip]="param.comment" nbTooltipPlacement="top" nbTooltipStatus="primary"
+                  icon="question-mark-circle-outline" class="text-hint help-icon"></nb-icon>
+
+                  <ng-container *ngIf="isParamInvalid(param)">
+                    <p class="caption status-danger">
+                      {{'singleRequestPage.requiredParameter'|translate}}
+                    </p>
+                  </ng-container>
+
+                </div>
+              </nb-list-item>
+              <nb-list-item *ngIf="gotRequestType.durable">
+                <div class="label-input">
+                  <label class="h7-label"><h7 class="text-hint">{{'singleRequestPage.selectDays'|translate}}</h7></label>
+                  <ngx-multi-select-calendar #calendar
+                  [boundingMonth]="false"
+                  [manualSelection]="true"
+                  [filter]="(gotRequestType.calendarSelection.selectionMode === SelectionMode.Weekly)?calendarSelectionService.weekFilter:
+                  ((gotRequestType.calendarSelection.selectionMode === SelectionMode.Monthly)?calendarSelectionService.monthFilter:
+                  manualSelectionFilter)"
+                  (arrayChange)="onChangeSelectedDays($event)"
+                  [max]="maxDate"
+                  [min]="minDate"
+                  ></ngx-multi-select-calendar>
+                </div>
+
+              </nb-list-item>
+            </nb-list>
+
+            <button nbButton class="create-request-button"
+                status="primary"
+                [disabled]="!areParamsValid()"
+                (click)="createRequest()">
+              {{'singleRequestPage.createRequest'|translate}}
+            </button>
+          </form>
+        </div>
+
+      </nb-tab>
+      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}">
+
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+</nb-card>

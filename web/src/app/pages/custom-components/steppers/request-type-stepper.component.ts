@@ -1,5 +1,5 @@
 import { KeyValue, WeekDay } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 
 import {
   NbDateService,
@@ -75,6 +75,7 @@ export class RequestTypeStepperComponent implements OnChanges {
   newParameterEnumValues: string[] = [];
 
   selectedIcon: string;
+  selectedIconPack: string;
   showInMenu: boolean = true;
 
   initNewParam() {
@@ -93,6 +94,7 @@ export class RequestTypeStepperComponent implements OnChanges {
     this.newParameterEnumValues = [];
     this.initNewParam();
     this.selectedIcon = 'plus-outline';
+    this.selectedIconPack = 'eva';
     this.calendarSelectionService.resetWeeDays();
     this.calendarSelectionService.resetMonthDays();
   }
@@ -111,7 +113,7 @@ export class RequestTypeStepperComponent implements OnChanges {
           Object.entries(this.basedOn.calendarSelection.weekDays).forEach(item => {
             // item[0] = day
             // item[1] = checked
-            this.calendarSelectionService.toggleDayOfWeek(WeekDay[item[0]], item[1])
+            this.calendarSelectionService.toggleDayOfWeek(WeekDay[item[0]], item[1]);
             if (item[1]) {
               this.weekDaySelected = true;
             }
@@ -132,8 +134,10 @@ export class RequestTypeStepperComponent implements OnChanges {
         }
       }
     }
+
     this.selectedAssignToId = this.newRequestType.assignTo.id;
     this.selectedIcon = this.newRequestType.displayOptions['icon'];
+    this.selectedIconPack = this.newRequestType.displayOptions['iconPack'];
     this.showInMenu = Boolean(JSON.parse(this.newRequestType.displayOptions['showInMainRequestMenu']));
   }
 
@@ -254,11 +258,15 @@ export class RequestTypeStepperComponent implements OnChanges {
   chooseIcon() {
     this.dialogService.open(IconPickerWindowComponent, {
       context: {
+        pack: this.selectedIconPack,
         selectedIcon: this.selectedIcon,
       },
     })
     .onClose.subscribe(result => {
-      this.selectedIcon = result;
+      this.selectedIcon = null;
+      this.selectedIconPack = null;
+      this.selectedIcon = result.icon;
+      this.selectedIconPack = result.pack;
     });
   }
 
@@ -266,7 +274,7 @@ export class RequestTypeStepperComponent implements OnChanges {
   createRequestType() {
     if (this.newRequestType.durable) {
       switch(this.selectionMode) {
-        case SelectionMode.Manually: {
+        case SelectionMode.Manually: { // ToDo check if days <= today remove from selected Days
           this.newRequestType.calendarSelection = CalendarSelectionDataBuilder.createManualSelection(this.selectedDays, this.dateService);
           break;
         }
@@ -287,6 +295,7 @@ export class RequestTypeStepperComponent implements OnChanges {
 
     this.newRequestType.displayOptions = {
       icon: this.selectedIcon,
+      iconPack: this.selectedIconPack,
       showInMainRequestMenu: this.showInMenu,
     };
 
