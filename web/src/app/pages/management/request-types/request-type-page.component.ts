@@ -6,7 +6,6 @@ import {
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { RequestType } from '../../../@core/data/request-service-data';
-import { InterconnectionService } from '../../../@core/service/interconnection-service copy';
 import { RequestService } from '../../../@core/service/request-service';
 
 import { Toaster } from '../../Toaster';
@@ -29,8 +28,7 @@ export class RequestTypePageComponent {
 
   constructor(private toastrService: NbToastrService, translateService: TranslateService,
     private route: ActivatedRoute,
-    private requestService: RequestService,
-    private interconnectionService: InterconnectionService) {
+    private requestService: RequestService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];
@@ -47,7 +45,7 @@ export class RequestTypePageComponent {
   updateRequestType(requestType: RequestType) {
     this.requestService.updateRequestType(this.requestTypeId, requestType).subscribe(res => {
       this.toaster.showToast(this.toaster.types[1], this.translations.common.changesSaved,'');
-      this.interconnectionService.notifyRequestsListChanged(); // notify to update menu
+      this.requestService.notifyUserRequestTypesChanged(); // notify to update menu
     })
   }
 

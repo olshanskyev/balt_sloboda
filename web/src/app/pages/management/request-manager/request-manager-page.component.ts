@@ -7,11 +7,10 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { LocalDataSource, Ng2SmartTableComponent } from 'ng2-smart-table';
+import { LocalDataSource } from 'ng2-smart-table';
 import { RequestType } from '../../../@core/data/request-service-data';
 
 import { User } from '../../../@core/data/user-service-data';
-import { InterconnectionService } from '../../../@core/service/interconnection-service copy';
 
 import { RequestService } from '../../../@core/service/request-service';
 import { UserService } from '../../../@core/service/users-service';
@@ -38,8 +37,7 @@ export class RequestManagerPageComponent {
     protected dateService: NbDateService<Date>,
     private userService: UserService,
     private requestsService: RequestService,
-    private router: Router,
-    private interconnectionService: InterconnectionService) {
+    private router: Router) {
     this.toaster = new Toaster(toastrService);
     this.translations = translateService.translations[translateService.currentLang];
 
@@ -61,7 +59,7 @@ export class RequestManagerPageComponent {
       this.toaster.showToast(this.toaster.types[1], this.translations.requestManagerPage.requestTypeCreated,
         '');
       this.loadRequestTypes();
-      this.interconnectionService.notifyRequestsListChanged(); // notify to update menu
+      this.requestsService.notifyUserRequestTypesChanged(); // notify to update menu
     });
   }
 
@@ -146,7 +144,8 @@ export class RequestManagerPageComponent {
           this.requestsService.deleteRequestType(event.data.requestType.id).subscribe(() => {
             this.toaster.showToast(this.toaster.types[1], this.translations.requestManagerPage.requestTypeDeleted,'');
             this.loadRequestTypes(); // update table
-            this.interconnectionService.notifyRequestsListChanged(); // notify to update menu
+            this.requestsService.notifyUserRequestTypesChanged(); // notify to update menu
+            this
           });
 
         }

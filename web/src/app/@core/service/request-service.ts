@@ -1,21 +1,96 @@
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Request, RequestServiceData, RequestStatus, RequestType } from '../data/request-service-data';
+import { NbAccessChecker } from '@nebular/security';
 
 @Injectable()
 export class RequestService extends RequestServiceData {
+
 
   newUserRequestName: string = 'NewUserRequest';
 
   private uri: string = environment.baseEndpoint;
 
-  constructor(private _http: HttpClient) {
-    super();
+  // ================= subscriptions =============
+
+  // new user requests
+  private _newUserRequestsSource = new BehaviorSubject<Request[]>(null);
+  private _newUserRequests: Observable<Request[]> = this._newUserRequestsSource.asObservable();
+  // request types
+  private _userRequestTypesSource: BehaviorSubject<RequestType[]> = new BehaviorSubject<RequestType[]>(null);
+  private _userRequestTypes: Observable<RequestType[]> = this._userRequestTypesSource.asObservable();
+  // requests
+  private _userActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
+  private _userActiveRequests: Observable<Request[]> = this._userActiveRequestsSource.asObservable();
+
+  public notifyNewUserRequestsChanged() {
+    this._getAllNewUserRequests().subscribe (requests => {
+      this._newUserRequestsSource.next(requests);
+    });
+
   }
 
-  getAllNewUserRequests(): Observable<Request[]> {
+  public getAllNewUserRequestsSubscription(): Observable<Request[]> {
+      return this._newUserRequests;
+  }
+
+  public notifyUserRequestTypesChanged() {
+    this._getAllUserRequestTypes().subscribe( requestTypes => {
+      this._userRequestTypesSource.next(requestTypes);
+    });
+  }
+
+  public getAllUserRequestTypesSubscription(): Observable<RequestType[]> {
+      return this._userRequestTypes;
+  }
+
+  public notifyUserActiveRequestsChanged() {
+      this.getAllUserRequests(RequestStatus.NEW).subscribe(requests => {
+        this._userActiveRequestsSource.next(requests);
+      });
+  }
+
+  public getAllUserActiveRequestsSubscription(): Observable<Request[]> {
+    return this._userActiveRequests;
+}
+
+  // ======= end ======= subscriptions =================
+
+  constructor(private _http: HttpClient,
+    accessChecker: NbAccessChecker) {
+    super();
+    // load new user requestst
+    accessChecker.isGranted('read', 'newUserRequests').subscribe(granted => { // only for admins
+      if (granted) {
+        this._getAllNewUserRequests().subscribe (requests => {
+          this._newUserRequestsSource.next(requests);
+        });
+      }
+    });
+    // load user request types
+    this._getAllUserRequestTypes().subscribe( requestTypes => {
+      this._userRequestTypesSource.next(requestTypes);
+    });
+
+    // load active user requests
+    this.getAllUserRequests(RequestStatus.NEW).subscribe(requests => {
+      this._userActiveRequestsSource.next(requests);
+    });
+
+  }
+
+  // requests
+
+  public getAllUserRequests(requestStatus?: RequestStatus): Observable<Request[]> {
+    var _endpoint = this.uri +  '/requests';
+    _endpoint += _endpoint + (requestStatus)? '?status=' + RequestStatus[requestStatus] : ''
+    console.log(_endpoint);
+    return this._http.get<Request[]>(_endpoint);
+  }
+
+  private _getAllNewUserRequests(): Observable<Request[]> {
     const _endpoint = this.uri +  '/management/requests?requestType=' + this.newUserRequestName + '&status=' + RequestStatus[RequestStatus.NEW];
     return this._http.get<Request[]>(_endpoint);
   }
@@ -24,6 +99,13 @@ export class RequestService extends RequestServiceData {
     const _endpoint = this.uri +  '/management/requests/' + requestId + '/accept';
     return this._http.put<Request>(_endpoint, null);
   }
+
+  createRequest(request: Request): Observable<Request> {
+    const _endpoint = this.uri +  '/requests';
+    return this._http.post<Request>(_endpoint, request);
+  }
+
+  // request types
 
   createRequestType(requestType: RequestType): Observable<RequestType> {
     const _endpoint = this.uri +  '/management/requestTypes';
@@ -35,7 +117,7 @@ export class RequestService extends RequestServiceData {
     return this._http.get<RequestType[]>(_endpoint);
   }
 
-  getAllUserRequestTypes(): Observable<RequestType[]> {
+  private _getAllUserRequestTypes(): Observable<RequestType[]> {
     const _endpoint = this.uri +  '/requestTypes';
     return this._http.get<RequestType[]>(_endpoint);
   }

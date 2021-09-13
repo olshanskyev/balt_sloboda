@@ -3,8 +3,7 @@ import { NbAccessChecker } from '@nebular/security';
 import { NbIconLibraries, NbMenuItem } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { InterconnectionService } from '../@core/service/interconnection-service copy';
-import { NewUserRequestsInterconnectionService } from '../@core/service/new-user-request-interconnection-service';
+import { RequestType } from '../@core/data/request-service-data';
 import { RequestService } from '../@core/service/request-service';
 
 import { MENU_ITEMS } from './pages-menu';
@@ -23,31 +22,25 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   menu = MENU_ITEMS;
   currentLang: string;
-  newUserRequestInterconnectionService: NewUserRequestsInterconnectionService;
 
   requestsDisplayOptions: any[];
 
   newUserRequestsSubscription :Subscription = null;
-  requestListChangedSubscription :Subscription = null;
+  requestTypeListChangedSubscription :Subscription = null;
+  requestsListChangedSubscription :Subscription = null;
+
 
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
-    private injector: Injector,
+
     private requestsService: RequestService,
-    private interconnectionService: InterconnectionService,
     iconsLibrary: NbIconLibraries,
     ) {
-      accessChecker.isGranted('read', 'newUserRequests').subscribe(granted => { // only for admins
-        if (granted) {
-          this.newUserRequestInterconnectionService = this.injector.get(NewUserRequestsInterconnectionService);
-        }
-      });
-
     this.currentLang = this.translateService.currentLang;
     iconsLibrary.registerFontPack('ion', { iconClassPrefix: 'ion' });
   }
 
 
-  private loadRequestsMenu() {
+  private loadRequestsMenu(requestTypes: RequestType[]) {
     var requestMenuItem: NbMenuItem = this.menu.filter(item => item.data && item.data.id && item.data.id === 'Requests')[0];
 
     // remove childs if already initialized saving all requests menu
@@ -56,10 +49,10 @@ export class PagesComponent implements OnInit, OnDestroy {
       link: '/pages/requests',
       icon: 'list-outline',
     };
-    requestMenuItem.children = [];
 
-    this.requestsService.getAllUserRequestTypes().subscribe(res => {
-      res.filter(item => !item.systemRequest).forEach(requestType => {
+    //this.requestsService.getAllUserRequestTypesSubscription().subscribe(requestTypes => {
+      requestMenuItem.children = [];
+      requestTypes.filter(item => !item.systemRequest).forEach(requestType => {
         if (Boolean(JSON.parse(requestType.displayOptions.showInMainRequestMenu))) {
           requestMenuItem.children.push({ //requestMenuItem.children.push({
             title: requestType.title,
@@ -70,15 +63,21 @@ export class PagesComponent implements OnInit, OnDestroy {
       });
       requestMenuItem.children.push(allRequestsMenuItem);
       this.authAndTranslateMenuItem(requestMenuItem); // translate created request menu
-    });
+    //});
 
   }
 
   ngOnInit(): void {
 
-    // always called on initialization without emit
-    this.requestListChangedSubscription = this.interconnectionService.getRequestsListChanged().subscribe(() => {
-      this.loadRequestsMenu();
+    this.requestTypeListChangedSubscription = this.requestsService.getAllUserRequestTypesSubscription().subscribe((requestTypes) => {
+      if (requestTypes) // null at first time
+        this.loadRequestsMenu(requestTypes);
+    });
+
+    this.requestsListChangedSubscription = this.requestsService.getAllUserActiveRequestsSubscription().subscribe(requests => {
+      if (requests) { // null at first time
+        console.log(requests);
+      }
     });
 
     this.menu.forEach(item => { //translate and check permissions
@@ -91,8 +90,12 @@ export class PagesComponent implements OnInit, OnDestroy {
     if (this.newUserRequestsSubscription !== null) {
       this.newUserRequestsSubscription.unsubscribe();
     }
-    if (this.requestListChangedSubscription !== null) {
-      this.requestListChangedSubscription.unsubscribe();
+    if (this.requestTypeListChangedSubscription !== null) {
+      this.requestTypeListChangedSubscription.unsubscribe();
+    }
+
+    if (this.requestsListChangedSubscription !== null) {
+      this.requestsListChangedSubscription.unsubscribe();
     }
 
   }
@@ -109,18 +112,21 @@ export class PagesComponent implements OnInit, OnDestroy {
       this.accessChecker.isGranted(menuItem.data['permission'], menuItem.data['resource']).subscribe(granted => {
         menuItem.hidden = !granted;
         if (key === 'Users' && granted) { // update badge values
-          this.newUserRequestsSubscription = this.newUserRequestInterconnectionService.getNewUserRequests().subscribe(
+          this.newUserRequestsSubscription = this.requestsService.getAllNewUserRequestsSubscription().subscribe(
             res => {
-              if (res > 0) {
-                menuItem.badge = {
-                  text: res.toString(),
-                  status: 'primary',
-                }
-              } else {
-                menuItem.badge = {
-                  text: null,
+              if (res) {
+                if (res.length > 0) {
+                  menuItem.badge = {
+                    text: res.length.toString(),
+                    status: 'primary',
+                  }
+                } else {
+                  menuItem.badge = {
+                    text: null,
+                  }
                 }
               }
+
             });
         }
       });

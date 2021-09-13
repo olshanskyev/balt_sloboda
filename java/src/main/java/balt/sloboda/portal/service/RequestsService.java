@@ -1,9 +1,6 @@
 package balt.sloboda.portal.service;
 
-import balt.sloboda.portal.model.Address;
-import balt.sloboda.portal.model.Resident;
-import balt.sloboda.portal.model.Role;
-import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.model.*;
 import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestStatus;
@@ -150,8 +147,11 @@ public class RequestsService {
         return dbRequestsRepository.findAll();
     }
 
-    public List<Request> getAllCurrentUserRequests(){
-        return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
+    public List<Request> getAllCurrentUserRequests(Optional<RequestStatus> status){
+        if (status.isPresent())
+            return dbRequestsRepository.findByOwnerUserNameAndStatus(webSecurityUtils.getAuthorizedUserName(), status.get());
+        else
+            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
     }
 
     private List<String> checkMandatoryParameters(Map<String, String> paramValues, RequestType requestType) {
@@ -175,19 +175,35 @@ public class RequestsService {
         if (!foundAdmin.isPresent()){
             throw new DataIntegrityViolationException("missingAdminUser");
         }
-        Request createdRequest = createRequest(newUserRequestType.getName(), "User registration", paramValues, foundAdmin.get().getId(), foundAdmin.get().getId());
+        Request createdRequest = createRequest(
+                newUserRequestType.getName(),
+                "User registration",
+                paramValues,
+                null,
+                foundAdmin.get().getId(),
+                foundAdmin.get().getId());
         // send confirmation mail
         emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
         return createdRequest;
     }
 
-    public Request createRequest(String requestTypeName,
-                                 String subject,
-                                 String comment,
-                                 Map<String, String> paramValues) throws NotFoundException {
+    public Request createRequest(Request request) throws NotFoundException {
+        String requestTypeName;
+        if (request.getType() != null) {
+            if (request.getType().getName() != null && !request.getType().getName().isEmpty()) {
+                //get name of request type if present
+                requestTypeName = request.getType().getName();
+            } else {
+                // or else get form db by id
+                requestTypeName = getRequestTypeById(request.getType().getId()).getName();
+            }
+        } else {
+            throw new DataIntegrityViolationException("requestTypeIdOrRequestTypeNameShouldBePresent");
+        }
+
         Optional<User> authorizedUser = userService.findByUserName(webSecurityUtils.getAuthorizedUserName());
         if (authorizedUser.isPresent()) {
-            return createRequest(requestTypeName, comment, paramValues, authorizedUser.get().getId(), authorizedUser.get().getId());
+            return createRequest(requestTypeName, request.getComment(), request.getParamValues(), request.getCalendarSelection(), authorizedUser.get().getId(), authorizedUser.get().getId());
         } else {
             throw new RuntimeException("Unauthorized");
         }
@@ -196,8 +212,10 @@ public class RequestsService {
     private Request createRequest(String requestTypeName,
                                   String comment,
                                   Map<String, String> paramValues,
+                                  CalendarSelectionData calendarSelection,
                                   Long owner,
                                   Long lastModifyBy) throws NotFoundException {
+
         RequestType requestType = getRequestTypeByName(requestTypeName);
         List<String> missingParams = checkMandatoryParameters(paramValues, requestType);
         if (missingParams.size() > 0){
@@ -207,8 +225,9 @@ public class RequestsService {
         Request newRequest = new Request()
                 .setType(requestType)
                 .setComment(comment)
+                .setCalendarSelection(calendarSelection)
                 .setOwner(new User().setId(owner))
-                .setAssignedTo(new User().setId(owner))
+                .setAssignedTo(new User().setId(requestType.getAssignTo().getId()))
                 .setLastModifiedBy(new User().setId(lastModifyBy))
                 .setParamValues(paramValues)
                 .setStatus(RequestStatus.NEW);

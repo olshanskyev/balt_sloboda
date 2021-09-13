@@ -1,5 +1,6 @@
 package balt.sloboda.portal.model.request;
 
+import balt.sloboda.portal.model.CalendarSelectionData;
 import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.converter.GenericStringMapConverter;
 import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
@@ -32,9 +33,9 @@ public class Request {
     @JoinColumn(name="REQUEST_TYPE_ID", nullable = false)
     private RequestType type;
 
-    @Column(name="SELECTED_DAYS", columnDefinition="varchar(512)", nullable = true)
-    @Convert(converter = StringsSetToStringConverter.class)
-    private Set<String> selectedDays;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="CALENDAR_SELECTION_ID", nullable = true)
+    private CalendarSelectionData calendarSelection;
 
     @Column(name="CREATION_DATE")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -145,12 +146,12 @@ public class Request {
         return this;
     }
 
-    public Set<String> getSelectedDays() {
-        return selectedDays;
+    public CalendarSelectionData getCalendarSelection() {
+        return calendarSelection;
     }
 
-    public Request setSelectedDays(Set<String> selectedDays) {
-        this.selectedDays = selectedDays;
+    public Request setCalendarSelection(CalendarSelectionData calendarSelection) {
+        this.calendarSelection = calendarSelection;
         return this;
     }
 }

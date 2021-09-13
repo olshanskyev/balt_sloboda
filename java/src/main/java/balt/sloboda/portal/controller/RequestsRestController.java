@@ -1,6 +1,7 @@
 package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.ErrorResponse;
+import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.service.RequestsService;
@@ -42,6 +43,16 @@ public class RequestsRestController {
     }
 
 
+    @RequestMapping(value="/requests", method = RequestMethod.POST)
+    public ResponseEntity<?> createRequest(@RequestBody Request request) {
+        try {
+            return new ResponseEntity<>(requestsService.createRequest(request), HttpStatus.OK);
+        } catch (NotFoundException notFoundException) {
+            return new ResponseEntity<>(new ErrorResponse(notFoundException.getMessage(), null), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @RequestMapping(value="/management/requests/{requestId}/accept", method = RequestMethod.PUT)
     public ResponseEntity<?> acceptRequest(@PathVariable Long requestId) {
         try {
@@ -52,8 +63,8 @@ public class RequestsRestController {
     }
 
     @RequestMapping(value="/requests", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUserRequests() {
-        return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(), HttpStatus.OK);
+    public ResponseEntity<?> getAllUserRequests( @RequestParam(name = "status") Optional<RequestStatus> status) {
+        return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status), HttpStatus.OK);
     }
 
 

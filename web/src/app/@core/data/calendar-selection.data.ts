@@ -1,4 +1,5 @@
 import { NbDateService } from "@nebular/theme";
+import { JsonUtils } from "../utils/json.utils";
 
 
 export enum SelectionMode {
@@ -44,25 +45,19 @@ export class CalendarSelectionDataBuilder {
     }
   }
 
-  private static convertMapToJsonObject<T>(map: Map<string, T>): Map<string, T> {
-    let jsonObject = new Map();
-      map.forEach((value, key) => {
-        jsonObject[key] = value
-      });
-    return jsonObject;
-  }
+
 
   public static createMonthSelection(monthDays: MonthDays): CalendarSelectionData {
     return {
       selectionMode: SelectionMode.Monthly,
-      monthDays: this.convertMapToJsonObject<Array<EveryDays>>(monthDays),
+      monthDays: JsonUtils.convertMapToJsonObject<Array<EveryDays>>(monthDays),
     }
   }
 
   public static createWeekSelection(weekDays: WeekDays): CalendarSelectionData {
     return {
       selectionMode: SelectionMode.Weekly,
-      weekDays: this.convertMapToJsonObject<boolean>(weekDays),
+      weekDays: JsonUtils.convertMapToJsonObject<boolean>(weekDays),
     }
   }
 

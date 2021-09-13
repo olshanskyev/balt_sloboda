@@ -46,9 +46,7 @@ admin-user:
   password: $2a$10$Y9iceFh92PKUK5d2alIgzOeSy.Gg6kX6/o.Cn32ARH2H9whZaZ17K
   firstName: admin
   lastName: admin
-  roles:
-    -
-      ROLE_ADMIN
+  roles: ROLE_ADMIN, ROLE_USER
 gui-urls:
   passwordResetLink:
     ${GUI_URL}/auth/reset-password
@@ -84,11 +82,7 @@ admin-user:
   password: $2a$10$Y9iceFh92PKUK5d2alIgzOeSy.Gg6kX6/o.Cn32ARH2H9whZaZ17K
   firstName: admin
   lastName: admin
-  roles:
-    -
-      ROLE_ADMIN
-    -
-      ROLE_USER
+  roles: ROLE_ADMIN, ROLE_USER
 gui-urls:
   passwordResetLink:
     https://localhost:4200/auth/reset-password

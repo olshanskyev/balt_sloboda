@@ -49,7 +49,7 @@ create table IF NOT EXISTS REQUESTS (
 	LAST_MODIFIED_DATE timestamp,
 	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
-	SELECTED_DAYS varchar(512),
+	CALENDAR_SELECTION_ID int8,
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,
@@ -116,6 +116,11 @@ alter table REQUESTS
    add constraint IF NOT EXISTS FKbnmklf2ehuv88h1ejpsphn8a5
    foreign key (REQUEST_TYPE_ID)
    references REQUEST_TYPES;
+
+alter table REQUESTS
+   add constraint IF NOT EXISTS FKh1n8wmnnq3t5189iqifpoakd
+   foreign key (CALENDAR_SELECTION_ID)
+   references CALENDAR_SELECTION;
 
 alter table RESIDENTS
    add constraint IF NOT EXISTS FKq1ajexn440ss5h4lp3e5nw96j

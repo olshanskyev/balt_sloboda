@@ -3,10 +3,15 @@ import { CalendarSelectionData } from './calendar-selection.data';
 import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
-    abstract getAllNewUserRequests(userName: string): Observable<Request[]>;
+    //requests
+    abstract getAllUserActiveRequestsSubscription(): Observable<Request[]>;
+    abstract getAllNewUserRequestsSubscription(userName: string): Observable<Request[]>;
+    abstract getAllUserRequests(requestStatus?: RequestStatus): Observable<Request[]>;
     abstract acceptRequest(requestId: number): Observable<Request>;
+    abstract createRequest(request: Request): Observable<Request>;
+    //request types
     abstract createRequestType(requestType: RequestType): Observable<RequestType>;
-    abstract getAllUserRequestTypes():  Observable<RequestType[]>;
+    abstract getAllUserRequestTypesSubscription():  Observable<RequestType[]>;
     abstract getAllRequestTypes():  Observable<RequestType[]>;
     abstract getRequestTypeByName(name: string): Observable<RequestType>;
     abstract deleteRequestType(id: number): Observable<void>;
@@ -15,17 +20,17 @@ export abstract class RequestServiceData {
 }
 
 export class Request {
-    id: number;
+    id?: number;
     comment: string;
     paramValues: any;
     type: RequestType;
-    status: string;
-    selectedDays?: Array<string>;
-    createDateTime: Date;
+    status?: string;
+    calendarSelection?: CalendarSelectionData;
+    createDateTime?: Date;
     lastModifiedDate?: Date;
     lastModifiedBy?: User;
-    owner: User;
-    assignedTo: User;
+    owner?: User;
+    assignedTo?: User;
 }
 
 export class RequestType {

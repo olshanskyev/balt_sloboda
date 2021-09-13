@@ -198,6 +198,7 @@ export class RussianLanguage {
                 myRequests: 'Мои заявки',
                 requiredParameter: 'Обязательный параметр',
                 selectDays: 'Выберите дни',
+                requestCreated: 'Заявка создана',
             }
         };
     }

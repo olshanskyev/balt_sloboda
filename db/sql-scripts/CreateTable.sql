@@ -50,7 +50,7 @@ create table $DATABASE_SCHEMA.REQUESTS (
 	LAST_MODIFIED_DATE timestamp,
 	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
-	SELECTED_DAYS varchar(512),	
+	CALENDAR_SELECTION_ID int8,
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,
@@ -117,6 +117,11 @@ alter table $DATABASE_SCHEMA.REQUESTS
    add constraint FKbnmklf2ehuv88h1ejpsphn8a5 
    foreign key (REQUEST_TYPE_ID) 
    references $DATABASE_SCHEMA.REQUEST_TYPES;
+   
+alter table $DATABASE_SCHEMA.REQUESTS 
+   add constraint FKh1n8wmnnq3t5189iqifpoakd 
+   foreign key (CALENDAR_SELECTION_ID) 
+   references $DATABASE_SCHEMA.CALENDAR_SELECTION;
     
 alter table $DATABASE_SCHEMA.RESIDENTS 
    add constraint FKq1ajexn440ss5h4lp3e5nw96j 

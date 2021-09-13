@@ -4,9 +4,7 @@ import { UserService } from './users-service';
 import { AddressesService } from './addresses-service';
 import { ResidentsService } from './residents-service';
 import { RequestService } from './request-service';
-import { NewUserRequestsInterconnectionService } from './new-user-request-interconnection-service';
 import { CalendarSelectionService } from './calendar-selection.service';
-import { InterconnectionService } from './interconnection-service copy';
 
 
 const SERVICES = [
@@ -14,8 +12,6 @@ const SERVICES = [
   AddressesService,
   ResidentsService,
   RequestService,
-  InterconnectionService,
-  NewUserRequestsInterconnectionService,
   CalendarSelectionService,
 ];
 

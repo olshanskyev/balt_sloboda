@@ -1,18 +1,16 @@
-import { Component, EventEmitter, Injectable, Output} from '@angular/core';
+import { Component, EventEmitter, Injectable, OnDestroy, Output} from '@angular/core';
 
 import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { LocalDataSource } from 'ng2-smart-table';
+import { Subscription } from 'rxjs';
 import { Request } from '../../../@core/data/request-service-data';
 import { Resident } from '../../../@core/data/resident-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 import { ResidentsService } from '../../../@core/service/residents-service';
 import { Toaster } from '../../Toaster';
-import { NewUserRequestsInterconnectionService } from '../../../@core/service/new-user-request-interconnection-service';
-
-
 
 @Component({
   selector: 'ngx-residents',
@@ -20,7 +18,7 @@ import { NewUserRequestsInterconnectionService } from '../../../@core/service/ne
   styleUrls: ['./residents-page.component.scss'],
 })
 @Injectable()
-export class ResidentsPageComponent {
+export class ResidentsPageComponent implements OnDestroy{
 
   private toaster: Toaster;
 
@@ -28,8 +26,7 @@ export class ResidentsPageComponent {
   translations: any;
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
     private residentsService: ResidentsService,
-    private requestsService: RequestService,
-    private interconnectionService: NewUserRequestsInterconnectionService) {
+    private requestsService: RequestService) {
     this.toaster = new Toaster(toastrService);
 
     this.translations = translateService.translations[translateService.currentLang];
@@ -51,13 +48,20 @@ export class ResidentsPageComponent {
     this.loadNewRequests();
   }
 
+  ngOnDestroy(): void {
+    if (this.allNewUserRequestSubscription !== null)
+      this.allNewUserRequestSubscription.unsubscribe();
+  }
+
+  private allNewUserRequestSubscription: Subscription;
 
   private loadNewRequests(): void {
-    this.requestsService.getAllNewUserRequests().subscribe(
+    this.allNewUserRequestSubscription = this.requestsService.getAllNewUserRequestsSubscription().subscribe(
       res => {
-        this.sourceRequests.load(this.getTableViewRequests(res));
-        this.countRequests = res.length;
-        this.interconnectionService.changeNewUserRequestsCount(this.countRequests);
+        if (res) {
+          this.sourceRequests.load(this.getTableViewRequests(res));
+          this.countRequests = res.length;
+        }
       },  err => {
         this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetRequests,
              '');
@@ -191,16 +195,16 @@ export class ResidentsPageComponent {
       translated => {
         if (window.confirm(translated)) {
           this.requestsService.acceptRequest(event.data.id).subscribe(() => {
-            this.loadNewRequests();
+            this.requestsService.notifyNewUserRequestsChanged();
             this.loadResidents();
           });
         }
       });
   }
 
-  onDeclineUser(event) : void { // todo ask to decline
+  onDeclineUser(event) : void { // todo ask to decline and delete
     this.countRequests++;
-    this.interconnectionService.changeNewUserRequestsCount(this.countRequests);
+    this.requestsService.notifyNewUserRequestsChanged();
   }
 
 

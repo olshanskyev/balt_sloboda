@@ -8,7 +8,7 @@
     <nb-tabset *ngIf="gotRequestType">
       <nb-tab tabTitle="{{'singleRequestPage.createRequest'|translate}}">
         <div class="row request-description">
-          <div class="col-sm-2 col-md-1">
+          <div class="col-sm-2 col-md-1 display-middle">
             <nb-icon *ngIf="gotRequestType.displayOptions.iconPack === 'eva'" [icon]="gotRequestType.displayOptions.icon" status="basic" class="request-icon" [pack]="gotRequestType.displayOptions.iconPack"></nb-icon>
             <nb-icon *ngIf="gotRequestType.displayOptions.iconPack !== 'eva'" [icon]="gotRequestType.displayOptions.icon" status="basic" class="request-icon" [pack]="gotRequestType.displayOptions.iconPack"></nb-icon>
           </div>
@@ -62,15 +62,36 @@
                   (arrayChange)="onChangeSelectedDays($event)"
                   [max]="maxDate"
                   [min]="minDate"
+                  [days]="selectedDays"
                   ></ngx-multi-select-calendar>
                 </div>
+              </nb-list-item>
+              <nb-list-item>
 
+                <div class="label-textarea row">
+
+                  <div class="col-md-5 display-middle" style="max-width: 200px;">
+                    <label class="h7-label"><h7 class="text-hint">{{'requestManagerPage.comment'|translate}}</h7></label>
+                  </div>
+                  <div class="col-md-7">
+                    <textarea
+                  nbInput
+                  [(ngModel)]="comment"
+                  #commentInput="ngModel"
+                  name="commentInput"
+                  fullWidth
+                  placeholder="{{'requestManagerPage.comment'|translate}}"
+                  >
+                  </textarea>
+                  </div>
+
+                </div>
               </nb-list-item>
             </nb-list>
 
             <button nbButton class="create-request-button"
                 status="primary"
-                [disabled]="!areParamsValid()"
+                [disabled]="!areParamsValid() || (gotRequestType.durable && selectedDays.length === 0)"
                 (click)="createRequest()">
               {{'singleRequestPage.createRequest'|translate}}
             </button>
