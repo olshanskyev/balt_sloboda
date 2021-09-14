@@ -27,7 +27,7 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   newUserRequestsSubscription :Subscription = null;
   requestTypeListChangedSubscription :Subscription = null;
-  requestsListChangedSubscription :Subscription = null;
+  requestsListChangedSubscription: Subscription = null;
 
 
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
@@ -76,7 +76,7 @@ export class PagesComponent implements OnInit, OnDestroy {
 
     this.requestsListChangedSubscription = this.requestsService.getAllUserActiveRequestsSubscription().subscribe(requests => {
       if (requests) { // null at first time
-        console.log(requests);
+        ;// ToDo update badges
       }
     });
 

@@ -99,8 +99,8 @@
         </div>
 
       </nb-tab>
-      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}">
-
+      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{activeRequests.length}}" badgeStatus="primary">
+        <ngx-requests-table [requests]="activeRequests"></ngx-requests-table>
       </nb-tab>
     </nb-tabset>
 

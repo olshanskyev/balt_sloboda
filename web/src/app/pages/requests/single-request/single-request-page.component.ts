@@ -1,5 +1,5 @@
 import { WeekDay } from '@angular/common';
-import { Component, ViewChild} from '@angular/core';
+import { Component, OnDestroy, ViewChild} from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import {
@@ -7,6 +7,7 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { CalendarSelectionDataBuilder, SelectionMode } from '../../../@core/data/calendar-selection.data';
 import { Request, RequestParam, RequestParamType, RequestType } from '../../../@core/data/request-service-data';
 import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
@@ -24,7 +25,7 @@ import { Toaster } from '../../Toaster';
 })
 
 
-export class SingleRequestPageComponent {
+export class SingleRequestPageComponent implements OnDestroy {
 
   private toaster: Toaster;
   gotRequestType: RequestType;
@@ -38,6 +39,8 @@ export class SingleRequestPageComponent {
   minDate: Date = new Date();
   maxDate: Date = new Date();
   comment: string;
+  requestsListChangedSubscription: Subscription = null;
+  activeRequests: Request[] = [];
 
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
 
@@ -80,6 +83,7 @@ export class SingleRequestPageComponent {
     }
   }
 
+
   constructor(private toastrService: NbToastrService, translateService: TranslateService,
     private route: ActivatedRoute,
     private requestService: RequestService,
@@ -96,8 +100,22 @@ export class SingleRequestPageComponent {
         this.gotRequestType = res;
         // setting default values
         this.setInitialValues();
+
+        this.requestsListChangedSubscription = this.requestService.getAllUserActiveRequestsSubscription().subscribe(requests => {
+          if (requests) { // null at first time
+            this.activeRequests = requests.filter(item => item.type.name === requestTypeName);
+          }
+        });
+
       });
     });
+  }
+
+  ngOnDestroy(): void {
+    console.log('onDestroy');
+    if (this.requestsListChangedSubscription) {
+      this.requestsListChangedSubscription.unsubscribe();
+    }
   }
 
 

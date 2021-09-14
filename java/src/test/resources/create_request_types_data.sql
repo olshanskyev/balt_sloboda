@@ -13,7 +13,11 @@ INSERT INTO REQUEST_PARAMS (REQUEST_TYPE_ID, NAME, TYPE, OPTIONAL, COMMENT) VALU
 ;
 
 INSERT INTO REQUESTS (PARAM_VALUES, STATUS, LAST_MODIFIED_BY_ID, OWNER_ID, ASSIGNED_TO_ID, REQUEST_TYPE_ID) VALUES
-('{"userName": "olshanskyev@gmail.com"}', 'NEW', '1', '1', '1', '2')
+('{"userName": "olshanskyev@gmail.com"}', 'NEW', '1', '1', '1', '2'),
+('{"test": "NEW"}', 'NEW', '2', '2', '1', '1'),
+('{"test": "ACCEPTED"}', 'ACCEPTED', '1', '2', '1', '1'),
+('{"test": "IN_PROGRESS"}', 'IN_PROGRESS', '1', '2', '1', '1'),
+('{"test": "CLOSED"}', 'CLOSED', '1', '2', '1', '1')
 ;
 
 

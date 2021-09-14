@@ -104,7 +104,6 @@ export class RussianLanguage {
                 residents: 'Жители',
                 user: 'Имя пользователя',
                 newRequests: 'Новые заявки',
-                count: 'Всего',
                 firstName: 'Имя',
                 lastName: 'Фамилия',
                 address: 'Адрес',
@@ -192,6 +191,7 @@ export class RussianLanguage {
                 saveChanges: 'Сохранить изменения',
                 changesSaved: 'Изменения сохранены',
                 iconPack: 'Набор иконок',
+                count: 'Всего',
             },
             singleRequestPage: {
                 createRequest: 'Создать новую заявку',
@@ -199,6 +199,15 @@ export class RussianLanguage {
                 requiredParameter: 'Обязательный параметр',
                 selectDays: 'Выберите дни',
                 requestCreated: 'Заявка создана',
+            },
+
+            requests: {
+                status: 'Состояние',
+                paramValues: 'Параметры',
+                comment: 'Комментарий',
+                assignedTo: 'Назначен',
+                lastModified: 'Последнее изменение',
+                createDateTime: 'Создан',
             }
         };
     }

@@ -147,9 +147,9 @@ public class RequestsService {
         return dbRequestsRepository.findAll();
     }
 
-    public List<Request> getAllCurrentUserRequests(Optional<RequestStatus> status){
+    public List<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status){
         if (status.isPresent())
-            return dbRequestsRepository.findByOwnerUserNameAndStatus(webSecurityUtils.getAuthorizedUserName(), status.get());
+            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUserName(), status.get());
         else
             return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
     }

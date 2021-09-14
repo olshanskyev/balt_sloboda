@@ -165,8 +165,6 @@ public class RequestRestControllerTest {
                 .andExpect(jsonPath("$[3].parameters[0].enumValues",  containsInAnyOrder("120", "240")))
                 .andExpect(jsonPath("$[3].displayOptions",  hasEntry("icon", "bell")))
                 .andExpect(jsonPath("$[3].displayOptions",  hasEntry("showInMainRequestMenu", "true")));
-
-
     }
 
 
@@ -196,6 +194,28 @@ public class RequestRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
     }
+
+
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void getActiveRequestsTest() throws Exception {
+        // 1. Login with user
+        JwtResponse jwtResponse = AuthRestControllerTest.userLogin(mvc);
+        // 2 check request types
+        mvc.perform(get("/requests?status=NEW,ACCEPTED,IN_PROGRESS")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].status", containsString("NEW")))
+                .andExpect(jsonPath("$[1].status", containsString("ACCEPTED")))
+                .andExpect(jsonPath("$[2].status", containsString("IN_PROGRESS")));
+                //.andExpect(jsonPath("$[0].roles", hasItem("ROLE_USER")));
+
+    }
+
 
 
 }

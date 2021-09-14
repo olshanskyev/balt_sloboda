@@ -6,7 +6,7 @@ export abstract class RequestServiceData {
     //requests
     abstract getAllUserActiveRequestsSubscription(): Observable<Request[]>;
     abstract getAllNewUserRequestsSubscription(userName: string): Observable<Request[]>;
-    abstract getAllUserRequests(requestStatus?: RequestStatus): Observable<Request[]>;
+    abstract getAllUserRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
     abstract acceptRequest(requestId: number): Observable<Request>;
     abstract createRequest(request: Request): Observable<Request>;
     //request types

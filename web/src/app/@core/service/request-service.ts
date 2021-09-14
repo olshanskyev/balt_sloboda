@@ -47,7 +47,7 @@ export class RequestService extends RequestServiceData {
   }
 
   public notifyUserActiveRequestsChanged() {
-      this.getAllUserRequests(RequestStatus.NEW).subscribe(requests => {
+      this.getAllUserRequests([RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(requests => {
         this._userActiveRequestsSource.next(requests);
       });
   }
@@ -64,29 +64,21 @@ export class RequestService extends RequestServiceData {
     // load new user requestst
     accessChecker.isGranted('read', 'newUserRequests').subscribe(granted => { // only for admins
       if (granted) {
-        this._getAllNewUserRequests().subscribe (requests => {
-          this._newUserRequestsSource.next(requests);
-        });
+        this.notifyNewUserRequestsChanged();
       }
     });
     // load user request types
-    this._getAllUserRequestTypes().subscribe( requestTypes => {
-      this._userRequestTypesSource.next(requestTypes);
-    });
-
-    // load active user requests
-    this.getAllUserRequests(RequestStatus.NEW).subscribe(requests => {
-      this._userActiveRequestsSource.next(requests);
-    });
+    this.notifyUserRequestTypesChanged();
+    // load user active requests
+    this.notifyUserActiveRequestsChanged();
 
   }
 
   // requests
 
-  public getAllUserRequests(requestStatus?: RequestStatus): Observable<Request[]> {
+  public getAllUserRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
     var _endpoint = this.uri +  '/requests';
-    _endpoint += _endpoint + (requestStatus)? '?status=' + RequestStatus[requestStatus] : ''
-    console.log(_endpoint);
+    _endpoint += _endpoint + (requestStatuses)? '?status=' + requestStatuses.map(item => RequestStatus[item]).join() : ''
     return this._http.get<Request[]>(_endpoint);
   }
 
