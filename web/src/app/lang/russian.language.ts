@@ -98,6 +98,7 @@ export class RussianLanguage {
                 requestTypeNotFound: 'Тип заявки {{requestType}} не найден',
                 systemActionCannotBeDeleted: 'Нельзя удалить системную заявку',
                 requestTypeNotAvailableForUser: 'Тип заявки {{requestType}} недоступен пользователю',
+                userCannotChangeStatus: 'Пользователь не может изменить статус заявки с {{from}} на {{to}}'
 
             },
             residentsPage: {
@@ -208,6 +209,18 @@ export class RussianLanguage {
                 assignedTo: 'Назначен',
                 lastModified: 'Последнее изменение',
                 createDateTime: 'Создан',
+                NEW: 'НОВАЯ',
+                ACCEPTED: 'УТВЕРЖДЕНА',
+                IN_PROGRESS: 'В РАБОТЕ',
+                CLOSED: 'ЗАКРЫТА',
+                REJECTED: 'ОТКЛОНЕНА',
+                chatWithExecutor: 'Чат с исполнителем',
+                durableRequest: 'Продолжительная заявка',
+                nextExecutionDay: 'Следующее выполнение',
+                reject: 'Отменить заявку',
+                requestRejected: 'Заявка отменена',
+                shureRejectRequest: 'Отменить заявку {{name}}?',
+
             }
         };
     }

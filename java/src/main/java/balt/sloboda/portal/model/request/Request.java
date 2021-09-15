@@ -5,6 +5,7 @@ import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.converter.GenericStringMapConverter;
 import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
 import balt.sloboda.portal.model.converter.StringsSetToStringConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,6 +25,9 @@ public class Request {
 
     @Column(name="COMMENT", columnDefinition="varchar(512)", nullable = true)
     private String comment;
+
+    @Column(name="GENERATED_IDENTIFIER", columnDefinition="varchar(10)", nullable = false)
+    private String generatedIdentifier;
 
     @Column(name="PARAM_VALUES", columnDefinition="varchar(512)", nullable = true)
     @Convert(converter = StringsMapToStringConverter.class)
@@ -152,6 +156,21 @@ public class Request {
 
     public Request setCalendarSelection(CalendarSelectionData calendarSelection) {
         this.calendarSelection = calendarSelection;
+        return this;
+    }
+
+    @PrePersist
+    void prePersist() {
+        if (this.generatedIdentifier == null || this.generatedIdentifier.isEmpty())
+            this.generatedIdentifier = this.type.getRequestIdPrefix();
+    }
+
+    public String getGeneratedIdentifier() {
+        return generatedIdentifier;
+    }
+
+    public Request setGeneratedIdentifier(String generatedIdentifier) {
+        this.generatedIdentifier = generatedIdentifier;
         return this;
     }
 }

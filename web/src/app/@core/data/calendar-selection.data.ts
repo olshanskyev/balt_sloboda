@@ -1,4 +1,4 @@
-import { NbDateService } from "@nebular/theme";
+import { NbDateService, NbTreeGridDataService } from "@nebular/theme";
 import { JsonUtils } from "../utils/json.utils";
 
 
@@ -34,10 +34,16 @@ export type WeekDays = Map<string, boolean>;
 
 export class CalendarSelectionDataBuilder {
 
+
+  public static convertDateToString(date: Date, dateService: NbDateService<Date>): string {
+    return dateService.getYear(date) + '-' + (dateService.getMonth(date) + 1) + '-' + dateService.getDate(date);
+  }
+
+
   public static createManualSelection(selectedDays: Array<Date>, dateService: NbDateService<Date>): CalendarSelectionData {
     var dates: Array<string> = []
     selectedDays.forEach(item => {
-      dates.push(dateService.getYear(item) + '-' + (dateService.getMonth(item) + 1) + '-' + dateService.getDate(item));
+      dates.push(CalendarSelectionDataBuilder.convertDateToString(item, dateService));
     });
     return {
       selectionMode: SelectionMode.Manually,
@@ -70,7 +76,20 @@ export class CalendarSelectionDataBuilder {
     });
     return toReturn;
   }
+
+  public static getNextExecutionDay(calendarSelection: CalendarSelectionData,  dateService: NbDateService<Date>): Date {
+    if (calendarSelection.selectionMode === SelectionMode.Manually) {
+      // ToDo at the moment it is alway manuall selection in Request Type
+      var dates: Date[] = this.convertDaysFromStringArray(calendarSelection.selectedDays, dateService);
+      var sortedDates: Date[] = dates.sort((date1, date2) => dateService.compareDates(date1, date2));
+      return sortedDates.find(item => dateService.compareDates(item, dateService.today()) >= 0)
+    }
+
+    return null;
+  }
 }
+
+
 
 
 

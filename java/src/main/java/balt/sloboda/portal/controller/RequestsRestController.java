@@ -7,6 +7,8 @@ import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.exceptions.AlreadyExistsException;
 import balt.sloboda.portal.service.exceptions.NotFoundException;
+import balt.sloboda.portal.service.exceptions.RequestLifecycleException;
+import balt.sloboda.portal.service.exceptions.UserNotAuthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,13 +55,34 @@ public class RequestsRestController {
     }
 
 
-    @RequestMapping(value="/management/requests/{requestId}/accept", method = RequestMethod.PUT)
-    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId) {
+    @RequestMapping(value="/requests/{requestId}/{action}", method = RequestMethod.PUT)
+    public ResponseEntity<?> changeRequestStatus(@PathVariable Long requestId, @PathVariable String action) {
+
+
         try {
-            return new ResponseEntity<>(requestsService.acceptRequest(requestId), HttpStatus.OK);
+            switch (action) {
+                case "accept": {
+                    return new ResponseEntity<>(requestsService.acceptRequest(requestId), HttpStatus.OK);
+                }
+                case "reject": {
+                    return new ResponseEntity<>(requestsService.rejectRequest(requestId), HttpStatus.OK);
+                }
+                default: {
+                    return new ResponseEntity<>(new ErrorResponse("unknowRequestOperation", null), HttpStatus.BAD_REQUEST);
+                }
+            }
+
         } catch (NotFoundException ex){
             return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorizedException ex) {
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.UNAUTHORIZED);
+        } catch (RequestLifecycleException ex) {
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), new HashMap<String, String>() {{
+                put("from", ex.getFrom().toString());
+                put("to", ex.getTo().toString());
+            }}), HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @RequestMapping(value="/requests", method = RequestMethod.GET)

@@ -1,0 +1,65 @@
+.header {
+    position: relative;
+    display: inline-block;
+    //align-items: center;
+    h7 {
+        width: 150px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .request-icon {
+        font-size: 2.5rem;
+        margin-right: 2rem;
+        display: inline-block;
+        vertical-align: middle;
+    }
+}
+
+.parameters {
+    h7 {
+        &.param-value {
+            margin-right: 1rem;
+        }
+        &.param-name {
+            min-width: 210px;
+        }
+
+        display: inline-block;
+    }
+    nb-list {
+        margin-top: 1rem;
+    }
+}
+
+.param-input {
+    margin-left: 3rem;
+}
+
+.help-icon {
+    right: 1rem;
+    position: absolute;
+}
+
+.durable-icon {
+    position: absolute;
+    right: 3rem;
+}
+
+.textarea-comment {
+    width: 100%;
+    max-width: 30rem !important;
+    max-height: 80px;
+    min-height: 20px;
+    resize: none;
+    margin-right: -1rem;
+    font-weight: 400 !important;
+}
+.action-div {
+    position: static;
+    text-align: right;
+}
+.reject-button {
+    margin-top: 1rem;
+}
+

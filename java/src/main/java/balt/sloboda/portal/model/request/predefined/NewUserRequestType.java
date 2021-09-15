@@ -18,6 +18,7 @@ public class NewUserRequestType implements PredefinedRequestType{
                 .setName(name)
                 .setDurable(false)
                 .setTitle("newUserRequest")
+                .setRequestIdPrefix("NUR")
                 .setDescription("Used to create a new user request on registration page")
                 .setParameters(NewUserRequestParams.getParamsDefinition())
                 .setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)))

@@ -8,6 +8,7 @@ export abstract class RequestServiceData {
     abstract getAllNewUserRequestsSubscription(userName: string): Observable<Request[]>;
     abstract getAllUserRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
     abstract acceptRequest(requestId: number): Observable<Request>;
+    abstract rejectRequest(requestId: number): Observable<Request>;
     abstract createRequest(request: Request): Observable<Request>;
     //request types
     abstract createRequestType(requestType: RequestType): Observable<RequestType>;
@@ -31,6 +32,7 @@ export class Request {
     lastModifiedBy?: User;
     owner?: User;
     assignedTo?: User;
+    generatedIdentifier?: string;
 }
 
 export class RequestType {
@@ -45,6 +47,7 @@ export class RequestType {
     displayOptions?: any;
     calendarSelection?: CalendarSelectionData;
     systemRequest: boolean;
+    requestIdPrefix?: string;
 }
 
 

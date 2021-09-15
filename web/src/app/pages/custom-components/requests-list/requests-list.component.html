@@ -1,0 +1,65 @@
+<div>
+    <!-- <ng2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event)" (delete)="onDelete($event)">
+    </ng2-smart-table>
+    {{'common.count'|translate}}: <b>{{count}}</b> -->
+    <nb-accordion>
+        <nb-accordion-item *ngFor="let request of requests">
+          <nb-accordion-item-header>
+            <div class="header">
+              <nb-icon *ngIf="request.type.displayOptions.iconPack === 'eva'" [icon]="request.type.displayOptions.icon" status="basic" class="request-icon" [pack]="request.type.displayOptions.iconPack"></nb-icon>
+              <nb-icon *ngIf="request.type.displayOptions.iconPack !== 'eva'" [icon]="request.type.displayOptions.icon" status="basic" class="request-icon" [pack]="request.type.displayOptions.iconPack"></nb-icon>
+              <h7 class="text-basic">{{request.type.title}}</h7>
+              <h7 class="text-hint">{{request.generatedIdentifier}}</h7>
+              <h7 class="{{(request.status == 'NEW')? 'text-info':
+              (request.status == 'ACCEPTED')? 'text-primary':
+              (request.status == 'IN_PROGRESS')? 'text-success':
+              'text-hint'}}">{{'requests.'+request.status|translate}}</h7>
+            </div>
+            <nb-icon [hidden]="!request.type.durable" nbTooltip="{{'requests.durableRequest'|translate}}" nbTooltipPlacement="top" nbTooltipStatus="primary"
+                      icon="clock-outline" class="text-hint durable-icon"></nb-icon>
+          </nb-accordion-item-header>
+          <nb-accordion-item-body>
+            <div class="row">
+              <div class="col-xl-6 parameters">
+                <h7 class="text-hint">{{'requests.paramValues'|translate}}</h7>
+                <nb-list>
+                  <nb-list-item *ngFor="let param of request.type.parameters">
+                    <h7 class="text-basic param-name">{{param.name}}</h7>
+                    <h7 class="text-basic param-value">{{request.paramValues[param.name]}}</h7>
+
+                    <nb-icon *ngIf="param.comment" [nbTooltip]="param.comment" nbTooltipPlacement="top" nbTooltipStatus="primary"
+                    icon="question-mark-circle-outline" class="text-hint help-icon"></nb-icon>
+
+                  </nb-list-item>
+                  <nb-list-item *ngIf="request.type.durable">
+                    <h7 class="text-basic param-name">{{'requests.nextExecutionDay'|translate}}</h7>
+                    <h7 class="text-basic param-value">{{calculateNextExecutionDay(request)}}</h7>
+                  </nb-list-item>
+                  <nb-list-item>
+                    <h7 class="text-basic param-name">{{'requests.comment'|translate}}</h7>
+
+                    <textarea
+                      nbInput
+                      [ngModel]="request.comment"
+                      readonly="true"
+                      class="textarea-comment"
+                    >
+                    </textarea>
+                  </nb-list-item>
+                </nb-list>
+              </div>
+              <div class="col-xl-6">
+                <h7 class="text-hint">{{'requests.chatWithExecutor'|translate}}</h7>
+              </div>
+            </div>
+
+            <div class="action-div">
+              <button nbButton shape="semi-round" status="danger" size="tiny" class="reject-button"
+              [disabled]="!(request.status == 'NEW' || request.status == 'ACCEPTED')"
+              (click)="rejectRequest(request)">{{'requests.reject'|translate}}</button>
+            </div>
+
+          </nb-accordion-item-body>
+        </nb-accordion-item>
+       </nb-accordion>
+</div>

@@ -40,6 +40,7 @@ create table $DATABASE_SCHEMA.REQUEST_TYPES (
 	DISPLAY_OPTIONS varchar(512),
 	CALENDAR_SELECTION_ID int8,
 	SYSTEM_REQUEST boolean not null,
+	REQUEST_ID_PREFIX varchar(3) not null,
 	primary key (id)
 );
     
@@ -54,7 +55,8 @@ create table $DATABASE_SCHEMA.REQUESTS (
 	LAST_MODIFIED_BY_ID int8 not null,
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,
-	REQUEST_TYPE_ID int8 not null,
+	REQUEST_TYPE_ID int8 not null,	
+	GENERATED_IDENTIFIER varchar(10) not null,
 	primary key (id)
 );
     
@@ -132,3 +134,18 @@ alter table $DATABASE_SCHEMA.RESIDENTS
    add constraint FKmoksj6gw3xcn8phy205yrkaja 
    foreign key (USER_ID) 
    references $DATABASE_SCHEMA.USERS;
+   
+   
+CREATE FUNCTION $DATABASE_SCHEMA.gen_request_id() RETURNS trigger AS $gen_request_id$
+	declare
+   		id_length integer := char_length(new.id::varchar(7));
+   		template_ varchar(8) := '00000000';
+    BEGIN
+                        
+        new.GENERATED_IDENTIFIER := new.GENERATED_IDENTIFIER || substring(template_ from 1 for (7 - id_length)) || new.id::varchar(7);        
+        RETURN NEW;
+    END;
+$gen_request_id$ LANGUAGE plpgsql;
+
+CREATE TRIGGER gen_request_id BEFORE INSERT ON $DATABASE_SCHEMA.REQUESTS 
+    FOR EACH ROW EXECUTE FUNCTION $DATABASE_SCHEMA.gen_request_id();

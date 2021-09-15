@@ -39,6 +39,7 @@ create table IF NOT EXISTS REQUEST_TYPES (
 	DISPLAY_OPTIONS varchar(512),
 	CALENDAR_SELECTION_ID int8,
 	SYSTEM_REQUEST boolean not null,
+	REQUEST_ID_PREFIX varchar(3) not null,
 	primary key (id)
 );
 
@@ -54,6 +55,7 @@ create table IF NOT EXISTS REQUESTS (
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,
 	REQUEST_TYPE_ID int8 not null,
+	GENERATED_IDENTIFIER varchar(10) not null,
 	primary key (id)
 );
 

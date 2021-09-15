@@ -112,7 +112,6 @@ export class SingleRequestPageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('onDestroy');
     if (this.requestsListChangedSubscription) {
       this.requestsListChangedSubscription.unsubscribe();
     }

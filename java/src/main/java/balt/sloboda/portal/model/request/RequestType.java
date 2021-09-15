@@ -6,6 +6,7 @@ import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.model.converter.RolesSetToStringConverter;
 import balt.sloboda.portal.model.converter.GenericStringMapConverter;
 import balt.sloboda.portal.model.converter.StringsMapToStringConverter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.*;
@@ -51,6 +52,9 @@ public class RequestType {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="CALENDAR_SELECTION_ID", nullable = true)
     private CalendarSelectionData calendarSelection;
+
+    @Column(name="REQUEST_ID_PREFIX", columnDefinition="varchar(3)", nullable = false)
+    private String requestIdPrefix;
 
     public Long getId() {
         return id;
@@ -149,6 +153,15 @@ public class RequestType {
 
     public RequestType setSystemRequest(boolean systemRequest) {
         this.systemRequest = systemRequest;
+        return this;
+    }
+
+    public String getRequestIdPrefix() {
+        return requestIdPrefix;
+    }
+
+    public RequestType setRequestIdPrefix(String requestIdPrefix) {
+        this.requestIdPrefix = requestIdPrefix;
         return this;
     }
 }

@@ -9,6 +9,8 @@ import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.repository.*;
 import balt.sloboda.portal.service.exceptions.AlreadyExistsException;
+import balt.sloboda.portal.service.exceptions.RequestLifecycleException;
+import balt.sloboda.portal.service.exceptions.UserNotAuthorizedException;
 import balt.sloboda.portal.service.exceptions.NotFoundException;
 import balt.sloboda.portal.utils.JwtTokenUtil;
 import balt.sloboda.portal.utils.Transcriptor;
@@ -93,6 +95,16 @@ public class RequestsService {
         if (requestType.getName() == null || requestType.getName().isEmpty()) { // generate name from title
             requestType.setName(Transcriptor.transliterate(requestType.getTitle()));
         }
+        // 3 letters prefix
+        if (requestType.getRequestIdPrefix() == null || requestType.getRequestIdPrefix().isEmpty()){
+            String name = requestType.getName();
+            String prefix =
+                    String.valueOf(name.charAt(0)) + // first letter
+                            name.charAt(name.length() / 2) + //middle letter
+                            name.charAt(name.length() - 1); // last letter
+            requestType.setRequestIdPrefix(prefix.toUpperCase());
+        }
+
 
         if (requestType.getRoles() == null || requestType.getRoles().isEmpty()) {
             requestType.setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_USER)));
@@ -277,18 +289,55 @@ public class RequestsService {
         return saved;
     }
 
-    public Request acceptRequest(Long requestId) throws NotFoundException{
+    // user can only reject NEW AND ACCEPTED requests
+    private void checkStatusChangingByUser(RequestStatus currentState, RequestStatus newState) throws RequestLifecycleException {
+        switch (currentState) {
+            case NEW:
+            case ACCEPTED: {
+                if (!Arrays.asList(RequestStatus.REJECTED).contains(newState))
+                    throw new RequestLifecycleException("userCannotChangeStatus", currentState, newState); ; // NEW => REJECTED
+                return;
+            }
+            case IN_PROGRESS:
+            case CLOSED:
+            case REJECTED: {
+                throw new RequestLifecycleException("userCannotChangeStatus", currentState, newState);
+            }
+        }
+    }
+
+    private Request getRequestCheckAuthorizationCheckLifecycle(Long requestId, RequestStatus newStatus) throws UserNotAuthorizedException, NotFoundException, RequestLifecycleException {
         Optional<Request> request = dbRequestsRepository.findById(requestId);
         if (request.isPresent()){
-            if (request.get().getType().getName().equals(newUserRequestType.getName())){
-                return acceptNewUserRequest(request.get());
-            } else {
-                request.get().setStatus(RequestStatus.ACCEPTED);
-                return saveRequest(request.get());
+            if (!webSecurityUtils.isAdmin()) { // not admin
+                if(!request.get().getOwner().getUserName().equals(webSecurityUtils.getAuthorizedUserName())) { // not owner
+                    throw new UserNotAuthorizedException("notOwner");
+                } else {
+                    checkStatusChangingByUser(request.get().getStatus(), newStatus);
+                }
             }
+            return request.get();
         } else {
-            throw new NotFoundException("newUserRequestNotFound");
+            throw new NotFoundException("requestNotFound");
         }
+    }
+
+    public Request rejectRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
+        Request request = getRequestCheckAuthorizationCheckLifecycle(requestId, RequestStatus.REJECTED);
+
+        request.setStatus(RequestStatus.REJECTED);
+        return saveRequest(request);
+    }
+
+    public Request acceptRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
+        Request request = getRequestCheckAuthorizationCheckLifecycle(requestId, RequestStatus.ACCEPTED);
+            if (request.getType().getName().equals(newUserRequestType.getName())){
+                return acceptNewUserRequest(request);
+            } else {
+                request.setStatus(RequestStatus.ACCEPTED); // ToDo not tested
+                return saveRequest(request);
+            }
+
     }
     // ================================== requests ===============================
 

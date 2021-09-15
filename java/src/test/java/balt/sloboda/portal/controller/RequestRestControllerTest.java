@@ -69,7 +69,7 @@ public class RequestRestControllerTest {
         Optional<Request> newUserRequest = allRequestByStatusAndType.stream().filter(item -> item.getParamValues().get("userName").equals("olshanskyevdev@gmail.com")).findFirst();
         Assert.assertTrue(newUserRequest.isPresent());
         // 4. accept new user request
-        mvc.perform(put("/management/requests/" + newUserRequest.get().getId() + "/accept")
+        mvc.perform(put("/requests/" + newUserRequest.get().getId() + "/accept")
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk());
         // 5. check user created

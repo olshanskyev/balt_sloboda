@@ -88,7 +88,12 @@ export class RequestService extends RequestServiceData {
   }
 
   acceptRequest(requestId: number): Observable<Request> {
-    const _endpoint = this.uri +  '/management/requests/' + requestId + '/accept';
+    const _endpoint = this.uri +  '/requests/' + requestId + '/accept';
+    return this._http.put<Request>(_endpoint, null);
+  }
+
+  rejectRequest(requestId: number): Observable<Request> {
+    const _endpoint = this.uri +  '/requests/' + requestId + '/reject';
     return this._http.put<Request>(_endpoint, null);
   }
 
