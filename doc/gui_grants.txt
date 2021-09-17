@@ -1,0 +1,8 @@
+_USER not allowed:
+'read', 'newUserRequests'
+'view_page', 'management/residents'
+'view_page', 'management/addresses'
+'view_page', 'management/requestManager'
+'view_page', 'management/requestTypes'
+
+

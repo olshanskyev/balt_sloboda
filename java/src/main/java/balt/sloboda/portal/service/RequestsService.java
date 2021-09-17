@@ -13,6 +13,7 @@ import balt.sloboda.portal.service.exceptions.RequestLifecycleException;
 import balt.sloboda.portal.service.exceptions.UserNotAuthorizedException;
 import balt.sloboda.portal.service.exceptions.NotFoundException;
 import balt.sloboda.portal.utils.JwtTokenUtil;
+import balt.sloboda.portal.utils.RequestLifecycleUtil;
 import balt.sloboda.portal.utils.Transcriptor;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,9 @@ public class RequestsService {
 
     @Autowired
     private NewUserRequestType newUserRequestType;
+
+    @Autowired
+    private RequestLifecycleUtil requestLifecycleUtil;
 
     // ================================== request types===========================
     public List<RequestType> getAllRequestTypes() {
@@ -158,6 +162,14 @@ public class RequestsService {
     public List<Request> getAllRequests(){
         return dbRequestsRepository.findAll();
     }
+
+    public List<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status){
+        if (status.isPresent())
+            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUserName(), status.get());
+        else
+            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUserName());
+    }
+
 
     public List<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status){
         if (status.isPresent())
@@ -289,22 +301,7 @@ public class RequestsService {
         return saved;
     }
 
-    // user can only reject NEW AND ACCEPTED requests
-    private void checkStatusChangingByUser(RequestStatus currentState, RequestStatus newState) throws RequestLifecycleException {
-        switch (currentState) {
-            case NEW:
-            case ACCEPTED: {
-                if (!Arrays.asList(RequestStatus.REJECTED).contains(newState))
-                    throw new RequestLifecycleException("userCannotChangeStatus", currentState, newState); ; // NEW => REJECTED
-                return;
-            }
-            case IN_PROGRESS:
-            case CLOSED:
-            case REJECTED: {
-                throw new RequestLifecycleException("userCannotChangeStatus", currentState, newState);
-            }
-        }
-    }
+
 
     private Request getRequestCheckAuthorizationCheckLifecycle(Long requestId, RequestStatus newStatus) throws UserNotAuthorizedException, NotFoundException, RequestLifecycleException {
         Optional<Request> request = dbRequestsRepository.findById(requestId);
@@ -313,7 +310,7 @@ public class RequestsService {
                 if(!request.get().getOwner().getUserName().equals(webSecurityUtils.getAuthorizedUserName())) { // not owner
                     throw new UserNotAuthorizedException("notOwner");
                 } else {
-                    checkStatusChangingByUser(request.get().getStatus(), newStatus);
+                    requestLifecycleUtil.checkStatusChanging(request.get().getStatus(), newStatus);
                 }
             }
             return request.get();

@@ -8,7 +8,6 @@ import { NbAccessChecker } from '@nebular/security';
 @Injectable()
 export class RequestService extends RequestServiceData {
 
-
   newUserRequestName: string = 'NewUserRequest';
 
   private uri: string = environment.baseEndpoint;
@@ -19,11 +18,14 @@ export class RequestService extends RequestServiceData {
   private _newUserRequestsSource = new BehaviorSubject<Request[]>(null);
   private _newUserRequests: Observable<Request[]> = this._newUserRequestsSource.asObservable();
   // request types
-  private _userRequestTypesSource: BehaviorSubject<RequestType[]> = new BehaviorSubject<RequestType[]>(null);
-  private _userRequestTypes: Observable<RequestType[]> = this._userRequestTypesSource.asObservable();
-  // requests
-  private _userActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
-  private _userActiveRequests: Observable<Request[]> = this._userActiveRequestsSource.asObservable();
+  private _requestTypesSource: BehaviorSubject<RequestType[]> = new BehaviorSubject<RequestType[]>(null);
+  private _requestTypes: Observable<RequestType[]> = this._requestTypesSource.asObservable();
+  // my active requests
+  private _myActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
+  private _myActiveRequests: Observable<Request[]> = this._myActiveRequestsSource.asObservable();
+  // assigned to me active requests
+  private _assignedToMeActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
+  private _assignedToMeActiveRequests: Observable<Request[]> = this._assignedToMeActiveRequestsSource.asObservable();
 
   public notifyNewUserRequestsChanged() {
     this._getAllNewUserRequests().subscribe (requests => {
@@ -32,29 +34,42 @@ export class RequestService extends RequestServiceData {
 
   }
 
-  public getAllNewUserRequestsSubscription(): Observable<Request[]> {
+  public getNewUserRequestsSubscription(): Observable<Request[]> {
       return this._newUserRequests;
   }
 
-  public notifyUserRequestTypesChanged() {
+  public notifyRequestTypesChanged() {
     this._getAllUserRequestTypes().subscribe( requestTypes => {
-      this._userRequestTypesSource.next(requestTypes);
+      this._requestTypesSource.next(requestTypes);
     });
   }
 
-  public getAllUserRequestTypesSubscription(): Observable<RequestType[]> {
-      return this._userRequestTypes;
+  public getRequestTypesSubscription(): Observable<RequestType[]> {
+      return this._requestTypes;
   }
 
-  public notifyUserActiveRequestsChanged() {
-      this.getAllUserRequests([RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(requests => {
-        this._userActiveRequestsSource.next(requests);
+  public notifyMyActiveRequestsChanged() {
+      this.getMyRequests([RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(requests => {
+        this._myActiveRequestsSource.next(requests);
       });
   }
 
-  public getAllUserActiveRequestsSubscription(): Observable<Request[]> {
-    return this._userActiveRequests;
-}
+  public getMyActiveRequestsSubscription(): Observable<Request[]> {
+    return this._myActiveRequests;
+  }
+
+  public notifyAssignedToMeActiveRequestsChanged() {
+    this.getAssignedToMeRequests([RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(requests => {
+      this._assignedToMeActiveRequestsSource.next(requests);
+    });
+  }
+
+  public getAssignedToMeActiveRequestsSubscription(): Observable<Request[]> {
+    return this._assignedToMeActiveRequests;
+  }
+
+
+
 
   // ======= end ======= subscriptions =================
 
@@ -67,18 +82,26 @@ export class RequestService extends RequestServiceData {
         this.notifyNewUserRequestsChanged();
       }
     });
-    // load user request types
-    this.notifyUserRequestTypesChanged();
-    // load user active requests
-    this.notifyUserActiveRequestsChanged();
+    // load request types
+    this.notifyRequestTypesChanged();
+    // load my active requests
+    this.notifyMyActiveRequestsChanged();
+    // load assigned to me requests
+    this.notifyAssignedToMeActiveRequestsChanged();
 
   }
 
   // requests
 
-  public getAllUserRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
+  public getMyRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
     var _endpoint = this.uri +  '/requests';
     _endpoint += _endpoint + (requestStatuses)? '?status=' + requestStatuses.map(item => RequestStatus[item]).join() : ''
+    return this._http.get<Request[]>(_endpoint);
+  }
+
+  public getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
+    var _endpoint = this.uri +  '/requests?assignedToMe=true';
+    _endpoint += _endpoint + (requestStatuses)? '&status=' + requestStatuses.map(item => RequestStatus[item]).join() : ''
     return this._http.get<Request[]>(_endpoint);
   }
 

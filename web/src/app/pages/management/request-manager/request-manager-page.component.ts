@@ -59,7 +59,7 @@ export class RequestManagerPageComponent {
       this.toaster.showToast(this.toaster.types[1], this.translations.requestManagerPage.requestTypeCreated,
         '');
       this.loadRequestTypes();
-      this.requestsService.notifyUserRequestTypesChanged(); // notify to update menu
+      this.requestsService.notifyRequestTypesChanged(); // notify to update menu
     });
   }
 
@@ -144,7 +144,7 @@ export class RequestManagerPageComponent {
           this.requestsService.deleteRequestType(event.data.requestType.id).subscribe(() => {
             this.toaster.showToast(this.toaster.types[1], this.translations.requestManagerPage.requestTypeDeleted,'');
             this.loadRequestTypes(); // update table
-            this.requestsService.notifyUserRequestTypesChanged(); // notify to update menu
+            this.requestsService.notifyRequestTypesChanged(); // notify to update menu
             this
           });
 

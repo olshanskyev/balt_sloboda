@@ -99,8 +99,11 @@
         </div>
 
       </nb-tab>
-      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{activeRequests.length}}" badgeStatus="primary">
-        <ngx-requests-list [requests]="activeRequests"></ngx-requests-list>
+      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{myActiveRequests.length}}" badgeStatus="primary">
+        <ngx-requests-list [requests]="(showOnlyMyActiveRequests)? myActiveRequests: myRequests"></ngx-requests-list>
+      </nb-tab>
+      <nb-tab tabTitle="{{'singleRequestPage.assignedToMeRequest'|translate}}" badgeText="{{assignedToMeActiveRequests.length}}" badgeStatus="primary">
+        <ngx-requests-list [requests]="(showOnlyAssignedToMeActiveRequests)? assignedToMeActiveRequests: assignedToMeRequests"></ngx-requests-list>
       </nb-tab>
     </nb-tabset>
 

@@ -1,7 +1,5 @@
 <div>
-    <!-- <ng2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event)" (delete)="onDelete($event)">
-    </ng2-smart-table>
-    {{'common.count'|translate}}: <b>{{count}}</b> -->
+  <h6 class="text-hint" style="margin-top: 1rem;" *ngIf="!requests || requests.length == 0">{{'requests.nothingFound'|translate}}</h6>
     <nb-accordion>
         <nb-accordion-item *ngFor="let request of requests">
           <nb-accordion-item-header>

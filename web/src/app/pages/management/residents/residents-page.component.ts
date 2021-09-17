@@ -56,7 +56,7 @@ export class ResidentsPageComponent implements OnDestroy{
   private allNewUserRequestSubscription: Subscription;
 
   private loadNewRequests(): void {
-    this.allNewUserRequestSubscription = this.requestsService.getAllNewUserRequestsSubscription().subscribe(
+    this.allNewUserRequestSubscription = this.requestsService.getNewUserRequestsSubscription().subscribe(
       res => {
         if (res) {
           this.sourceRequests.load(this.getTableViewRequests(res));

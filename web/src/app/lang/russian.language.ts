@@ -197,9 +197,11 @@ export class RussianLanguage {
             singleRequestPage: {
                 createRequest: 'Создать новую заявку',
                 myRequests: 'Мои заявки',
+                assignedToMeRequest: 'Назначенные мне заявки',
                 requiredParameter: 'Обязательный параметр',
                 selectDays: 'Выберите дни',
                 requestCreated: 'Заявка создана',
+
             },
 
             requests: {
@@ -220,7 +222,8 @@ export class RussianLanguage {
                 reject: 'Отменить заявку',
                 requestRejected: 'Заявка отменена',
                 shureRejectRequest: 'Отменить заявку {{name}}?',
-
+                nothingFound: 'Ничего не найдено',
+                assignedToMe: 'Назначенные мне',
             }
         };
     }

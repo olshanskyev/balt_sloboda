@@ -86,9 +86,14 @@ public class RequestsRestController {
     }
 
     @RequestMapping(value="/requests", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUserRequests( @RequestParam(name = "status") Optional<List<RequestStatus>> status) {
-        return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status), HttpStatus.OK);
+    public ResponseEntity<?> getAllUserRequests( @RequestParam(name = "status") Optional<List<RequestStatus>> status,
+                                                 @RequestParam(name = "assignedToMe") Optional<Boolean> assignedToMe) {
+        if (assignedToMe.isPresent() && assignedToMe.get()) // get only assigned to me requests
+            return new ResponseEntity<>(requestsService.getAllAssignedToCurrentUserRequests(status), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status), HttpStatus.OK);
     }
+
 
 
     @RequestMapping(value="/management/requestTypes", method = RequestMethod.POST)

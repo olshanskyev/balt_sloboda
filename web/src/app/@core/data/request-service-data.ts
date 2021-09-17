@@ -4,15 +4,17 @@ import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
     //requests
-    abstract getAllUserActiveRequestsSubscription(): Observable<Request[]>;
-    abstract getAllNewUserRequestsSubscription(userName: string): Observable<Request[]>;
-    abstract getAllUserRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
+    abstract getMyActiveRequestsSubscription(): Observable<Request[]>;
+    abstract getAssignedToMeActiveRequestsSubscription(): Observable<Request[]>;
+    abstract getNewUserRequestsSubscription(userName: string): Observable<Request[]>;
+    abstract getMyRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
+    abstract getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
     abstract acceptRequest(requestId: number): Observable<Request>;
     abstract rejectRequest(requestId: number): Observable<Request>;
     abstract createRequest(request: Request): Observable<Request>;
     //request types
     abstract createRequestType(requestType: RequestType): Observable<RequestType>;
-    abstract getAllUserRequestTypesSubscription():  Observable<RequestType[]>;
+    abstract getRequestTypesSubscription():  Observable<RequestType[]>;
     abstract getAllRequestTypes():  Observable<RequestType[]>;
     abstract getRequestTypeByName(name: string): Observable<RequestType>;
     abstract deleteRequestType(id: number): Observable<void>;

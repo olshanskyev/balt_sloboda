@@ -26,9 +26,9 @@ export class PagesComponent implements OnInit, OnDestroy {
   requestsDisplayOptions: any[];
 
   newUserRequestsSubscription :Subscription = null;
-  requestTypeListChangedSubscription :Subscription = null;
-  requestsListChangedSubscription: Subscription = null;
-
+  requestTypeSubscription :Subscription = null;
+  myActiveRequestsSubscription: Subscription = null;
+  assignedToMeActiveRequestsSubscription: Subscription = null;
 
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
 
@@ -40,6 +40,29 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
 
+  private updateBadges() { // badge value = myActiveRequests + assignedToMeActiveRequests
+    var requestMenuItem: NbMenuItem = this.menu.filter(item => item.data && item.data.id && item.data.id === 'Requests')[0];
+    requestMenuItem.children.forEach(itemRequestMenu => {
+      if (itemRequestMenu.data?.name) {
+        var activeRequestsCount: number = this.myActiveRequestsCount.get(itemRequestMenu.data.name);
+        var assignedToMeCount: number = this.assignedToMeActiveRequestsCount.get(itemRequestMenu.data.name);
+
+        var count: number = ((!activeRequestsCount) ? 0: activeRequestsCount) + ((!assignedToMeCount) ? 0 : assignedToMeCount);
+
+        if (count > 0) {
+          itemRequestMenu.badge = {
+            text: count.toString(),
+            status: 'primary',
+          }
+        } else {
+          itemRequestMenu.badge = {
+            text: null
+          }
+        }
+      }
+    });
+  }
+
   private loadRequestsMenu(requestTypes: RequestType[]) {
     var requestMenuItem: NbMenuItem = this.menu.filter(item => item.data && item.data.id && item.data.id === 'Requests')[0];
 
@@ -50,35 +73,59 @@ export class PagesComponent implements OnInit, OnDestroy {
       icon: 'list-outline',
     };
 
-    //this.requestsService.getAllUserRequestTypesSubscription().subscribe(requestTypes => {
-      requestMenuItem.children = [];
-      requestTypes.filter(item => !item.systemRequest).forEach(requestType => {
-        if (Boolean(JSON.parse(requestType.displayOptions.showInMainRequestMenu))) {
-          requestMenuItem.children.push({ //requestMenuItem.children.push({
-            title: requestType.title,
-            icon: {icon: requestType.displayOptions.icon, pack: requestType.displayOptions.iconPack},
-            link: '/pages/requests/' + requestType.name,
-          });
-        }
-      });
-      requestMenuItem.children.push(allRequestsMenuItem);
-      this.authAndTranslateMenuItem(requestMenuItem); // translate created request menu
-    //});
+    requestMenuItem.children = [];
+    requestTypes.filter(item => !item.systemRequest).forEach(requestType => {
+      if (Boolean(JSON.parse(requestType.displayOptions.showInMainRequestMenu))) {
+        requestMenuItem.children.push({ //requestMenuItem.children.push({
+          title: requestType.title,
+          icon: {icon: requestType.displayOptions.icon, pack: requestType.displayOptions.iconPack},
+          link: '/pages/requests/' + requestType.name,
+          data: {name: requestType.name}
+        });
+      }
+    });
+    requestMenuItem.children.push(allRequestsMenuItem);
+    this.authAndTranslateMenuItem(requestMenuItem); // translate created request menu
 
   }
 
+  myActiveRequestsCount: Map<string, number> = new Map(); // <requestType.name, count>
+  assignedToMeActiveRequestsCount: Map<string, number> = new Map(); // <requestType.name, count>
+
   ngOnInit(): void {
 
-    this.requestTypeListChangedSubscription = this.requestsService.getAllUserRequestTypesSubscription().subscribe((requestTypes) => {
-      if (requestTypes) // null at first time
+    this.requestTypeSubscription = this.requestsService.getRequestTypesSubscription().subscribe((requestTypes) => {
+      if (requestTypes) { // null at first time
+        // 1. we got request items
         this.loadRequestsMenu(requestTypes);
-    });
-
-    this.requestsListChangedSubscription = this.requestsService.getAllUserActiveRequestsSubscription().subscribe(requests => {
-      if (requests) { // null at first time
-        ;// ToDo update badges
+        // 2. make subscription to get active requests to update badges
+        this.myActiveRequestsSubscription = this.requestsService.getMyActiveRequestsSubscription().subscribe(requests => {
+          if (requests) { // null at first time
+            this.myActiveRequestsCount = new Map();
+            requests.forEach(item => {
+              var count: number = this.myActiveRequestsCount.get(item.type.name);
+              count = (count)? ++count: 1;
+              this.myActiveRequestsCount.set(item.type.name, count);
+            });
+            this.updateBadges();
+          }
+        });
+        // 3. make subscription to get assigned to me requests to update badges
+        this.assignedToMeActiveRequestsSubscription = this.requestsService.getAssignedToMeActiveRequestsSubscription().subscribe(requests => {
+          if (requests) { // null at first time
+            this.assignedToMeActiveRequestsCount = new Map();
+            requests.forEach(item => {
+              var count: number = this.assignedToMeActiveRequestsCount.get(item.type.name);
+              count = (count)? ++count: 1;
+              this.assignedToMeActiveRequestsCount.set(item.type.name, count);
+            });
+            this.updateBadges();
+          }
+        });
       }
     });
+
+
 
     this.menu.forEach(item => { //translate and check permissions
       this.authAndTranslateMenuItem(item);
@@ -90,14 +137,17 @@ export class PagesComponent implements OnInit, OnDestroy {
     if (this.newUserRequestsSubscription !== null) {
       this.newUserRequestsSubscription.unsubscribe();
     }
-    if (this.requestTypeListChangedSubscription !== null) {
-      this.requestTypeListChangedSubscription.unsubscribe();
+    if (this.requestTypeSubscription !== null) {
+      this.requestTypeSubscription.unsubscribe();
     }
 
-    if (this.requestsListChangedSubscription !== null) {
-      this.requestsListChangedSubscription.unsubscribe();
+    if (this.myActiveRequestsSubscription !== null) {
+      this.myActiveRequestsSubscription.unsubscribe();
     }
 
+    if (this.assignedToMeActiveRequestsSubscription !== null) {
+      this.assignedToMeActiveRequestsSubscription.unsubscribe();
+    }
   }
 
   // hiding and activating menu items
@@ -112,7 +162,7 @@ export class PagesComponent implements OnInit, OnDestroy {
       this.accessChecker.isGranted(menuItem.data['permission'], menuItem.data['resource']).subscribe(granted => {
         menuItem.hidden = !granted;
         if (key === 'Users' && granted) { // update badge values
-          this.newUserRequestsSubscription = this.requestsService.getAllNewUserRequestsSubscription().subscribe(
+          this.newUserRequestsSubscription = this.requestsService.getNewUserRequestsSubscription().subscribe(
             res => {
               if (res) {
                 if (res.length > 0) {

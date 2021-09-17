@@ -45,7 +45,7 @@ export class RequestTypePageComponent {
   updateRequestType(requestType: RequestType) {
     this.requestService.updateRequestType(this.requestTypeId, requestType).subscribe(res => {
       this.toaster.showToast(this.toaster.types[1], this.translations.common.changesSaved,'');
-      this.requestService.notifyUserRequestTypesChanged(); // notify to update menu
+      this.requestService.notifyRequestTypesChanged(); // notify to update menu
     })
   }
 

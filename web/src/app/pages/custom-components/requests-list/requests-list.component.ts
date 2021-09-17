@@ -62,7 +62,8 @@ export class RequestsListComponent implements OnChanges {
           this.requestsService.rejectRequest(request.id).subscribe( res => {
             this.toaster.showToast(this.toaster.types[1], this.translations.requests.requestRejected,
               '');
-            this.requestsService.notifyUserActiveRequestsChanged();
+            this.requestsService.notifyMyActiveRequestsChanged();
+            this.requestsService.notifyAssignedToMeActiveRequestsChanged();
           });
         }
       });

@@ -39,8 +39,14 @@ export class SingleRequestPageComponent implements OnDestroy {
   minDate: Date = new Date();
   maxDate: Date = new Date();
   comment: string;
-  requestsListChangedSubscription: Subscription = null;
-  activeRequests: Request[] = [];
+  myActiveRequestsSubscription: Subscription = null;
+  assignedToMeActiveRequestsSubscription: Subscription = null;
+  myRequests: Request[] = [];
+  myActiveRequests: Request[] = [];
+  assignedToMeRequests: Request[] = [];
+  assignedToMeActiveRequests: Request[] = [];
+  showOnlyMyActiveRequests: boolean = true;
+  showOnlyAssignedToMeActiveRequests: boolean = true;
 
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
 
@@ -100,11 +106,17 @@ export class SingleRequestPageComponent implements OnDestroy {
         this.gotRequestType = res;
         // setting default values
         this.setInitialValues();
-
-        this.requestsListChangedSubscription = this.requestService.getAllUserActiveRequestsSubscription().subscribe(requests => {
-          if (requests) { // null at first time
-            this.activeRequests = requests.filter(item => item.type.name === requestTypeName);
-          }
+        this.myActiveRequestsSubscription = this.requestService.getMyActiveRequestsSubscription()
+          .subscribe(requests => {
+            if (requests) { // null at first time
+              this.myActiveRequests = requests.filter(item => item.type.name === requestTypeName);
+            }
+        });
+        this.assignedToMeActiveRequestsSubscription = this.requestService.getAssignedToMeActiveRequestsSubscription()
+          .subscribe(requests => {
+            if (requests) {
+              this.assignedToMeActiveRequests = requests.filter(item => item.type.name === requestTypeName);
+            }
         });
 
       });
@@ -112,8 +124,11 @@ export class SingleRequestPageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.requestsListChangedSubscription) {
-      this.requestsListChangedSubscription.unsubscribe();
+    if (this.myActiveRequestsSubscription) {
+      this.myActiveRequestsSubscription.unsubscribe();
+    }
+    if (this.assignedToMeActiveRequestsSubscription) {
+      this.assignedToMeActiveRequestsSubscription.unsubscribe();
     }
   }
 
@@ -137,7 +152,8 @@ export class SingleRequestPageComponent implements OnDestroy {
 
     this.requestService.createRequest(newRequest).subscribe( res => {
       this.toaster.showToast(this.toaster.types[1], this.translations.singleRequestPage.requestCreated,'');
-      this.requestService.notifyUserActiveRequestsChanged();
+      this.requestService.notifyMyActiveRequestsChanged();
+      this.requestService.notifyAssignedToMeActiveRequestsChanged();
     });
     this.setInitialValues();
   }
