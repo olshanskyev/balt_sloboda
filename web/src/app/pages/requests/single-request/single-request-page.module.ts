@@ -12,6 +12,7 @@ import { SingleRequestPageComponent } from './single-request-page.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CustomComponentsModule } from '../../custom-components/custom-components.module';
+import { NbSecurityModule } from '@nebular/security';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { CustomComponentsModule } from '../../custom-components/custom-component
     NbButtonModule,
     FormsModule,
     CustomComponentsModule,
+    NbSecurityModule,
   ],
   declarations: [
     SingleRequestPageComponent,

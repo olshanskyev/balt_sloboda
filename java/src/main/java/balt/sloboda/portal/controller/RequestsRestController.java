@@ -58,7 +58,6 @@ public class RequestsRestController {
     @RequestMapping(value="/requests/{requestId}/{action}", method = RequestMethod.PUT)
     public ResponseEntity<?> changeRequestStatus(@PathVariable Long requestId, @PathVariable String action) {
 
-
         try {
             switch (action) {
                 case "accept": {

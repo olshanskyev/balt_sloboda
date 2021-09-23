@@ -4,6 +4,7 @@ package balt.sloboda.portal.utils;
 import balt.sloboda.portal.model.JwtResponse;
 import balt.sloboda.portal.model.RefreshTokenRequest;
 import balt.sloboda.portal.model.TokenPair;
+import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.service.JwtUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -138,9 +139,9 @@ public class JwtTokenUtil {
 
 
     public void deleteTokens() {
-        String authorizedUserName = webSecurityUtils.getAuthorizedUserName();
-        if (authorizedUserName != null)
-            usedTokens.remove(authorizedUserName);
+        User authorizedUser = webSecurityUtils.getAuthorizedUser();
+        if (authorizedUser != null && authorizedUser.getUserName() != null)
+            usedTokens.remove(authorizedUser.getUserName());
     }
 
     /**

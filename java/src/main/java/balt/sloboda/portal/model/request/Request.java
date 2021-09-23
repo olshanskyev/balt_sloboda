@@ -64,7 +64,7 @@ public class Request {
     private User assignedTo;
 
     @OneToOne
-    @JoinColumn(name="LAST_MODIFIED_BY_ID", nullable = false)
+    @JoinColumn(name="LAST_MODIFIED_BY_ID", nullable = true)
     private User lastModifiedBy;
 
 

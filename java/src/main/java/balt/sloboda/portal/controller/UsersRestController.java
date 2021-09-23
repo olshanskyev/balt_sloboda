@@ -29,7 +29,7 @@ public class UsersRestController {
 
     @RequestMapping(value="/userInfo", method = RequestMethod.GET)
     public ResponseEntity<?> getUserInfo() throws Exception {
-        String userName = webSecurityUtils.getAuthorizedUserName();
+        String userName = webSecurityUtils.getAuthorizedUser().getUserName();
         return getUserByName(userName);
     }
 

@@ -46,8 +46,14 @@
                   </nb-list-item>
                 </nb-list>
               </div>
-              <div class="col-xl-6">
-                <h7 class="text-hint">{{'requests.chatWithExecutor'|translate}}</h7>
+              <div class="col-xl-6 events">
+                <h7 class="text-hint">{{'requests.eventsLog'|translate}}</h7>
+                <nb-list>
+                  <nb-list-item>
+                    <h7 class="text-basic param-name">{{'requests.created'|translate}}</h7>
+                    <h7 class="text-basic param-value">{{formatDateTime(request.createDateTime)}}</h7>
+                  </nb-list-item>
+                </nb-list>
               </div>
             </div>
 

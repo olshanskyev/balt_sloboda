@@ -1,6 +1,8 @@
 package balt.sloboda.portal.utils;
 
 import balt.sloboda.portal.model.Role;
+import balt.sloboda.portal.model.User;
+import balt.sloboda.portal.service.ExtendedUserDetails;
 import balt.sloboda.portal.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -75,15 +77,16 @@ public class WebSecurityUtils {
 
     /**
      *
-     * @return authorized user name
+     * @return authorized user or else null
      */
-    public String getAuthorizedUserName() {
+    public User getAuthorizedUser() {
         Object authentication = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authentication instanceof UserDetails)
-            return ((UserDetails)authentication).getUsername();
+        if (authentication instanceof ExtendedUserDetails)
+            return ((ExtendedUserDetails)authentication).getUser();
         else
             return null;
     }
+
 
     public boolean isAdmin() {
         return authorizedUserHasAnyRole(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));

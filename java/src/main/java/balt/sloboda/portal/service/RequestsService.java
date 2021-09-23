@@ -1,10 +1,7 @@
 package balt.sloboda.portal.service;
 
 import balt.sloboda.portal.model.*;
-import balt.sloboda.portal.model.request.Request;
-import balt.sloboda.portal.model.request.RequestParam;
-import balt.sloboda.portal.model.request.RequestStatus;
-import balt.sloboda.portal.model.request.RequestType;
+import balt.sloboda.portal.model.request.*;
 import balt.sloboda.portal.model.request.predefined.NewUserRequestType;
 import balt.sloboda.portal.model.request.type.NewUserRequestParams;
 import balt.sloboda.portal.repository.*;
@@ -38,6 +35,9 @@ public class RequestsService {
 
     @Autowired
     private DbCalendarSelectionRepository dbCalendarSelectionRepository;
+
+    @Autowired
+    private DbRequestsLogRepository dbRequestsLogRepository;
 
     @Autowired
     private UserService userService;
@@ -165,17 +165,17 @@ public class RequestsService {
 
     public List<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status){
         if (status.isPresent())
-            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUserName(), status.get());
+            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
         else
-            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUserName());
+            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName());
     }
 
 
     public List<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status){
         if (status.isPresent())
-            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUserName(), status.get());
+            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
         else
-            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUserName());
+            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName());
     }
 
     private List<String> checkMandatoryParameters(Map<String, String> paramValues, RequestType requestType) {
@@ -204,13 +204,15 @@ public class RequestsService {
                 "User registration",
                 paramValues,
                 null,
-                foundAdmin.get().getId(),
-                foundAdmin.get().getId());
+                foundAdmin.get());
         // send confirmation mail
         emailService.sendUserRegistrationRequestConfirmation(paramValues.get("userName"));
         return createdRequest;
     }
 
+    /*
+    create request by user
+     */
     public Request createRequest(Request request) throws NotFoundException {
         String requestTypeName;
         if (request.getType() != null) {
@@ -225,9 +227,9 @@ public class RequestsService {
             throw new DataIntegrityViolationException("requestTypeIdOrRequestTypeNameShouldBePresent");
         }
 
-        Optional<User> authorizedUser = userService.findByUserName(webSecurityUtils.getAuthorizedUserName());
-        if (authorizedUser.isPresent()) {
-            return createRequest(requestTypeName, request.getComment(), request.getParamValues(), request.getCalendarSelection(), authorizedUser.get().getId(), authorizedUser.get().getId());
+        User authorizedUser = webSecurityUtils.getAuthorizedUser();
+        if (authorizedUser != null) {
+            return createRequest(requestTypeName, request.getComment(), request.getParamValues(), request.getCalendarSelection(), authorizedUser);
         } else {
             throw new RuntimeException("Unauthorized");
         }
@@ -237,8 +239,7 @@ public class RequestsService {
                                   String comment,
                                   Map<String, String> paramValues,
                                   CalendarSelectionData calendarSelection,
-                                  Long owner,
-                                  Long lastModifyBy) throws NotFoundException {
+                                  User creatingBy) throws NotFoundException {
 
         RequestType requestType = getRequestTypeByName(requestTypeName);
         List<String> missingParams = checkMandatoryParameters(paramValues, requestType);
@@ -250,13 +251,16 @@ public class RequestsService {
                 .setType(requestType)
                 .setComment(comment)
                 .setCalendarSelection(calendarSelection)
-                .setOwner(new User().setId(owner))
-                .setAssignedTo(new User().setId(requestType.getAssignTo().getId()))
-                .setLastModifiedBy(new User().setId(lastModifyBy))
+                .setOwner(creatingBy)
+                .setAssignedTo(requestType.getAssignTo())
                 .setParamValues(paramValues)
                 .setStatus(RequestStatus.NEW);
-
-        return dbRequestsRepository.save(newRequest);
+        List<RequestLogItem> logs = Arrays.asList(
+                new RequestLogItem()
+                .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.NEW.toString()),
+                new RequestLogItem()
+                .setItemName(RequestLogItemName.ASSIGNED_TO_CHANGED).setNewValue(requestType.getAssignTo().getUserName()));
+        return saveRequest(newRequest, logs);
     }
 
     private boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
@@ -268,11 +272,20 @@ public class RequestsService {
         return found.isPresent();
     }
 
-
-    private Request saveRequest(Request request) {
-       return dbRequestsRepository.save(request);
+    @Transactional
+    private Request saveRequest(Request request, List<RequestLogItem> requestLogList) {
+        User authorizedUser = webSecurityUtils.getAuthorizedUser();
+        request.setLastModifiedBy(authorizedUser);
+        Request savedRequest = dbRequestsRepository.save(request);
+        requestLogList.forEach(item -> {
+            item.setRequest(savedRequest);
+            item.setModifiedBy(authorizedUser);
+        });
+        dbRequestsLogRepository.saveAll(requestLogList);
+        return savedRequest;
     }
 
+    @Transactional
     private Request acceptNewUserRequest(Request request){ //save all objects in db, update request status, send email with link
         String userName = request.getParamValues().get("userName");
         String token = jwtTokenUtil.generatePasswordResetToken(userName);
@@ -296,18 +309,20 @@ public class RequestsService {
                 .setUser(user)
                 .setAddress(address.get()));
         request.setStatus(RequestStatus.CLOSED);
-        Request saved = saveRequest(request);
+        List<RequestLogItem> logItems = Arrays.asList(
+                new RequestLogItem()
+                        .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.CLOSED.toString()));
+
+        Request saved = saveRequest(request, logItems);
         emailService.sendNewUserPasswordResetLink(userName, token);
         return saved;
     }
-
-
 
     private Request getRequestCheckAuthorizationCheckLifecycle(Long requestId, RequestStatus newStatus) throws UserNotAuthorizedException, NotFoundException, RequestLifecycleException {
         Optional<Request> request = dbRequestsRepository.findById(requestId);
         if (request.isPresent()){
             if (!webSecurityUtils.isAdmin()) { // not admin
-                if(!request.get().getOwner().getUserName().equals(webSecurityUtils.getAuthorizedUserName())) { // not owner
+                if(!request.get().getOwner().getUserName().equals(webSecurityUtils.getAuthorizedUser().getUserName())) { // not owner
                     throw new UserNotAuthorizedException("notOwner");
                 } else {
                     requestLifecycleUtil.checkStatusChanging(request.get().getStatus(), newStatus);
@@ -321,9 +336,11 @@ public class RequestsService {
 
     public Request rejectRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
         Request request = getRequestCheckAuthorizationCheckLifecycle(requestId, RequestStatus.REJECTED);
-
         request.setStatus(RequestStatus.REJECTED);
-        return saveRequest(request);
+        List<RequestLogItem> logItems = Arrays.asList(
+                new RequestLogItem()
+                        .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.REJECTED.toString()));
+        return saveRequest(request, logItems);
     }
 
     public Request acceptRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
@@ -332,7 +349,10 @@ public class RequestsService {
                 return acceptNewUserRequest(request);
             } else {
                 request.setStatus(RequestStatus.ACCEPTED); // ToDo not tested
-                return saveRequest(request);
+                List<RequestLogItem> logItems = Arrays.asList(
+                        new RequestLogItem()
+                                .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.ACCEPTED.toString()));
+                return saveRequest(request, logItems);
             }
 
     }

@@ -224,6 +224,8 @@ export class RussianLanguage {
                 shureRejectRequest: 'Отменить заявку {{name}}?',
                 nothingFound: 'Ничего не найдено',
                 assignedToMe: 'Назначенные мне',
+                eventsLog: 'История заявки',
+                created: 'Создана'
             }
         };
     }

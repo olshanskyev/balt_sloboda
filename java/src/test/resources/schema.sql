@@ -51,7 +51,7 @@ create table IF NOT EXISTS REQUESTS (
 	PARAM_VALUES varchar(512),
 	STATUS varchar(255) not null,
 	CALENDAR_SELECTION_ID int8,
-	LAST_MODIFIED_BY_ID int8 not null,
+	LAST_MODIFIED_BY_ID int8,
 	OWNER_ID int8 not null,
 	ASSIGNED_TO_ID int8 not null,
 	REQUEST_TYPE_ID int8 not null,
@@ -77,6 +77,27 @@ create table IF NOT EXISTS USERS (
 	PASSWORD_RESET_TOKEN varchar(256),
 	primary key (id)
 );
+
+create table IF NOT EXISTS REQUESTS_LOG (
+       id  bigserial not null,
+        ITEM_NAME varchar(255) not null,
+        MODIFIED_DATE timestamp,
+        NEW_VALUE varchar(64),
+        PREV_VALUE varchar(64),
+        MODIFIED_BY_ID int8,
+        REQUEST_ID int8 not null,
+        primary key (id)
+);
+
+alter table REQUESTS_LOG
+   add constraint IF NOT EXISTS FKc06gyc8lj1gphpmwbh2714x7b
+   foreign key (MODIFIED_BY_ID)
+   references USERS;
+
+alter table REQUESTS_LOG
+   add constraint IF NOT EXISTS FKbvx4xlk7phbed3wmo2bpnl6cb
+   foreign key (REQUEST_ID)
+   references REQUESTS;
 
 alter table REQUEST_TYPES
    add constraint IF NOT EXISTS UK_k1ow2snhc3nl59v3kdwfbnh11 unique (NAME);

@@ -4,5 +4,5 @@ _USER not allowed:
 'view_page', 'management/addresses'
 'view_page', 'management/requestManager'
 'view_page', 'management/requestTypes'
-
+'read', 'assignedRequests'
 

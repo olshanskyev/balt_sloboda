@@ -20,6 +20,25 @@
     h7 {
         &.param-value {
             margin-right: 1rem;
+            font-weight: 600;
+        }
+        &.param-name {
+            min-width: 210px;
+        }
+
+        display: inline-block;
+    }
+    nb-list {
+        margin-top: 1rem;
+    }
+    margin-bottom: 1.25rem;
+}
+
+.events {
+    h7 {
+        &.param-value {
+            margin-right: 1rem;
+            font-weight: 600;
         }
         &.param-name {
             min-width: 210px;
@@ -53,7 +72,7 @@
     min-height: 20px;
     resize: none;
     margin-right: -1rem;
-    font-weight: 400 !important;
+    font-weight: 600 !important;
 }
 .action-div {
     position: static;

@@ -4,7 +4,6 @@ package balt.sloboda.portal.service;
 import balt.sloboda.portal.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +19,13 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
     private UserService userService;
 
+
     @Override
-    public UserDetails loadUserByUsername(String userName){
+    public ExtendedUserDetails loadUserByUsername(String userName){
 
         Optional<User> user = userService.findByUserName(userName);
 
-        return new UserDetails() {
+        return new ExtendedUserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 List<GrantedAuthority> list = new ArrayList<>();
@@ -37,6 +37,9 @@ public class JwtUserDetailsService implements UserDetailsService {
             public String getPassword() {
                 return user.map(User::getPassword).orElse(null);
             }
+
+            @Override
+            public User getUser() { return user.orElse(null);}
 
             @Override
             public String getUsername() {
@@ -64,4 +67,5 @@ public class JwtUserDetailsService implements UserDetailsService {
             }
         };
     }
+
 }
