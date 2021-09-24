@@ -9,6 +9,7 @@ import balt.sloboda.portal.service.EmailService;
 import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.utils.JsonUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.hamcrest.collection.IsMapContaining;
 import org.junit.Assert;
@@ -18,6 +19,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -65,7 +68,7 @@ public class RequestRestControllerTest {
         // 2. login with admin
         JwtResponse jwtResponse = AuthRestControllerTest.adminLogin(mvc);
         // 3. check request exists
-        List<Request> allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.NEW, new NewUserRequestType().getName());
+        List<Request> allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.NEW, new NewUserRequestType().getName(), 0, 10).getContent();
         Optional<Request> newUserRequest = allRequestByStatusAndType.stream().filter(item -> item.getParamValues().get("userName").equals("olshanskyevdev@gmail.com")).findFirst();
         Assert.assertTrue(newUserRequest.isPresent());
         // 4. accept new user request
@@ -82,7 +85,7 @@ public class RequestRestControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)));
 
 
-        allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.CLOSED, new NewUserRequestType().getName());
+        allRequestByStatusAndType = requestsService.getAllRequestByStatusAndType(RequestStatus.CLOSED, new NewUserRequestType().getName(), 0, 10).getContent();
         newUserRequest = allRequestByStatusAndType.stream().filter(item -> item.getParamValues().get("userName").equals("olshanskyevdev@gmail.com")).findFirst();
         Assert.assertTrue(newUserRequest.isPresent());
         User createdUser = userService.findByUserName("olshanskyevdev@gmail.com").get();
@@ -204,16 +207,12 @@ public class RequestRestControllerTest {
         // 1. Login with user
         JwtResponse jwtResponse = AuthRestControllerTest.userLogin(mvc);
         // 2 check request types
-        mvc.perform(get("/requests?status=NEW,ACCEPTED,IN_PROGRESS")
+        mvc.perform(get("/requests?status=NEW,ACCEPTED,IN_PROGRESS&page=0&size=10")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].status", containsString("NEW")))
-                .andExpect(jsonPath("$[1].status", containsString("ACCEPTED")))
-                .andExpect(jsonPath("$[2].status", containsString("IN_PROGRESS")));
-                //.andExpect(jsonPath("$[0].roles", hasItem("ROLE_USER")));
-
+                .andExpect(jsonPath("$.content", hasSize(3)))
+                ;
     }
 
 

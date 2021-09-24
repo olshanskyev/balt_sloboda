@@ -1,18 +1,19 @@
 import { Observable } from 'rxjs';
 import { CalendarSelectionData } from './calendar-selection.data';
+import { Page } from './page';
 import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
-    //requests
-    abstract getMyActiveRequestsSubscription(): Observable<Request[]>;
-    abstract getAssignedToMeActiveRequestsSubscription(): Observable<Request[]>;
-    abstract getNewUserRequestsSubscription(userName: string): Observable<Request[]>;
-    abstract getMyRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
-    abstract getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Request[]>;
+    // requests
+    abstract getMyActiveRequestsSubscription(): Observable<Page<Request>>;
+    abstract getAssignedToMeActiveRequestsSubscription(): Observable<Page<Request>>;
+    abstract getActiveNewUserRequestsSubscription(userName: string): Observable<Page<Request>>;
+    abstract getMyRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>>;
+    abstract getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>>;
     abstract acceptRequest(requestId: number): Observable<Request>;
-    abstract rejectRequest(requestId: number): Observable<Request>;
+    abstract rejectRequest(requestId: number, comment?: string): Observable<Request>;
     abstract createRequest(request: Request): Observable<Request>;
-    //request types
+    // request types
     abstract createRequestType(requestType: RequestType): Observable<RequestType>;
     abstract getRequestTypesSubscription():  Observable<RequestType[]>;
     abstract getAllRequestTypes():  Observable<RequestType[]>;
@@ -20,6 +21,8 @@ export abstract class RequestServiceData {
     abstract deleteRequestType(id: number): Observable<void>;
     abstract getRequestTypeById(id: number): Observable<RequestType>;
     abstract updateRequestType(id: number, requestType: RequestType): Observable<RequestType>;
+    // request logs
+    abstract getRequestLogs(requestId: number): Observable<RequestLogItem[]>;
 }
 
 export class Request {
@@ -62,6 +65,22 @@ export class RequestParam {
     optional: boolean;
     defaultValue?: string;
     comment?: string;
+}
+
+export class RequestLogItem {
+    id: number;
+    request: Request;
+    itemName: RequestLogItemName;
+    prevValue: string;
+    newValue: string;
+    modifiedBy: User;
+    modifiedDate: Date;
+}
+
+export enum RequestLogItemName {
+    ASSIGNED_TO_CHANGED,
+    COMMENT_ADDED,
+    STATUS_CHANGED
 }
 
 export enum RequestParamType{

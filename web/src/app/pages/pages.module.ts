@@ -12,6 +12,7 @@ import { AddressesPageModule } from './management/addresses/addresses-page.modul
 import { RequestManagerPageModule } from './management/request-manager/request-manager-page.module';
 import { RequestTypePageModule } from './management/request-types/request-type-page.module';
 import { SingleRequestPageModule } from './requests/single-request/single-request-page.module';
+import { AllRequestsPageModule } from './requests/all-requests/all-requests-page.module';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { SingleRequestPageModule } from './requests/single-request/single-reques
     AddressesPageModule,
     RequestManagerPageModule,
     RequestTypePageModule,
-    SingleRequestPageModule
+    SingleRequestPageModule,
+    AllRequestsPageModule,
   ],
   declarations: [
     PagesComponent,

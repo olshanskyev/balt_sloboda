@@ -2,8 +2,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Request, RequestServiceData, RequestStatus, RequestType } from '../data/request-service-data';
+import { Request, RequestLogItem, RequestServiceData, RequestStatus, RequestType } from '../data/request-service-data';
 import { NbAccessChecker } from '@nebular/security';
+import { Page } from '../data/page';
 
 @Injectable()
 export class RequestService extends RequestServiceData {
@@ -15,26 +16,26 @@ export class RequestService extends RequestServiceData {
   // ================= subscriptions =============
 
   // new user requests
-  private _newUserRequestsSource = new BehaviorSubject<Request[]>(null);
-  private _newUserRequests: Observable<Request[]> = this._newUserRequestsSource.asObservable();
+  private _newUserRequestsSource = new BehaviorSubject<Page<Request>>(null);
+  private _newUserRequests: Observable<Page<Request>> = this._newUserRequestsSource.asObservable();
   // request types
   private _requestTypesSource: BehaviorSubject<RequestType[]> = new BehaviorSubject<RequestType[]>(null);
   private _requestTypes: Observable<RequestType[]> = this._requestTypesSource.asObservable();
   // my active requests
-  private _myActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
-  private _myActiveRequests: Observable<Request[]> = this._myActiveRequestsSource.asObservable();
+  private _myActiveRequestsSource: BehaviorSubject<Page<Request>> = new BehaviorSubject<Page<Request>>(null);;
+  private _myActiveRequests: Observable<Page<Request>> = this._myActiveRequestsSource.asObservable();
   // assigned to me active requests
-  private _assignedToMeActiveRequestsSource: BehaviorSubject<Request[]> = new BehaviorSubject<Request[]>(null);;
-  private _assignedToMeActiveRequests: Observable<Request[]> = this._assignedToMeActiveRequestsSource.asObservable();
+  private _assignedToMeActiveRequestsSource: BehaviorSubject<Page<Request>> = new BehaviorSubject<Page<Request>>(null);;
+  private _assignedToMeActiveRequests: Observable<Page<Request>> = this._assignedToMeActiveRequestsSource.asObservable();
 
   public notifyNewUserRequestsChanged() {
-    this._getAllNewUserRequests().subscribe (requests => {
+    this.getAllNewUserRequests([RequestStatus.NEW]).subscribe (requests => {
       this._newUserRequestsSource.next(requests);
     });
 
   }
 
-  public getNewUserRequestsSubscription(): Observable<Request[]> {
+  public getActiveNewUserRequestsSubscription(): Observable<Page<Request>> {
       return this._newUserRequests;
   }
 
@@ -54,7 +55,7 @@ export class RequestService extends RequestServiceData {
       });
   }
 
-  public getMyActiveRequestsSubscription(): Observable<Request[]> {
+  public getMyActiveRequestsSubscription(): Observable<Page<Request>> {
     return this._myActiveRequests;
   }
 
@@ -64,7 +65,7 @@ export class RequestService extends RequestServiceData {
     });
   }
 
-  public getAssignedToMeActiveRequestsSubscription(): Observable<Request[]> {
+  public getAssignedToMeActiveRequestsSubscription(): Observable<Page<Request>> {
     return this._assignedToMeActiveRequests;
   }
 
@@ -93,21 +94,22 @@ export class RequestService extends RequestServiceData {
 
   // requests
 
-  public getMyRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
-    var _endpoint = this.uri +  '/requests';
-    _endpoint += _endpoint + (requestStatuses)? '?status=' + requestStatuses.map(item => RequestStatus[item]).join() : ''
-    return this._http.get<Request[]>(_endpoint);
+  public getMyRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>> {
+    var _endpoint = this.uri +  '/requests?page=0&size=10';
+    _endpoint = _endpoint + ((!requestStatuses) ? '' : '&status=' + requestStatuses.map(item => RequestStatus[item]).join());
+    return this._http.get<Page<Request>>(_endpoint);
   }
 
-  public getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Request[]> {
-    var _endpoint = this.uri +  '/requests?assignedToMe=true';
-    _endpoint += _endpoint + (requestStatuses)? '&status=' + requestStatuses.map(item => RequestStatus[item]).join() : ''
-    return this._http.get<Request[]>(_endpoint);
+  public getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>> {
+    let _endpoint = this.uri +  '/requests?page=0&size=10&assignedToMe=true';
+    _endpoint = _endpoint + ((!requestStatuses) ? '' : '&status=' + requestStatuses.map(item => RequestStatus[item]).join());
+    return this._http.get<Page<Request>>(_endpoint);
   }
 
-  private _getAllNewUserRequests(): Observable<Request[]> {
-    const _endpoint = this.uri +  '/management/requests?requestType=' + this.newUserRequestName + '&status=' + RequestStatus[RequestStatus.NEW];
-    return this._http.get<Request[]>(_endpoint);
+  public getAllNewUserRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>> {
+    let _endpoint = this.uri +  '/management/requests?page=0&size=10&requestType=' + this.newUserRequestName;
+    _endpoint = _endpoint + ((!requestStatuses) ? '' : '&status=' + requestStatuses.map(item => RequestStatus[item]).join());
+    return this._http.get<Page<Request>>(_endpoint);
   }
 
   acceptRequest(requestId: number): Observable<Request> {
@@ -115,8 +117,11 @@ export class RequestService extends RequestServiceData {
     return this._http.put<Request>(_endpoint, null);
   }
 
-  rejectRequest(requestId: number): Observable<Request> {
-    const _endpoint = this.uri +  '/requests/' + requestId + '/reject';
+  rejectRequest(requestId: number, comment?: string): Observable<Request> {
+    let _endpoint = this.uri +  '/requests/' + requestId + '/reject';
+    if (comment && comment.length > 0) {
+      _endpoint = _endpoint + '?comment=' + comment;
+    }
     return this._http.put<Request>(_endpoint, null);
   }
 
@@ -162,6 +167,9 @@ export class RequestService extends RequestServiceData {
     return this._http.put<RequestType>(_endpoint, requestType);
   }
 
-
+  getRequestLogs(requestId: number): Observable<RequestLogItem[]> {
+    const _endpoint = this.uri +  '/requestLogs/?requestId=' + requestId;
+    return this._http.get<RequestLogItem[]>(_endpoint);
+  }
 
 }

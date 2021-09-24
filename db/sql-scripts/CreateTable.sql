@@ -83,8 +83,8 @@ create table $DATABASE_SCHEMA.REQUESTS_LOG (
        id  bigserial not null,
         ITEM_NAME varchar(255) not null,
         MODIFIED_DATE timestamp,
-        NEW_VALUE varchar(64),
-        PREV_VALUE varchar(64),
+        NEW_VALUE varchar(256),
+        PREV_VALUE varchar(256),
         MODIFIED_BY_ID int8,
         REQUEST_ID int8 not null,
         primary key (id)

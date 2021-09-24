@@ -59,7 +59,7 @@ export class RussianLanguage {
                 somethingWentWrong: 'Что-то пошло не так, обратитесь к администратору.',
                 enterEmail: 'Введите ваш email',
                 requestPassword: 'Запросить пароль',
-                enterEmailWillSendPass: 'Введите ваш адресс электронной почты и мы вышлем ссылку для задания нового пароля',
+                enterEmailWillSendPass: 'Введите ваш адрес электронной почты и мы вышлем ссылку для задания нового пароля',
             },
             menu: {
                 News: 'Новости',
@@ -193,6 +193,9 @@ export class RussianLanguage {
                 changesSaved: 'Изменения сохранены',
                 iconPack: 'Набор иконок',
                 count: 'Всего',
+                enterComment: 'Введите комментарий',
+                ok: 'ОК',
+                cancel: 'Отмена'
             },
             singleRequestPage: {
                 createRequest: 'Создать новую заявку',
@@ -201,7 +204,7 @@ export class RussianLanguage {
                 requiredParameter: 'Обязательный параметр',
                 selectDays: 'Выберите дни',
                 requestCreated: 'Заявка создана',
-
+                hideClosedRequests: 'Скрыть завершенные заявки',
             },
 
             requests: {
@@ -212,7 +215,7 @@ export class RussianLanguage {
                 lastModified: 'Последнее изменение',
                 createDateTime: 'Создан',
                 NEW: 'НОВАЯ',
-                ACCEPTED: 'УТВЕРЖДЕНА',
+                ACCEPTED: 'ОДОБРЕНА',
                 IN_PROGRESS: 'В РАБОТЕ',
                 CLOSED: 'ЗАКРЫТА',
                 REJECTED: 'ОТКЛОНЕНА',
@@ -220,12 +223,26 @@ export class RussianLanguage {
                 durableRequest: 'Продолжительная заявка',
                 nextExecutionDay: 'Следующее выполнение',
                 reject: 'Отменить заявку',
+                accept: 'Одобрить',
                 requestRejected: 'Заявка отменена',
+                requestAccepted: 'Заявка одобрена',
                 shureRejectRequest: 'Отменить заявку {{name}}?',
                 nothingFound: 'Ничего не найдено',
                 assignedToMe: 'Назначенные мне',
                 eventsLog: 'История заявки',
-                created: 'Создана'
+                STATUS_CHANGED: 'Статус',
+                ASSIGNED_TO_CHANGED: 'Назначена',
+                COMMENT_ADDED: 'Комментарий',
+                modifiedBy: 'Изменена',
+                rejectDefaultComment: 'Заявка отменена',
+                userName:'Имя пользователя',
+                firstName:'Имя',
+                lastName:'Фамилия',
+                street:'Улица',
+                houseNumber:'Номер дома',
+                plotNumber:'Номер участка',
+                requestOwner: 'Владелец заявки',
+                newUserRequest: 'Новый пользователь',
             }
         };
     }

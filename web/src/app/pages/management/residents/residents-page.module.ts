@@ -4,12 +4,13 @@ import { ThemeModule } from '../../../@theme/theme.module';
 
 import {
   NbButtonModule,
-  NbCardModule, NbIconModule, NbTabsetModule,
+  NbCardModule, NbCheckboxModule, NbIconModule, NbTabsetModule,
 } from '@nebular/theme';
 
 import { ResidentsPageComponent } from './residents-page.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { CustomComponentsModule } from '../../custom-components/custom-components.module';
 
 @NgModule({
   imports: [
@@ -20,6 +21,8 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     Ng2SmartTableModule,
     NbButtonModule,
     NbIconModule,
+    CustomComponentsModule,
+    NbCheckboxModule,
   ],
   providers: [
   ],

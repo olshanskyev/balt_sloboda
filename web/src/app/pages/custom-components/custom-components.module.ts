@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NbSecurityModule } from '@nebular/security';
 import {
   NbAccordionModule,
   NbAutocompleteModule,
@@ -14,8 +15,10 @@ import {
   NbListModule,
   NbRadioModule,
   NbSelectModule,
+  NbSpinnerModule,
   NbStepperModule,
-  NbTooltipModule
+  NbTooltipModule,
+  NbUserModule
 } from '@nebular/theme';
 import { TranslateModule } from '@ngx-translate/core';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
@@ -25,6 +28,7 @@ import { ThemeModule } from '../../@theme/theme.module';
 import { IconPickerWindowComponent } from './icon-picker/icon-picker-window.component';
 import { MultiSelectCalendarComponent } from './multi-select-calendar/multi-select-calendar.component';
 import { RequestsListComponent } from './requests-list/requests-list.component';
+import { ResolveWindowComponent } from './resolve-window/resolve-window.component';
 import { RequestTypeStepperComponent } from './steppers/request-type-stepper.component';
 
 
@@ -50,14 +54,19 @@ import { RequestTypeStepperComponent } from './steppers/request-type-stepper.com
     Ng2SmartTableModule,
     NbAccordionModule,
     NbTooltipModule,
+    NbSpinnerModule,
+    NbUserModule,
+    NbSecurityModule,
   ],
   entryComponents: [
     IconPickerWindowComponent,
+    ResolveWindowComponent,
   ],
   declarations: [
     MultiSelectCalendarComponent,
     RequestTypeStepperComponent,
     IconPickerWindowComponent,
+    ResolveWindowComponent,
     RequestsListComponent,
   ],
   exports: [

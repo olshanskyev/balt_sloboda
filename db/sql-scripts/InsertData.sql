@@ -6,7 +6,7 @@ with insert_address as (
 	returning id as user_id, (select address_id from insert_address)
 )
 INSERT INTO baltsloboda.RESIDENTS (ADDRESS_ID, USER_ID, FIRST_NAME, LAST_NAME)
-select  address_id, user_id, 'Ольшанский', 'Евгений'
+select  address_id, user_id, 'Евгений', 'Ольшанский'
 from insert_user;
 
 

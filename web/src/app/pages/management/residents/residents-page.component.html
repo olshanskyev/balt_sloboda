@@ -9,9 +9,11 @@
 
       </nb-tab>
       <nb-tab tabTitle="{{'residentsPage.newRequests'|translate}}" badgeText="{{countRequests}}" badgeStatus="primary">
-        <ng2-smart-table [settings]="settingsRequests" [source]="sourceRequests" (edit)="onUserAccept($event)" (delete)= "onDeclineUser($event)">
-        </ng2-smart-table>
-        {{'common.count'|translate}}: <b>{{countRequests}}</b>
+        <div class="show-closed-requests">
+          <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]="showOnlyActiveRequests" (change)="refreshRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
+        </div>
+        <ngx-requests-list (requestAccepted)="userAccepted($event)" translateParamNames="true" translateTitle="true"
+        [requests]="(showOnlyActiveRequests)? activeRequests: requests"></ngx-requests-list>
       </nb-tab>
     </nb-tabset>
 

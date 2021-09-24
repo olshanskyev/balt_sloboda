@@ -10,6 +10,7 @@ import { AddressesPageComponent } from './management/addresses/addresses-page.co
 import { RequestManagerPageComponent } from './management/request-manager/request-manager-page.component';
 import { RequestTypePageComponent } from './management/request-types/request-type-page.component';
 import { SingleRequestPageComponent } from './requests/single-request/single-request-page.component';
+import { AllRequestsPageComponent } from './requests/all-requests/all-requests-page.component';
 
 const routes: Routes = [{
   path: '',
@@ -61,6 +62,15 @@ const routes: Routes = [{
       },
     },
 
+    {
+      path: 'requests',
+      component: AllRequestsPageComponent,
+      canActivate: [PageAccessChecker], // Check rights
+      data: {
+        permission: 'view_page',
+        resource: 'allRequests',
+      },
+    },
     {
       path: 'requests/:requestTypeName',
       component: SingleRequestPageComponent,

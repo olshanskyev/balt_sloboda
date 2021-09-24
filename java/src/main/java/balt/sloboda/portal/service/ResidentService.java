@@ -5,6 +5,7 @@ import balt.sloboda.portal.model.User;
 import balt.sloboda.portal.repository.DbAddressRepository;
 import balt.sloboda.portal.repository.DbResidentRepository;
 import balt.sloboda.portal.repository.DbUserRepository;
+import balt.sloboda.portal.service.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +30,8 @@ public class ResidentService {
         return dbResidentRepository.findAll();
     }
 
-    public Optional<Resident> getResidentByUserName(String userName){
-        List<Resident> residents = selectAllResidents();
-        return dbResidentRepository.findByUserUserName(userName).stream().findFirst();
+    public Resident getResidentByUserName(String userName) {
+        return dbResidentRepository.findByUserUserName(userName).stream().findFirst().orElse(null);
     }
 
     public Resident save(Resident resident){

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -38,8 +39,8 @@ public class RequestsServiceTest {
         List<RequestParam> paramsByRequestType = requestsService.getParamsByRequestType("NewUserRequest");
         Assert.assertEquals(6, paramsByRequestType.size());
 
-        List<Request> newUserRequest = requestsService.getAllRequestByType("NewUserRequest");
-        Assert.assertEquals(1, newUserRequest.size());
+        Page<Request> newUserRequest = requestsService.getAllRequestByType("NewUserRequest", 0, 10);
+        Assert.assertEquals(1, newUserRequest.getContent().size());
 
         // ToDo request by status and type
     }

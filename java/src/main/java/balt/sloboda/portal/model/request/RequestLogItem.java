@@ -23,10 +23,10 @@ public class RequestLogItem {
     @Column(name="ITEM_NAME", nullable = false)
     private RequestLogItemName itemName;
 
-    @Column(name="PREV_VALUE", columnDefinition="varchar(64)", nullable = true)
+    @Column(name="PREV_VALUE", columnDefinition="varchar(256)", nullable = true)
     private String prevValue;
 
-    @Column(name="NEW_VALUE", columnDefinition="varchar(64)", nullable = true)
+    @Column(name="NEW_VALUE", columnDefinition="varchar(256)", nullable = true)
     private String newValue;
 
     @OneToOne

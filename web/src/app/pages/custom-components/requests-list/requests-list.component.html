@@ -1,17 +1,17 @@
 <div>
   <h6 class="text-hint" style="margin-top: 1rem;" *ngIf="!requests || requests.length == 0">{{'requests.nothingFound'|translate}}</h6>
     <nb-accordion>
-        <nb-accordion-item *ngFor="let request of requests">
+        <nb-accordion-item *ngFor="let request of requests" (collapsedChange)="accordionCollapsedChanged($event, request)">
           <nb-accordion-item-header>
             <div class="header">
               <nb-icon *ngIf="request.type.displayOptions.iconPack === 'eva'" [icon]="request.type.displayOptions.icon" status="basic" class="request-icon" [pack]="request.type.displayOptions.iconPack"></nb-icon>
               <nb-icon *ngIf="request.type.displayOptions.iconPack !== 'eva'" [icon]="request.type.displayOptions.icon" status="basic" class="request-icon" [pack]="request.type.displayOptions.iconPack"></nb-icon>
-              <h7 class="text-basic">{{request.type.title}}</h7>
+              <h7 class="text-basic">{{(translateTitle)?('requests.' + request.type.title|translate):request.type.title}}</h7>
               <h7 class="text-hint">{{request.generatedIdentifier}}</h7>
               <h7 class="{{(request.status == 'NEW')? 'text-info':
               (request.status == 'ACCEPTED')? 'text-primary':
               (request.status == 'IN_PROGRESS')? 'text-success':
-              'text-hint'}}">{{'requests.'+request.status|translate}}</h7>
+              'text-hint'}} header-status">{{'requests.'+request.status|translate}}</h7>
             </div>
             <nb-icon [hidden]="!request.type.durable" nbTooltip="{{'requests.durableRequest'|translate}}" nbTooltipPlacement="top" nbTooltipStatus="primary"
                       icon="clock-outline" class="text-hint durable-icon"></nb-icon>
@@ -21,8 +21,19 @@
               <div class="col-xl-6 parameters">
                 <h7 class="text-hint">{{'requests.paramValues'|translate}}</h7>
                 <nb-list>
+                  <nb-list-item *ngIf="currentUser !== request.owner.userName">
+                    <h7 class="text-basic param-name">{{'requests.requestOwner'|translate}}</h7>
+                    <h7 class="text-basic param-value">
+                      <nb-user
+                        size="medium"
+                        name="{{(ownerResident)?(ownerResident.lastName + ' ' + ownerResident.firstName) : request.owner.userName}}"
+                        title="{{(ownerResident)?(ownerResident.address.street + ' ' + ownerResident.address.houseNumber) : ''}}">
+                      </nb-user>
+
+                    </h7>
+                  </nb-list-item>
                   <nb-list-item *ngFor="let param of request.type.parameters">
-                    <h7 class="text-basic param-name">{{param.name}}</h7>
+                    <h7 class="text-basic param-name">{{(translateParamNames)?('requests.' + param.name|translate):param.name}}</h7>
                     <h7 class="text-basic param-value">{{request.paramValues[param.name]}}</h7>
 
                     <nb-icon *ngIf="param.comment" [nbTooltip]="param.comment" nbTooltipPlacement="top" nbTooltipStatus="primary"
@@ -48,19 +59,36 @@
               </div>
               <div class="col-xl-6 events">
                 <h7 class="text-hint">{{'requests.eventsLog'|translate}}</h7>
-                <nb-list>
-                  <nb-list-item>
-                    <h7 class="text-basic param-name">{{'requests.created'|translate}}</h7>
-                    <h7 class="text-basic param-value">{{formatDateTime(request.createDateTime)}}</h7>
-                  </nb-list-item>
-                </nb-list>
+                <div [nbSpinner]="logs == null" nbSpinnerStatus="basic">
+                  <h7 class="text-hint" [hidden]="logs != null"></h7>
+                  <nb-list>
+                    <nb-list-item *ngFor="let logItem of logs">
+                      <label class="label timestamp text-info" status="info">{{formatDateTime(logItem.modifiedDate)}}</label>
+                      <nb-user nbTooltip="{{'requests.modifiedBy'|translate}}: {{(logItem.modifiedBy)?logItem.modifiedBy.userName:'System Request'}}" nbTooltipPlacement="top" nbTooltipStatus="primary"
+                        size="medium"
+                        name="{{(logItem.modifiedBy)?logItem.modifiedBy.userName:'System Request'}}"
+                        onlyPicture>
+                      </nb-user>
+                      <h7 class="text-basic param-name">{{'requests.' + logItem.itemName|translate}}</h7>
+                      <h7 class="text-basic param-value">{{(logItem.itemName == 'STATUS_CHANGED')?(('requests.' + logItem.newValue)|translate):logItem.newValue}}</h7>
+                    </nb-list-item>
+                  </nb-list>
+                </div>
+
               </div>
             </div>
 
             <div class="action-div">
-              <button nbButton shape="semi-round" status="danger" size="tiny" class="reject-button"
+              <button nbButton *nbIsGranted="['edit', 'assignedRequests']"
+              shape="semi-round" status="info" size="small" class="action-button"
+              [hidden]="!(request.status == 'NEW')"
+              (click)="acceptRequest(request)">{{'requests.accept'|translate}}</button>
+
+              <button nbButton shape="semi-round" status="danger" size="small" class="action-button"
               [disabled]="!(request.status == 'NEW' || request.status == 'ACCEPTED')"
               (click)="rejectRequest(request)">{{'requests.reject'|translate}}</button>
+
+
             </div>
 
           </nb-accordion-item-body>

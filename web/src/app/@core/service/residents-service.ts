@@ -19,6 +19,11 @@ export class ResidentsService extends ResidentsServiceData {
     return this._http.get<Resident[]>(_endpoint);
   }
 
+  getResidentByUserName(userName: string): Observable<Resident> {
+    const _endpoint = this.uri +  '/management/residents/' + userName;
+    return this._http.get<Resident>(_endpoint);
+  }
+
 
 
 

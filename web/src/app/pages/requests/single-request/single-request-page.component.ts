@@ -29,6 +29,7 @@ export class SingleRequestPageComponent implements OnDestroy {
 
   private toaster: Toaster;
   gotRequestType: RequestType;
+  requestTypeName: string;
   SelectionMode = SelectionMode;
   RequestParamType = RequestParamType;
   newRequest: Request;
@@ -101,21 +102,24 @@ export class SingleRequestPageComponent implements OnDestroy {
 
     this.route.params.subscribe((params: Params) => { //called once for every request type
       this.setParamValues = new Map();
-      var requestTypeName: string = params['requestTypeName'];
-      this.requestService.getRequestTypeByName(requestTypeName).subscribe( res => {
+      this.requestTypeName = params['requestTypeName'];
+      this.requestService.getRequestTypeByName(this.requestTypeName).subscribe( res => {
         this.gotRequestType = res;
         // setting default values
         this.setInitialValues();
         this.myActiveRequestsSubscription = this.requestService.getMyActiveRequestsSubscription()
           .subscribe(requests => {
             if (requests) { // null at first time
-              this.myActiveRequests = requests.filter(item => item.type.name === requestTypeName);
+              this.myActiveRequests = requests.content.filter(item => item.type.name === this.requestTypeName);
+              this.refreshMyRequests();
+
             }
         });
         this.assignedToMeActiveRequestsSubscription = this.requestService.getAssignedToMeActiveRequestsSubscription()
           .subscribe(requests => {
             if (requests) {
-              this.assignedToMeActiveRequests = requests.filter(item => item.type.name === requestTypeName);
+              this.assignedToMeActiveRequests = requests.content.filter(item => item.type.name === this.requestTypeName);
+              this.refreshAssignedToMeRequests();
             }
         });
 
@@ -154,6 +158,7 @@ export class SingleRequestPageComponent implements OnDestroy {
       this.toaster.showToast(this.toaster.types[1], this.translations.singleRequestPage.requestCreated,'');
       this.requestService.notifyMyActiveRequestsChanged();
       this.requestService.notifyAssignedToMeActiveRequestsChanged();
+
     });
     this.setInitialValues();
   }
@@ -176,6 +181,27 @@ export class SingleRequestPageComponent implements OnDestroy {
 
   onChangeSelectedDays(event) {
     this.selectedDays = event;
+  }
+
+  refreshMyRequests() {
+    if (!this.showOnlyMyActiveRequests) {
+      this.requestService.getMyRequests().subscribe(res => {
+        this.myRequests = res.content.filter(item => item.type.name === this.requestTypeName);
+      });
+    } else {
+      this.myRequests = [];
+    }
+
+  }
+
+  refreshAssignedToMeRequests() {
+    if (!this.showOnlyAssignedToMeActiveRequests) {
+      this.requestService.getAssignedToMeRequests().subscribe(res => {
+        this.assignedToMeRequests = res.content.filter(item => item.type.name === this.requestTypeName);
+      });
+    } else {
+      this.assignedToMeRequests = [];
+    }
   }
 
 

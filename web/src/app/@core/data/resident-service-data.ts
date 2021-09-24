@@ -13,5 +13,6 @@ export class Resident {
 
 export abstract class ResidentsServiceData {
     abstract getAllResidents(): Observable<Resident[]>;
+    abstract getResidentByUserName(userName: string): Observable<Resident>;
 }
 

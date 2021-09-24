@@ -62,3 +62,23 @@
 .create-request-button {
     margin-top: 2rem;
 }
+
+::ng-deep nb-checkbox {
+    &.show-closed-requests {
+        .text {
+            font-size: 0.7rem;
+        }
+        .custom-checkbox {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+}
+
+.show-closed-requests {
+    position: static;
+    text-align: right;
+    margin-bottom: 0.5rem;
+    margin-top: -0.5rem
+}

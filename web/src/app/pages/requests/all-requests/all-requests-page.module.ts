@@ -8,7 +8,7 @@ import {
 } from '@nebular/theme';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { SingleRequestPageComponent } from './single-request-page.component';
+import { AllRequestsPageComponent } from './all-requests-page.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CustomComponentsModule } from '../../custom-components/custom-components.module';
@@ -33,7 +33,7 @@ import { NbSecurityModule } from '@nebular/security';
     NbCheckboxModule,
   ],
   declarations: [
-    SingleRequestPageComponent,
+    AllRequestsPageComponent,
   ],
 })
-export class SingleRequestPageModule { }
+export class AllRequestsPageModule { }

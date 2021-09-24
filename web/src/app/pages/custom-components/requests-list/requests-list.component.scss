@@ -1,11 +1,15 @@
 .header {
     position: relative;
     display: inline-block;
-    //align-items: center;
     h7 {
-        width: 150px;
+        width: 200px;
         display: inline-block;
         vertical-align: middle;
+
+        &.header-status {
+            width: auto;
+            margin-right: 3rem;
+        }
     }
 
     .request-icon {
@@ -19,7 +23,7 @@
 .parameters {
     h7 {
         &.param-value {
-            margin-right: 1rem;
+            margin-right: 0rem;
             font-weight: 600;
         }
         &.param-name {
@@ -37,11 +41,11 @@
 .events {
     h7 {
         &.param-value {
-            margin-right: 1rem;
+            margin-right: 0rem;
             font-weight: 600;
         }
         &.param-name {
-            min-width: 210px;
+            min-width: 120px;
         }
 
         display: inline-block;
@@ -49,11 +53,25 @@
     nb-list {
         margin-top: 1rem;
     }
+    .timestamp {
+        display: flex;
+        position: absolute;
+        margin-top: -1rem;
+        right: 1rem;
+        font-weight: 600;
+        font-size: 0.65rem;
+    }
+
+    nb-list {
+        nb-list-item {
+            display: inline-block;
+        }
+        nb-user {
+            display: inline-block;
+        }
+    }
 }
 
-.param-input {
-    margin-left: 3rem;
-}
 
 .help-icon {
     right: 1rem;
@@ -62,7 +80,7 @@
 
 .durable-icon {
     position: absolute;
-    right: 3rem;
+    right: 2.5rem;
 }
 
 .textarea-comment {
@@ -78,7 +96,9 @@
     position: static;
     text-align: right;
 }
-.reject-button {
+.action-button {
     margin-top: 1rem;
+    margin-right: 0.5rem;
 }
+
 

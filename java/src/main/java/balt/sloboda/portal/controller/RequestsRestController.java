@@ -2,6 +2,7 @@ package balt.sloboda.portal.controller;
 
 import balt.sloboda.portal.model.ErrorResponse;
 import balt.sloboda.portal.model.request.Request;
+import balt.sloboda.portal.model.request.RequestAction;
 import balt.sloboda.portal.model.request.RequestStatus;
 import balt.sloboda.portal.model.request.RequestType;
 import balt.sloboda.portal.service.RequestsService;
@@ -28,18 +29,20 @@ public class RequestsRestController {
 
     @RequestMapping(value="/management/requests", method = RequestMethod.GET)
     public ResponseEntity<?> getAllRequests(@RequestParam(name = "requestType") Optional<String> requestType,
-                                            @RequestParam(name = "status") Optional<RequestStatus> status) {
+                                            @RequestParam(name = "status") Optional<RequestStatus> status,
+                                            @RequestParam("page") int page,
+                                            @RequestParam("size") int size) {
         if (requestType.isPresent()){
             if (status.isPresent()){
-                return new ResponseEntity<>(requestsService.getAllRequestByStatusAndType(status.get(), requestType.get()), HttpStatus.OK);
+                return new ResponseEntity<>(requestsService.getAllRequestByStatusAndType(status.get(), requestType.get(), page, size), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(requestsService.getAllRequestByType(requestType.get()), HttpStatus.OK);
+                return new ResponseEntity<>(requestsService.getAllRequestByType(requestType.get(), page, size), HttpStatus.OK);
             }
         } else {
             if (status.isPresent()){
-                return new ResponseEntity<>(requestsService.getAllRequestByStatus(status.get()), HttpStatus.OK);
+                return new ResponseEntity<>(requestsService.getAllRequestByStatus(status.get(), page, size), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(requestsService.getAllRequests(), HttpStatus.OK);
+                return new ResponseEntity<>(requestsService.getAllRequests(page, size), HttpStatus.OK);
             }
         }
     }
@@ -54,17 +57,17 @@ public class RequestsRestController {
         }
     }
 
-
     @RequestMapping(value="/requests/{requestId}/{action}", method = RequestMethod.PUT)
-    public ResponseEntity<?> changeRequestStatus(@PathVariable Long requestId, @PathVariable String action) {
+    public ResponseEntity<?> changeRequestStatus(@PathVariable Long requestId, @PathVariable RequestAction action,
+                                                 @RequestParam(name = "comment") Optional<String> comment) {
 
         try {
             switch (action) {
-                case "accept": {
+                case accept: {
                     return new ResponseEntity<>(requestsService.acceptRequest(requestId), HttpStatus.OK);
                 }
-                case "reject": {
-                    return new ResponseEntity<>(requestsService.rejectRequest(requestId), HttpStatus.OK);
+                case reject: {
+                    return new ResponseEntity<>(requestsService.rejectRequest(requestId, comment), HttpStatus.OK);
                 }
                 default: {
                     return new ResponseEntity<>(new ErrorResponse("unknowRequestOperation", null), HttpStatus.BAD_REQUEST);
@@ -86,14 +89,25 @@ public class RequestsRestController {
 
     @RequestMapping(value="/requests", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUserRequests( @RequestParam(name = "status") Optional<List<RequestStatus>> status,
-                                                 @RequestParam(name = "assignedToMe") Optional<Boolean> assignedToMe) {
+                                                 @RequestParam(name = "assignedToMe") Optional<Boolean> assignedToMe,
+                                                 @RequestParam("page") int page,
+                                                 @RequestParam("size") int size) {
         if (assignedToMe.isPresent() && assignedToMe.get()) // get only assigned to me requests
-            return new ResponseEntity<>(requestsService.getAllAssignedToCurrentUserRequests(status), HttpStatus.OK);
+            return new ResponseEntity<>(requestsService.getAllAssignedToCurrentUserRequests(status, page, size), HttpStatus.OK);
         else
-            return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status), HttpStatus.OK);
+            return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status, page, size), HttpStatus.OK);
     }
 
-
+    @RequestMapping(value="/requestLogs", method = RequestMethod.GET)
+    public ResponseEntity<?> getRequestLog(@RequestParam(name = "requestId") Long requestId) {
+        try {
+            return new ResponseEntity<>(requestsService.getAllRequestLogItem(requestId), HttpStatus.OK);
+        } catch (NotFoundException ex){
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorizedException ex) {
+            return new ResponseEntity<>(new ErrorResponse(ex.getMessage(), null), HttpStatus.UNAUTHORIZED);
+        }
+    }
 
     @RequestMapping(value="/management/requestTypes", method = RequestMethod.POST)
     public ResponseEntity<?> createRequestType(@RequestBody RequestType requestType) {

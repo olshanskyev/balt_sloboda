@@ -1,7 +1,6 @@
-import { AfterViewInit, Component, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { NbDialogRef, NbIconLibraries } from "@nebular/theme";
 
-type NewType = OnInit;
 
 @Component({
     selector: 'ngx-icon-picker-window',
@@ -9,7 +8,7 @@ type NewType = OnInit;
     styleUrls: ['icon-picker-window.component.scss'],
   })
 
-  export class IconPickerWindowComponent implements NewType{
+  export class IconPickerWindowComponent implements OnInit {
 
     selectedIcon: string;
     pack: string;

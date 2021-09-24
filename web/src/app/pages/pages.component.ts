@@ -102,7 +102,7 @@ export class PagesComponent implements OnInit, OnDestroy {
         this.myActiveRequestsSubscription = this.requestsService.getMyActiveRequestsSubscription().subscribe(requests => {
           if (requests) { // null at first time
             this.myActiveRequestsCount = new Map();
-            requests.forEach(item => {
+            requests.content.forEach(item => {
               var count: number = this.myActiveRequestsCount.get(item.type.name);
               count = (count)? ++count: 1;
               this.myActiveRequestsCount.set(item.type.name, count);
@@ -114,7 +114,7 @@ export class PagesComponent implements OnInit, OnDestroy {
         this.assignedToMeActiveRequestsSubscription = this.requestsService.getAssignedToMeActiveRequestsSubscription().subscribe(requests => {
           if (requests) { // null at first time
             this.assignedToMeActiveRequestsCount = new Map();
-            requests.forEach(item => {
+            requests.content.forEach(item => {
               var count: number = this.assignedToMeActiveRequestsCount.get(item.type.name);
               count = (count)? ++count: 1;
               this.assignedToMeActiveRequestsCount.set(item.type.name, count);
@@ -162,12 +162,12 @@ export class PagesComponent implements OnInit, OnDestroy {
       this.accessChecker.isGranted(menuItem.data['permission'], menuItem.data['resource']).subscribe(granted => {
         menuItem.hidden = !granted;
         if (key === 'Users' && granted) { // update badge values
-          this.newUserRequestsSubscription = this.requestsService.getNewUserRequestsSubscription().subscribe(
+          this.newUserRequestsSubscription = this.requestsService.getActiveNewUserRequestsSubscription().subscribe(
             res => {
               if (res) {
-                if (res.length > 0) {
+                if (res.content.length > 0) {
                   menuItem.badge = {
-                    text: res.length.toString(),
+                    text: res.content.length.toString(),
                     status: 'primary',
                   }
                 } else {

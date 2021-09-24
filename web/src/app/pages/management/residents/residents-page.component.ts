@@ -21,7 +21,9 @@ import { Toaster } from '../../Toaster';
 export class ResidentsPageComponent implements OnDestroy{
 
   private toaster: Toaster;
-
+  activeRequests: Request[] = [];
+  requests: Request[] = [];
+  showOnlyActiveRequests: boolean = true;
 
   translations: any;
   constructor(private toastrService: NbToastrService, private translateService: TranslateService,
@@ -35,15 +37,6 @@ export class ResidentsPageComponent implements OnDestroy{
     this.settings.columns.lastName.title = this.translations.residentsPage.lastName;
     this.settings.columns.address.title = this.translations.residentsPage.address;
 
-    this.settingsRequests.columns.userName.title = this.translations.residentsPage.user;
-    this.settingsRequests.columns.firstName.title = this.translations.residentsPage.firstName;
-    this.settingsRequests.columns.lastName.title = this.translations.residentsPage.lastName;
-    this.settingsRequests.columns.address.title = this.translations.residentsPage.address;
-    this.settingsRequests.columns.status.title = this.translations.residentsPage.status;
-
-    this.settingsRequests.edit.editButtonContent= '<i class="nb-checkmark" title="' + this.translations.residentsPage.accept + '"></i>';
-    this.settingsRequests.delete.deleteButtonContent= '<i class="nb-close" title="' + this.translations.residentsPage.decline + '"></i>';
-
     this.loadResidents();
     this.loadNewRequests();
   }
@@ -56,11 +49,12 @@ export class ResidentsPageComponent implements OnDestroy{
   private allNewUserRequestSubscription: Subscription;
 
   private loadNewRequests(): void {
-    this.allNewUserRequestSubscription = this.requestsService.getNewUserRequestsSubscription().subscribe(
+    this.allNewUserRequestSubscription = this.requestsService.getActiveNewUserRequestsSubscription().subscribe(
       res => {
         if (res) {
-          this.sourceRequests.load(this.getTableViewRequests(res));
-          this.countRequests = res.length;
+          this.activeRequests = res.content;
+          this.countRequests = res.content.length;
+          this.refreshRequests();
         }
       },  err => {
         this.toaster.showToast(this.toaster.types[4], this.translations.errors.cannotGetRequests,
@@ -132,80 +126,19 @@ export class ResidentsPageComponent implements OnDestroy{
     });
   }
 
-
-  getTableViewRequests(requests: Request[]) {
-    return requests.map((item) => { // map json item into table view
-      return {
-        id: item.id,
-        userName: item.paramValues.userName,
-        firstName: item.paramValues.firstName,
-        lastName: item.paramValues.lastName,
-        status: item.status,
-        address: item.paramValues.street +  ' ' + item.paramValues.houseNumber + ', '
-        + this.translations.residentsPage.pl + ' ' + item.paramValues.plotNumber,
-      };
-    });
-  }
-
-
-  settingsRequests = {
-    actions: {
-      add: false,
-    },
-
-    edit: {
-      editButtonContent: '',
-    },
-    delete: {
-      deleteButtonContent: '',
-    },
-    mode: 'external',
-    columns: {
-      userName: {
-        title: '',
-        type: 'string',
-        editable: false,
-      },
-      firstName: {
-        title: '',
-        type: 'string',
-        editable: false,
-      },
-      lastName: {
-        title: '',
-        type: 'string',
-        editable: false,
-      },
-      address: {
-        title: '',
-        type: 'string',
-        editable: false,
-      },
-      status: {
-        title: '',
-        type: 'string',
-        editable: false,
-      },
-
-    },
-  };
-
-  onUserAccept(event) : void {
-    this.translateService.get('residentsPage.shureAccept', {user: event.data.userName}).subscribe(
-      translated => {
-        if (window.confirm(translated)) {
-          this.requestsService.acceptRequest(event.data.id).subscribe(() => {
-            this.requestsService.notifyNewUserRequestsChanged();
-            this.loadResidents();
-          });
-        }
-      });
-  }
-
-  onDeclineUser(event) : void { // todo ask to decline and delete
-    this.countRequests++;
+  userAccepted(event) : void {
     this.requestsService.notifyNewUserRequestsChanged();
+    this.loadResidents();
   }
 
+  refreshRequests() { // get all new user requests
+    if (!this.showOnlyActiveRequests) {
+      this.requestsService.getAllNewUserRequests().subscribe(res => {
+        this.requests = res.content;
+      });
+    } else {
+      this.requests = [];
+    }
+  }
 
 }

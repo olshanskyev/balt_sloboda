@@ -22,7 +22,12 @@ public class NewUserRequestType implements PredefinedRequestType{
                 .setDescription("Used to create a new user request on registration page")
                 .setParameters(NewUserRequestParams.getParamsDefinition())
                 .setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)))
-                .setSystemRequest(true);
+                .setSystemRequest(true)
+                .setDisplayOptions(new HashMap<String, String>(){{
+                    put("iconPack", "eva");
+                    put("icon", "person-add-outline");
+                }});
+
     }
 
     @Override

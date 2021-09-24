@@ -15,6 +15,10 @@ import balt.sloboda.portal.utils.Transcriptor;
 import balt.sloboda.portal.utils.WebSecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,35 +151,43 @@ public class RequestsService {
     // ================================== request types===========================
 
     // ================================== requests ===============================
-    public List<Request> getAllRequestByType(String requestTypeName){
-        return dbRequestsRepository.findByTypeName(requestTypeName);
+
+    private Sort requestsSort() {
+        return Sort.by("lastModifiedDate").descending();
     }
 
-    public List<Request> getAllRequestByStatus(RequestStatus status){
-        return dbRequestsRepository.findByStatus(status);
+    public Page<Request> getAllRequestByType(String requestTypeName, int page, int size){
+
+        return dbRequestsRepository.findByTypeName(requestTypeName, PageRequest.of(page, size, requestsSort()));
     }
 
-    public List<Request> getAllRequestByStatusAndType(RequestStatus status, String requestTypeName){
-        return dbRequestsRepository.findByStatusAndTypeName(status, requestTypeName);
+    public Page<Request> getAllRequestByStatus(RequestStatus status, int page, int size){
+        return dbRequestsRepository.findByStatus(status, PageRequest.of(page, size, requestsSort()));
     }
 
-    public List<Request> getAllRequests(){
-        return dbRequestsRepository.findAll();
+    public Page<Request> getAllRequestByStatusAndType(RequestStatus status, String requestTypeName, int page, int size){
+        return dbRequestsRepository.findByStatusAndTypeName(status, requestTypeName, PageRequest.of(page, size, requestsSort()));
     }
 
-    public List<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status){
+    public Page<Request> getAllRequests(int page, int size){
+        return dbRequestsRepository.findAll(PageRequest.of(page, size));
+    }
+
+    public Page<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status, int page, int size){
         if (status.isPresent())
-            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
+            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
         else
-            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName());
+            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
     }
 
 
-    public List<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status){
+    public Page<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status, int page, int size){
         if (status.isPresent())
-            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
-        else
-            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName());
+            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
+        else {
+            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+        }
+            
     }
 
     private List<String> checkMandatoryParameters(Map<String, String> paramValues, RequestType requestType) {
@@ -264,7 +276,7 @@ public class RequestsService {
     }
 
     private boolean newUserRequestAlreadyExists(NewUserRequestParams newUserRequestParams) {
-        Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequestType.getName()).stream()
+        Optional<Request> found = dbRequestsRepository.findByTypeName(newUserRequestType.getName(), Pageable.unpaged()).stream()
                 .filter(item -> {
                     String userName = item.getParamValues().get("userName");
                     return userName != null && userName.equals(newUserRequestParams.getUserName()) && item.getStatus() == RequestStatus.NEW;
@@ -318,14 +330,13 @@ public class RequestsService {
         return saved;
     }
 
-    private Request getRequestCheckAuthorizationCheckLifecycle(Long requestId, RequestStatus newStatus) throws UserNotAuthorizedException, NotFoundException, RequestLifecycleException {
+
+    private Request getRequestAndCheckAuthorization(Long requestId) throws UserNotAuthorizedException, NotFoundException {
         Optional<Request> request = dbRequestsRepository.findById(requestId);
         if (request.isPresent()){
             if (!webSecurityUtils.isAdmin()) { // not admin
                 if(!request.get().getOwner().getUserName().equals(webSecurityUtils.getAuthorizedUser().getUserName())) { // not owner
                     throw new UserNotAuthorizedException("notOwner");
-                } else {
-                    requestLifecycleUtil.checkStatusChanging(request.get().getStatus(), newStatus);
                 }
             }
             return request.get();
@@ -334,21 +345,25 @@ public class RequestsService {
         }
     }
 
-    public Request rejectRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
-        Request request = getRequestCheckAuthorizationCheckLifecycle(requestId, RequestStatus.REJECTED);
+    public Request rejectRequest(Long requestId, Optional<String> comment) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
+        Request request = getRequestAndCheckAuthorization(requestId);
+        requestLifecycleUtil.checkStatusChanging(request.getStatus(), RequestStatus.REJECTED);
         request.setStatus(RequestStatus.REJECTED);
-        List<RequestLogItem> logItems = Arrays.asList(
-                new RequestLogItem()
+        List<RequestLogItem> logItems = new ArrayList<>();
+        comment.ifPresent(c -> logItems.add(new RequestLogItem()
+                .setItemName(RequestLogItemName.COMMENT_ADDED).setNewValue(c)));
+        logItems.add(new RequestLogItem()
                         .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.REJECTED.toString()));
         return saveRequest(request, logItems);
     }
 
     public Request acceptRequest(Long requestId) throws NotFoundException, UserNotAuthorizedException, RequestLifecycleException {
-        Request request = getRequestCheckAuthorizationCheckLifecycle(requestId, RequestStatus.ACCEPTED);
+        Request request = getRequestAndCheckAuthorization(requestId);
+        requestLifecycleUtil.checkStatusChanging(request.getStatus(), RequestStatus.ACCEPTED);
             if (request.getType().getName().equals(newUserRequestType.getName())){
                 return acceptNewUserRequest(request);
             } else {
-                request.setStatus(RequestStatus.ACCEPTED); // ToDo not tested
+                request.setStatus(RequestStatus.ACCEPTED);
                 List<RequestLogItem> logItems = Arrays.asList(
                         new RequestLogItem()
                                 .setItemName(RequestLogItemName.STATUS_CHANGED).setNewValue(RequestStatus.ACCEPTED.toString()));
@@ -358,6 +373,12 @@ public class RequestsService {
     }
     // ================================== requests ===============================
 
+    // ================================== request logs ===========================
+    public List<RequestLogItem> getAllRequestLogItem(Long requestId) throws UserNotAuthorizedException, NotFoundException {
+        Request request = getRequestAndCheckAuthorization(requestId);
+        return dbRequestsLogRepository.findByRequestId(request.getId());
+    }
+    // ================================== request logs ===========================
 
     // ================================== request params =========================
     public List<RequestParam> getParamsByRequestType(String requestTypeName) {

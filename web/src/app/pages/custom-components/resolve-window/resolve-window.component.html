@@ -1,0 +1,19 @@
+
+  <nb-card>
+      <nb-card-header>{{title}}
+      </nb-card-header>
+      <nb-card-body>
+        <label class="text-hint">{{'requests.comment'|translate}}</label>
+        <textarea
+          nbInput
+          [(ngModel)]="comment"
+          class="textarea-comment"
+        >
+        </textarea>
+      </nb-card-body>
+      <nb-card-footer>
+        <button class="control-button" status="info" nbButton (click)="close()">{{'common.ok'|translate}}</button>
+        <button class="control-button" status="info" nbButton (click)="cancel()">{{'common.cancel'|translate}}</button>
+      </nb-card-footer>
+    </nb-card>
+
