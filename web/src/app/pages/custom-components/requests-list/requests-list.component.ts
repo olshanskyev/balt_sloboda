@@ -89,8 +89,8 @@ export class RequestsListComponent implements OnChanges {
               .subscribe( res => {
               this.toaster.showToast(this.toaster.types[1], this.translations.requests.requestRejected,
                 '');
-              this.requestsService.notifyMyActiveRequestsChanged();
-              this.requestsService.notifyAssignedToMeActiveRequestsChanged();
+              this.requestsService.notifyMyActiveRequestsCountChanged();
+              this.requestsService.notifyAssignedToMeActiveRequestsCountChanged();
               this.requestRejected.emit(res);
             });
           }
@@ -102,8 +102,8 @@ export class RequestsListComponent implements OnChanges {
     this.requestsService.acceptRequest(request.id).subscribe(res => {
       this.toaster.showToast(this.toaster.types[1], this.translations.requests.requestAccepted,
         '');
-      this.requestsService.notifyMyActiveRequestsChanged();
-      this.requestsService.notifyAssignedToMeActiveRequestsChanged();
+      this.requestsService.notifyMyActiveRequestsCountChanged();
+      this.requestsService.notifyAssignedToMeActiveRequestsCountChanged();
       this.requestAccepted.emit(res);
     });
   }
@@ -111,6 +111,8 @@ export class RequestsListComponent implements OnChanges {
   calculateNextExecutionDay(request: Request) {
     return this.formatDate(CalendarSelectionDataBuilder.getNextExecutionDay(request.calendarSelection, this.dateService));
   }
+
+  logsAreLoading: boolean = false;
 
   accordionCollapsedChanged(notExpanded: boolean, request: Request) {
     this.logs = null;
@@ -124,8 +126,10 @@ export class RequestsListComponent implements OnChanges {
           });
         }
       });
+      this.logsAreLoading = true;
       this.requestsService.getRequestLogs(request.id).subscribe(gotLogs => {
         this.logs = gotLogs;
+        this.logsAreLoading = false;
       });
     }
   }

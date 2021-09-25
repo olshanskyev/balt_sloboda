@@ -9,7 +9,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { CalendarSelectionDataBuilder, SelectionMode } from '../../../@core/data/calendar-selection.data';
-import { Request, RequestParam, RequestParamType, RequestType } from '../../../@core/data/request-service-data';
+import { Request, RequestParam, RequestParamType, RequestStatus, RequestType } from '../../../@core/data/request-service-data';
 import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
 import { RequestService } from '../../../@core/service/request-service';
 import { JsonUtils } from '../../../@core/utils/json.utils';
@@ -40,12 +40,12 @@ export class SingleRequestPageComponent implements OnDestroy {
   minDate: Date = new Date();
   maxDate: Date = new Date();
   comment: string;
-  myActiveRequestsSubscription: Subscription = null;
-  assignedToMeActiveRequestsSubscription: Subscription = null;
+  myActiveRequestsCountSubscription: Subscription = null;
+  assignedToMeActiveRequestsCountSubscription: Subscription = null;
   myRequests: Request[] = [];
-  myActiveRequests: Request[] = [];
+  myRequestsCount: number = 0;
   assignedToMeRequests: Request[] = [];
-  assignedToMeActiveRequests: Request[] = [];
+  assignedToMeRequestsCount: number = 0;
   showOnlyMyActiveRequests: boolean = true;
   showOnlyAssignedToMeActiveRequests: boolean = true;
 
@@ -107,18 +107,25 @@ export class SingleRequestPageComponent implements OnDestroy {
         this.gotRequestType = res;
         // setting default values
         this.setInitialValues();
-        this.myActiveRequestsSubscription = this.requestService.getMyActiveRequestsSubscription()
-          .subscribe(requests => {
-            if (requests) { // null at first time
-              this.myActiveRequests = requests.content.filter(item => item.type.name === this.requestTypeName);
+        this.myActiveRequestsCountSubscription = this.requestService.getMyActiveRequestsCountSubscription()
+          .subscribe(requestsCount => {
+            if (requestsCount) { // null at first time
+              this.myRequestsCount = 0;
+              requestsCount.forEach(item => {
+                if (item.requestTypeName === this.requestTypeName)
+                  this.myRequestsCount += item.count;
+                });
               this.refreshMyRequests();
-
             }
         });
-        this.assignedToMeActiveRequestsSubscription = this.requestService.getAssignedToMeActiveRequestsSubscription()
-          .subscribe(requests => {
-            if (requests) {
-              this.assignedToMeActiveRequests = requests.content.filter(item => item.type.name === this.requestTypeName);
+        this.assignedToMeActiveRequestsCountSubscription = this.requestService.getAssignedToMeActiveRequestsCountSubscription()
+          .subscribe(requestsCount => {
+            if (requestsCount) { // null at first time
+              this.assignedToMeRequestsCount = 0;
+              requestsCount.forEach(item => {
+                if (item.requestTypeName === this.requestTypeName)
+                  this.assignedToMeRequestsCount += item.count;
+                });
               this.refreshAssignedToMeRequests();
             }
         });
@@ -128,11 +135,11 @@ export class SingleRequestPageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.myActiveRequestsSubscription) {
-      this.myActiveRequestsSubscription.unsubscribe();
+    if (this.myActiveRequestsCountSubscription) {
+      this.myActiveRequestsCountSubscription.unsubscribe();
     }
-    if (this.assignedToMeActiveRequestsSubscription) {
-      this.assignedToMeActiveRequestsSubscription.unsubscribe();
+    if (this.assignedToMeActiveRequestsCountSubscription) {
+      this.assignedToMeActiveRequestsCountSubscription.unsubscribe();
     }
   }
 
@@ -156,8 +163,8 @@ export class SingleRequestPageComponent implements OnDestroy {
 
     this.requestService.createRequest(newRequest).subscribe( res => {
       this.toaster.showToast(this.toaster.types[1], this.translations.singleRequestPage.requestCreated,'');
-      this.requestService.notifyMyActiveRequestsChanged();
-      this.requestService.notifyAssignedToMeActiveRequestsChanged();
+      this.requestService.notifyMyActiveRequestsCountChanged();
+      this.requestService.notifyAssignedToMeActiveRequestsCountChanged();
 
     });
     this.setInitialValues();
@@ -184,23 +191,34 @@ export class SingleRequestPageComponent implements OnDestroy {
   }
 
   refreshMyRequests() {
-    if (!this.showOnlyMyActiveRequests) {
-      this.requestService.getMyRequests().subscribe(res => {
-        this.myRequests = res.content.filter(item => item.type.name === this.requestTypeName);
+    if (this.showOnlyMyActiveRequests) {
+      this.requestService.getMyRequests(0, 10,
+        [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS],
+        this.requestTypeName
+        ).subscribe(res => {
+        this.myRequests = res.content;
       });
     } else {
-      this.myRequests = [];
+      this.requestService.getMyRequests(0, 10, null, this.requestTypeName).subscribe(res => {
+        this.myRequests = res.content;
+      });
     }
 
   }
 
   refreshAssignedToMeRequests() {
-    if (!this.showOnlyAssignedToMeActiveRequests) {
-      this.requestService.getAssignedToMeRequests().subscribe(res => {
-        this.assignedToMeRequests = res.content.filter(item => item.type.name === this.requestTypeName);
+    if (this.showOnlyAssignedToMeActiveRequests) {
+      this.requestService.getAssignedToMeRequests(0, 10,
+        [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS],
+        this.requestTypeName
+        ).subscribe(res => {
+        this.assignedToMeRequests = res.content;
       });
     } else {
-      this.assignedToMeRequests = [];
+      this.requestService.getAssignedToMeRequests(0, 10, null, this.requestTypeName).subscribe(res => {
+        this.assignedToMeRequests = res.content;
+      });
+
     }
   }
 

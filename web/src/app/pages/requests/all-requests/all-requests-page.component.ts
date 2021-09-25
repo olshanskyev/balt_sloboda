@@ -6,7 +6,7 @@ import {
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { Request } from '../../../@core/data/request-service-data';
+import { Request, RequestStatus } from '../../../@core/data/request-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 
 import { Toaster } from '../../Toaster';
@@ -23,13 +23,13 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
 
   private toaster: Toaster;
   translations: any;
-  myActiveRequestsSubscription: Subscription = null;
-  assignedToMeActiveRequestsSubscription: Subscription = null;
+  myActiveRequestsCountSubscription: Subscription = null;
+  assignedToMeActiveRequestsCountSubscription: Subscription = null;
 
   myRequests: Request[] = [];
-  myActiveRequests: Request[] = [];
+  myRequestsCount: number = 0;
   assignedToMeRequests: Request[] = [];
-  assignedToMeActiveRequests: Request[] = [];
+  assignedToMeRequestsCount: number = 0;
   showOnlyMyActiveRequests: boolean = true;
   showOnlyAssignedToMeActiveRequests: boolean = true;
 
@@ -42,49 +42,55 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.myActiveRequestsSubscription = this.requestService.getMyActiveRequestsSubscription()
-          .subscribe(requests => {
-            if (requests) { // null at first time
-              this.myActiveRequests = requests.content.filter(item => !item.type.systemRequest);
+    this.myActiveRequestsCountSubscription = this.requestService.getMyActiveRequestsCountSubscription()
+          .subscribe(requestsCount => {
+            if (requestsCount) { // null at first time
+              this.myRequestsCount = 0;
+              requestsCount.forEach(item => this.myRequestsCount += item.count);
               this.refreshMyRequests();
-
             }
         });
-        this.assignedToMeActiveRequestsSubscription = this.requestService.getAssignedToMeActiveRequestsSubscription()
-          .subscribe(requests => {
-            if (requests) {
-              this.assignedToMeActiveRequests = requests.content.filter(item => !item.type.systemRequest);
+        this.assignedToMeActiveRequestsCountSubscription = this.requestService.getAssignedToMeActiveRequestsCountSubscription()
+          .subscribe(requestsCount => {
+            if (requestsCount) {
+              this.assignedToMeRequestsCount = 0;
+              requestsCount.forEach(item => this.assignedToMeRequestsCount += item.count);
               this.refreshAssignedToMeRequests();
             }
         });
   }
 
   ngOnDestroy(): void {
-    if (this.myActiveRequestsSubscription) {
-      this.myActiveRequestsSubscription.unsubscribe();
+    if (this.myActiveRequestsCountSubscription) {
+      this.myActiveRequestsCountSubscription.unsubscribe();
     }
-    if (this.assignedToMeActiveRequestsSubscription) {
-      this.assignedToMeActiveRequestsSubscription.unsubscribe();
+    if (this.assignedToMeActiveRequestsCountSubscription) {
+      this.assignedToMeActiveRequestsCountSubscription.unsubscribe();
     }
   }
 
   refreshMyRequests() {
-    if (!this.showOnlyMyActiveRequests) {
-      this.requestService.getMyRequests().subscribe(res => {
+    if (this.showOnlyMyActiveRequests) {
+      this.requestService.getMyRequests(0, 10, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(res => {
         this.myRequests = res.content.filter(item => !item.type.systemRequest);
       });
     } else {
-      this.myRequests = [];
+      this.requestService.getMyRequests(0, 10).subscribe(res => {
+        this.myRequests = res.content.filter(item => !item.type.systemRequest);
+      });
     }
   }
 
   refreshAssignedToMeRequests() {
-    if (!this.showOnlyAssignedToMeActiveRequests) {
-      this.requestService.getAssignedToMeRequests().subscribe(res => {
+    if (this.showOnlyAssignedToMeActiveRequests) {
+      this.requestService.getAssignedToMeRequests(0, 10, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(res => {
         this.assignedToMeRequests = res.content.filter(item => !item.type.systemRequest);
       });
     } else {
-      this.assignedToMeRequests = [];
+      this.requestService.getAssignedToMeRequests(0, 10).subscribe(res => {
+        console.log(res);
+        this.assignedToMeRequests = res.content.filter(item => !item.type.systemRequest);
+      });
     }
   }
 

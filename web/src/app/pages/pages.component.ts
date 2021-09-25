@@ -27,8 +27,8 @@ export class PagesComponent implements OnInit, OnDestroy {
 
   newUserRequestsSubscription :Subscription = null;
   requestTypeSubscription :Subscription = null;
-  myActiveRequestsSubscription: Subscription = null;
-  assignedToMeActiveRequestsSubscription: Subscription = null;
+  myActiveRequestsCountSubscription: Subscription = null;
+  assignedToMeActiveRequestsCountSubscription: Subscription = null;
 
   constructor(private accessChecker: NbAccessChecker, private translateService: TranslateService,
 
@@ -99,25 +99,21 @@ export class PagesComponent implements OnInit, OnDestroy {
         // 1. we got request items
         this.loadRequestsMenu(requestTypes);
         // 2. make subscription to get active requests to update badges
-        this.myActiveRequestsSubscription = this.requestsService.getMyActiveRequestsSubscription().subscribe(requests => {
+        this.myActiveRequestsCountSubscription = this.requestsService.getMyActiveRequestsCountSubscription().subscribe(requests => {
           if (requests) { // null at first time
             this.myActiveRequestsCount = new Map();
-            requests.content.forEach(item => {
-              var count: number = this.myActiveRequestsCount.get(item.type.name);
-              count = (count)? ++count: 1;
-              this.myActiveRequestsCount.set(item.type.name, count);
+            requests.forEach(item => {
+              this.myActiveRequestsCount.set(item.requestTypeName, item.count);
             });
             this.updateBadges();
           }
         });
         // 3. make subscription to get assigned to me requests to update badges
-        this.assignedToMeActiveRequestsSubscription = this.requestsService.getAssignedToMeActiveRequestsSubscription().subscribe(requests => {
+        this.assignedToMeActiveRequestsCountSubscription = this.requestsService.getAssignedToMeActiveRequestsCountSubscription().subscribe(requests => {
           if (requests) { // null at first time
             this.assignedToMeActiveRequestsCount = new Map();
-            requests.content.forEach(item => {
-              var count: number = this.assignedToMeActiveRequestsCount.get(item.type.name);
-              count = (count)? ++count: 1;
-              this.assignedToMeActiveRequestsCount.set(item.type.name, count);
+            requests.forEach(item => {
+              this.assignedToMeActiveRequestsCount.set(item.requestTypeName, item.count);
             });
             this.updateBadges();
           }
@@ -141,12 +137,12 @@ export class PagesComponent implements OnInit, OnDestroy {
       this.requestTypeSubscription.unsubscribe();
     }
 
-    if (this.myActiveRequestsSubscription !== null) {
-      this.myActiveRequestsSubscription.unsubscribe();
+    if (this.myActiveRequestsCountSubscription !== null) {
+      this.myActiveRequestsCountSubscription.unsubscribe();
     }
 
-    if (this.assignedToMeActiveRequestsSubscription !== null) {
-      this.assignedToMeActiveRequestsSubscription.unsubscribe();
+    if (this.assignedToMeActiveRequestsCountSubscription !== null) {
+      this.assignedToMeActiveRequestsCountSubscription.unsubscribe();
     }
   }
 

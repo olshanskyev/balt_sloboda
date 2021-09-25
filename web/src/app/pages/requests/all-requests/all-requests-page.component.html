@@ -4,17 +4,17 @@
   </nb-card-header>
   <nb-card-body>
     <nb-tabset>
-      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{myActiveRequests.length}}" badgeStatus="primary">
+      <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{myRequestsCount}}" badgeStatus="primary">
         <div class="show-closed-requests">
           <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyMyActiveRequests" (change)="refreshMyRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
         </div>
-        <ngx-requests-list [requests]="(showOnlyMyActiveRequests)? myActiveRequests: myRequests"></ngx-requests-list>
+        <ngx-requests-list [requests]="myRequests"></ngx-requests-list>
       </nb-tab>
-      <nb-tab *nbIsGranted="['read', 'assignedRequests']" tabTitle="{{'singleRequestPage.assignedToMeRequest'|translate}}" badgeText="{{assignedToMeActiveRequests.length}}" badgeStatus="primary">
+      <nb-tab *nbIsGranted="['read', 'assignedRequests']" tabTitle="{{'singleRequestPage.assignedToMeRequest'|translate}}" badgeText="{{assignedToMeRequestsCount}}" badgeStatus="primary">
         <div class="show-closed-requests">
           <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyAssignedToMeActiveRequests" (change)="refreshAssignedToMeRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
         </div>
-        <ngx-requests-list [requests]="(showOnlyAssignedToMeActiveRequests)? assignedToMeActiveRequests: assignedToMeRequests"></ngx-requests-list>
+        <ngx-requests-list [requests]="assignedToMeRequests"></ngx-requests-list>
       </nb-tab>
     </nb-tabset>
 

@@ -4,12 +4,17 @@ import { Page } from './page';
 import { User } from './user-service-data';
 
 export abstract class RequestServiceData {
+    // requests count
+    abstract getMyActiveRequestsCountSubscription(): Observable<RequestsCount[]>;
+    abstract getAssignedToMeActiveRequestsCountSubscription(): Observable<RequestsCount[]>;
+
+    abstract getMyRequestsCount(requestStatuses?: RequestStatus[]): Observable<RequestsCount[]>;
+    abstract getAssignedToMeRequestsCount(requestStatuses?: RequestStatus[]): Observable<RequestsCount[]>;
+
     // requests
-    abstract getMyActiveRequestsSubscription(): Observable<Page<Request>>;
-    abstract getAssignedToMeActiveRequestsSubscription(): Observable<Page<Request>>;
-    abstract getActiveNewUserRequestsSubscription(userName: string): Observable<Page<Request>>;
-    abstract getMyRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>>;
-    abstract getAssignedToMeRequests(requestStatuses?: RequestStatus[]): Observable<Page<Request>>;
+    abstract getActiveNewUserRequestsSubscription(page: number, size: number, userName: string): Observable<Page<Request>>;
+    abstract getMyRequests(page: number, size: number, requestStatuses?: RequestStatus[], requestTypeName?: string): Observable<Page<Request>>;
+    abstract getAssignedToMeRequests(page: number, size: number, requestStatuses?: RequestStatus[], requestTypeName?: string): Observable<Page<Request>>;
     abstract acceptRequest(requestId: number): Observable<Request>;
     abstract rejectRequest(requestId: number, comment?: string): Observable<Request>;
     abstract createRequest(request: Request): Observable<Request>;
@@ -38,6 +43,11 @@ export class Request {
     owner?: User;
     assignedTo?: User;
     generatedIdentifier?: string;
+}
+
+export class RequestsCount {
+    requestTypeName: string;
+    count: number;
 }
 
 export class RequestType {

@@ -59,8 +59,8 @@
               </div>
               <div class="col-xl-6 events">
                 <h7 class="text-hint">{{'requests.eventsLog'|translate}}</h7>
-                <div [nbSpinner]="logs == null" nbSpinnerStatus="basic">
-                  <h7 class="text-hint" [hidden]="logs != null"></h7>
+                <div [nbSpinner]="logsAreLoading" nbSpinnerStatus="basic">
+                  <h7 class="text-hint" [hidden]="!logsAreLoading"></h7>
                   <nb-list>
                     <nb-list-item *ngFor="let logItem of logs">
                       <label class="label timestamp text-info" status="info">{{formatDateTime(logItem.modifiedDate)}}</label>

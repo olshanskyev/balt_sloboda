@@ -61,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 antMatchers("/management/**").hasRole("ADMIN").
                 antMatchers("/userInfo").hasAnyRole("ADMIN", "USER").
                 antMatchers("/requests/**").hasAnyRole("ADMIN", "USER").
+                antMatchers("/requestsCount/**").hasAnyRole("ADMIN", "USER").
                 antMatchers("/requestLogs/**").hasAnyRole("ADMIN", "USER").
                 antMatchers("/requestTypes").hasAnyRole("ADMIN", "USER").
                 antMatchers("/streets/**").permitAll().

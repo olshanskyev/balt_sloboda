@@ -4,6 +4,8 @@ import balt.sloboda.portal.Application;
 import balt.sloboda.portal.model.request.Request;
 import balt.sloboda.portal.model.request.RequestParam;
 import balt.sloboda.portal.model.request.RequestType;
+
+import balt.sloboda.portal.repository.IRequestsCount;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +36,7 @@ public class RequestsServiceTest {
     @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void getAllRequestsTest() throws Exception{
         List<RequestType> allRequestTypes = requestsService.getAllRequestTypes();
-        Assert.assertEquals(2, allRequestTypes.size());
+        Assert.assertEquals(3, allRequestTypes.size());
 
         List<RequestParam> paramsByRequestType = requestsService.getParamsByRequestType("NewUserRequest");
         Assert.assertEquals(6, paramsByRequestType.size());
@@ -42,6 +44,18 @@ public class RequestsServiceTest {
         Page<Request> newUserRequest = requestsService.getAllRequestByType("NewUserRequest", 0, 10);
         Assert.assertEquals(1, newUserRequest.getContent().size());
 
-        // ToDo request by status and type
+        List<IRequestsCount> requestsCountGroupByType = requestsService.getAllCurrentUserRequestsCount();
+        Assert.assertEquals(3, requestsCountGroupByType.size());
+        requestsCountGroupByType.forEach(item -> {
+            if (item.getRequestTypeName().equals("GarbageRemovalRequest")){
+                Assert.assertEquals(new Long(4), item.getCount());
+            }
+            if (item.getRequestTypeName().equals("NewUserRequest")){
+                Assert.assertEquals(new Long(1), item.getCount());
+            }
+            if (item.getRequestTypeName().equals("GarbageRemovalRequest2")){
+                Assert.assertEquals(new Long(1), item.getCount());
+            }
+        });
     }
 }

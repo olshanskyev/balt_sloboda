@@ -131,9 +131,14 @@ export class ResidentsPageComponent implements OnDestroy{
     this.loadResidents();
   }
 
+  userRejected(event): void {
+    this.requestsService.notifyNewUserRequestsChanged();
+    this.loadResidents();
+  }
+
   refreshRequests() { // get all new user requests
     if (!this.showOnlyActiveRequests) {
-      this.requestsService.getAllNewUserRequests().subscribe(res => {
+      this.requestsService.getAllNewUserRequests(0, 10).subscribe(res => {
         this.requests = res.content;
       });
     } else {

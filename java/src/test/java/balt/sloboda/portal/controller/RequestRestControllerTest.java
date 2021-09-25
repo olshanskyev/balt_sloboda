@@ -9,9 +9,6 @@ import balt.sloboda.portal.service.EmailService;
 import balt.sloboda.portal.service.RequestsService;
 import balt.sloboda.portal.service.UserService;
 import balt.sloboda.portal.utils.JsonUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.hamcrest.collection.IsMapContaining;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,15 +16,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.*;
 
@@ -139,7 +133,7 @@ public class RequestRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
+                .andExpect(jsonPath("$", hasSize(4)));
 
         // as string because of problem while parsing LocalDate as json
         String requestDays = "{\"durable\":true,\"title\":\"Request Заявка\",\"description\":\"\",\"parameters\":[{\"type\":\"ENUM\",\"optional\":false,\"name\":\"Объем бака\",\"defaultValue\":\"240\",\"enumValues\":[\"120\",\"240\"]}],\"calendarSelection\":{\"selectedDays\":[\"2021-09-13\",\"2021-09-17\"],\"selectionMode\":\"Manually\"},\"displayOptions\":{\"icon\":\"bell\",\"showInMainRequestMenu\":true},\"assignTo\":{\"id\":2}}";
@@ -159,15 +153,15 @@ public class RequestRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[3].calendarSelection.selectedDays", hasSize(2)))
-                .andExpect(jsonPath("$[3].calendarSelection.selectedDays", containsInAnyOrder("2021-09-13", "2021-09-17")))
-                .andExpect(jsonPath("$[3].parameters", hasSize(1)))
-                .andExpect(jsonPath("$[3].parameters[0].type", is("ENUM")))
-                .andExpect(jsonPath("$[3].parameters[0].enumValues",  hasSize(2)))
-                .andExpect(jsonPath("$[3].parameters[0].enumValues",  containsInAnyOrder("120", "240")))
-                .andExpect(jsonPath("$[3].displayOptions",  hasEntry("icon", "bell")))
-                .andExpect(jsonPath("$[3].displayOptions",  hasEntry("showInMainRequestMenu", "true")));
+                .andExpect(jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$[4].calendarSelection.selectedDays", hasSize(2)))
+                .andExpect(jsonPath("$[4].calendarSelection.selectedDays", containsInAnyOrder("2021-09-13", "2021-09-17")))
+                .andExpect(jsonPath("$[4].parameters", hasSize(1)))
+                .andExpect(jsonPath("$[4].parameters[0].type", is("ENUM")))
+                .andExpect(jsonPath("$[4].parameters[0].enumValues",  hasSize(2)))
+                .andExpect(jsonPath("$[4].parameters[0].enumValues",  containsInAnyOrder("120", "240")))
+                .andExpect(jsonPath("$[4].displayOptions",  hasEntry("icon", "bell")))
+                .andExpect(jsonPath("$[4].displayOptions",  hasEntry("showInMainRequestMenu", "true")));
     }
 
 
@@ -184,9 +178,11 @@ public class RequestRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name", is("GarbageRemovalRequest")))
-                .andExpect(jsonPath("$[0].roles", hasItem("ROLE_USER")));
+                .andExpect(jsonPath("$[0].roles", hasItem("ROLE_USER")))
+                .andExpect(jsonPath("$[1].name", is("GarbageRemovalRequest2")))
+                .andExpect(jsonPath("$[1].roles", hasItem("ROLE_USER")));
 
         // 3. Login with admin
         jwtResponse = AuthRestControllerTest.adminLogin(mvc);
@@ -195,7 +191,7 @@ public class RequestRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+                .andExpect(jsonPath("$", hasSize(3)));
     }
 
 
@@ -211,7 +207,34 @@ public class RequestRestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(3)))
+                .andExpect(jsonPath("$.content", hasSize(4)))
+                ;
+    }
+
+    @Test
+    @Sql({"/create_users_data.sql", "/create_request_types_data.sql"})
+    @Sql(value = {"/remove_request_types_data.sql", "/remove_users_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void getRequestsCountTest() throws Exception {
+        // 1. Login with user
+        JwtResponse jwtResponse = AuthRestControllerTest.userLogin(mvc);
+        // 2 check request types
+        mvc.perform(get("/requestsCount?status=NEW,ACCEPTED,IN_PROGRESS")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].count", is(3)))
+                .andExpect(jsonPath("$[0].requestTypeName", is("GarbageRemovalRequest")))
+                .andExpect(jsonPath("$[1].count", is(1)))
+                .andExpect(jsonPath("$[1].requestTypeName", is("GarbageRemovalRequest2")));
+
+        mvc.perform(get("/requestsCount?status=NEW,ACCEPTED,IN_PROGRESS&assignedToMe=true")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwtResponse.getToken().getAccessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].count", is(1)))
+                .andExpect(jsonPath("$[0].requestTypeName", is("GarbageRemovalRequest2")))
                 ;
     }
 

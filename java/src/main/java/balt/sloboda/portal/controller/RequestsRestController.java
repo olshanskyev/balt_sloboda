@@ -87,15 +87,28 @@ public class RequestsRestController {
 
     }
 
+    @RequestMapping(value="/requestsCount", method = RequestMethod.GET)
+    public ResponseEntity<?> getRequestsCount(   @RequestParam(name = "status") Optional<List<RequestStatus>> status,
+                                                 @RequestParam(name = "assignedToMe") Optional<Boolean> assignedToMe
+                                                ) {
+        if (assignedToMe.isPresent() && assignedToMe.get()) // get only assigned to me requests
+            return new ResponseEntity<>(requestsService.getAssignedToCurrentUserRequestsCount(status), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(requestsService.getCurrentUserRequestsCount(status), HttpStatus.OK);
+
+    }
+
+
     @RequestMapping(value="/requests", method = RequestMethod.GET)
     public ResponseEntity<?> getAllUserRequests( @RequestParam(name = "status") Optional<List<RequestStatus>> status,
                                                  @RequestParam(name = "assignedToMe") Optional<Boolean> assignedToMe,
+                                                 @RequestParam(name = "requestTypeName") Optional<String> requestTypeName,
                                                  @RequestParam("page") int page,
                                                  @RequestParam("size") int size) {
         if (assignedToMe.isPresent() && assignedToMe.get()) // get only assigned to me requests
-            return new ResponseEntity<>(requestsService.getAllAssignedToCurrentUserRequests(status, page, size), HttpStatus.OK);
+            return new ResponseEntity<>(requestsService.getAllAssignedToCurrentUserRequests(status, requestTypeName, page, size), HttpStatus.OK);
         else
-            return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status, page, size), HttpStatus.OK);
+            return new ResponseEntity<>(requestsService.getAllCurrentUserRequests(status, requestTypeName, page, size), HttpStatus.OK);
     }
 
     @RequestMapping(value="/requestLogs", method = RequestMethod.GET)

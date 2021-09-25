@@ -173,22 +173,77 @@ public class RequestsService {
         return dbRequestsRepository.findAll(PageRequest.of(page, size));
     }
 
-    public Page<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status, int page, int size){
-        if (status.isPresent())
-            return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
-        else
-            return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
-    }
-
-
-    public Page<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status, int page, int size){
-        if (status.isPresent())
-            return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
-        else {
-            return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+    public Page<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status, Optional<String> typeName, int page, int size){
+        if (status.isPresent()) {
+            if (typeName.isPresent() && typeName.get().length() > 0) {
+                return dbRequestsRepository.findByAssignedToUserNameAndTypeNameAndStatusIn(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), PageRequest.of(page, size, requestsSort()));
+            } else {
+                return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
+            }
         }
-            
+        else{
+            if (typeName.isPresent() && typeName.get().length() > 0) {
+                return dbRequestsRepository.findByAssignedToUserNameAndTypeName(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), PageRequest.of(page, size, requestsSort()));
+            } else {
+                return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+            }
+        }
+
     }
+
+
+    public Page<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status, Optional<String> typeName, int page, int size){
+        if (status.isPresent()) {
+            if (typeName.isPresent() && typeName.get().length() > 0) {
+                return dbRequestsRepository.findByOwnerUserNameAndTypeNameAndStatusIn(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), PageRequest.of(page, size, requestsSort()));
+            } else {
+                return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
+            }
+        }
+
+        else {
+            if (typeName.isPresent() && typeName.get().length() > 0) {
+                return dbRequestsRepository.findByOwnerUserNameAndTypeName(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), PageRequest.of(page, size, requestsSort()));
+            } else {
+                return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+            }
+
+        }
+    }
+
+    // =================== Requests Count ===================
+    public List<IRequestsCount> getAllCurrentUserRequestsCount() {
+        return dbRequestsRepository.findAllRequestsCount();
+    }
+
+    public List<IRequestsCount> getCurrentUserRequestsCount(Optional<List<RequestStatus>> status) {
+        if (status.isPresent()){
+            return dbRequestsRepository.findRequestsCountByOwnerAndStatus(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
+        }
+        else {
+            return dbRequestsRepository.findRequestsCountByOwner(webSecurityUtils.getAuthorizedUser().getUserName());
+        }
+    }
+
+    public List<IRequestsCount> getAssignedToCurrentUserRequestsCount(Optional<List<RequestStatus>> status) {
+        if (status.isPresent()){
+            return dbRequestsRepository.findRequestsCountByAssignedToAndStatus(webSecurityUtils.getAuthorizedUser().getUserName(), status.get());
+        }
+        else {
+            return dbRequestsRepository.findRequestsCountByAssignedTo(webSecurityUtils.getAuthorizedUser().getUserName());
+        }
+
+    }
+
+    /*List<IRequestsCount> getAssignedToCurrentUserRequestsCount() {
+        return dbRequestsRepository.findRequestsCountGroupByType();
+    }*/
+
+    // ============================= create/save/modify =========================
 
     private List<String> checkMandatoryParameters(Map<String, String> paramValues, RequestType requestType) {
         List<String> missingParameters = new ArrayList<>();
