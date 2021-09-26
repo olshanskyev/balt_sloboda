@@ -5,7 +5,8 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { Page } from '../../../@core/data/page';
 import { Request, RequestStatus } from '../../../@core/data/request-service-data';
 import { RequestService } from '../../../@core/service/request-service';
 
@@ -33,6 +34,14 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
   showOnlyMyActiveRequests: boolean = true;
   showOnlyAssignedToMeActiveRequests: boolean = true;
 
+  currentAssignedToMePage: number = 0;
+  currentMyRequestsPage: number = 0;
+  pageSize: number = 6;
+  totalAssignedToMePages: number;
+  totalMyRequestsPages: number;
+  totalAssignedToMeElements: number;
+  totalMyElements: number;
+
   constructor(private toastrService: NbToastrService, translateService: TranslateService,
     private requestService: RequestService,
     protected dateService: NbDateService<Date>) {
@@ -47,7 +56,7 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
             if (requestsCount) { // null at first time
               this.myRequestsCount = 0;
               requestsCount.forEach(item => this.myRequestsCount += item.count);
-              this.refreshMyRequests();
+              this.loadMyRequests();
             }
         });
         this.assignedToMeActiveRequestsCountSubscription = this.requestService.getAssignedToMeActiveRequestsCountSubscription()
@@ -55,7 +64,7 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
             if (requestsCount) {
               this.assignedToMeRequestsCount = 0;
               requestsCount.forEach(item => this.assignedToMeRequestsCount += item.count);
-              this.refreshAssignedToMeRequests();
+              this.loadAssignedToMeRequests();
             }
         });
   }
@@ -69,29 +78,50 @@ export class AllRequestsPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  refreshMyRequests() {
+  loadMyRequests() {
+    let requestsSub: Observable<Page<Request>>;
     if (this.showOnlyMyActiveRequests) {
-      this.requestService.getMyRequests(0, 10, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(res => {
-        this.myRequests = res.content.filter(item => !item.type.systemRequest);
-      });
+      requestsSub = this.requestService.getMyRequests(this.currentMyRequestsPage, this.pageSize, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]);
     } else {
-      this.requestService.getMyRequests(0, 10).subscribe(res => {
-        this.myRequests = res.content.filter(item => !item.type.systemRequest);
-      });
+      requestsSub = this.requestService.getMyRequests(this.currentMyRequestsPage, this.pageSize);
     }
+    requestsSub.subscribe(res => {
+      this.myRequests = res.content;
+      this.totalMyRequestsPages = res.totalPages;
+      this.totalMyElements = res.totalElements;
+      if (this.currentMyRequestsPage >= this.totalMyRequestsPages && this.totalMyRequestsPages > 0) {
+        this.currentMyRequestsPage = this.totalMyRequestsPages - 1;
+        this.loadMyRequests();
+      }
+    });
   }
 
-  refreshAssignedToMeRequests() {
+  loadAssignedToMeRequests() {
+    let requestsSub: Observable<Page<Request>>;
     if (this.showOnlyAssignedToMeActiveRequests) {
-      this.requestService.getAssignedToMeRequests(0, 10, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]).subscribe(res => {
-        this.assignedToMeRequests = res.content.filter(item => !item.type.systemRequest);
-      });
+      requestsSub = this.requestService.getAssignedToMeRequests(this.currentAssignedToMePage, this.pageSize, [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS]);
     } else {
-      this.requestService.getAssignedToMeRequests(0, 10).subscribe(res => {
-        console.log(res);
-        this.assignedToMeRequests = res.content.filter(item => !item.type.systemRequest);
-      });
+      requestsSub = this.requestService.getAssignedToMeRequests(this.currentAssignedToMePage, this.pageSize);
     }
+    requestsSub.subscribe(res => {
+      this.assignedToMeRequests = res.content;
+      this.totalAssignedToMePages = res.totalPages;
+      this.totalAssignedToMeElements = res.totalElements;
+      if (this.currentAssignedToMePage >= this.totalAssignedToMePages && this.totalAssignedToMePages > 0) {
+        this.currentAssignedToMePage = this.totalAssignedToMePages - 1;
+        this.loadAssignedToMeRequests();
+      }
+    });
+  }
+
+  assignedToMeRequestsPageChanged(pageNumber: number) {
+    this.currentAssignedToMePage = pageNumber;
+    this.loadAssignedToMeRequests();
+  }
+
+  myRequestsPageChanged(pageNumber: number) {
+    this.currentMyRequestsPage = pageNumber;
+    this.loadMyRequests();
   }
 
 }

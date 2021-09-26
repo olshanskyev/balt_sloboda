@@ -1,4 +1,5 @@
 import { WeekDay } from '@angular/common';
+import { isNgTemplate } from '@angular/compiler';
 import { Component, OnDestroy, ViewChild} from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
@@ -7,8 +8,9 @@ import {
   NbToastrService,
 } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { CalendarSelectionDataBuilder, SelectionMode } from '../../../@core/data/calendar-selection.data';
+import { Page } from '../../../@core/data/page';
 import { Request, RequestParam, RequestParamType, RequestStatus, RequestType } from '../../../@core/data/request-service-data';
 import { CalendarSelectionService } from '../../../@core/service/calendar-selection.service';
 import { RequestService } from '../../../@core/service/request-service';
@@ -48,6 +50,15 @@ export class SingleRequestPageComponent implements OnDestroy {
   assignedToMeRequestsCount: number = 0;
   showOnlyMyActiveRequests: boolean = true;
   showOnlyAssignedToMeActiveRequests: boolean = true;
+
+
+  currentAssignedToMePage: number = 0;
+  currentMyRequestsPage: number = 0;
+  pageSize: number = 6;
+  totalAssignedToMePages: number;
+  totalMyRequestsPages: number;
+  totalAssignedToMeElements: number;
+  totalMyElements: number;
 
   @ViewChild('calendar', { static: false }) calendar: MultiSelectCalendarComponent<Date>;
 
@@ -111,22 +122,23 @@ export class SingleRequestPageComponent implements OnDestroy {
           .subscribe(requestsCount => {
             if (requestsCount) { // null at first time
               this.myRequestsCount = 0;
-              requestsCount.forEach(item => {
-                if (item.requestTypeName === this.requestTypeName)
-                  this.myRequestsCount += item.count;
-                });
-              this.refreshMyRequests();
+              let rc = requestsCount.find(item => item.requestTypeName === this.requestTypeName);
+              if (rc) {
+                this.myRequestsCount = rc.count;
+              }
+              this.loadMyRequests();
             }
         });
         this.assignedToMeActiveRequestsCountSubscription = this.requestService.getAssignedToMeActiveRequestsCountSubscription()
           .subscribe(requestsCount => {
             if (requestsCount) { // null at first time
               this.assignedToMeRequestsCount = 0;
-              requestsCount.forEach(item => {
-                if (item.requestTypeName === this.requestTypeName)
-                  this.assignedToMeRequestsCount += item.count;
-                });
-              this.refreshAssignedToMeRequests();
+              let rc = requestsCount.find(item => item.requestTypeName === this.requestTypeName);
+              if (rc) {
+                this.assignedToMeRequestsCount = rc.count;
+              }
+
+              this.loadAssignedToMeRequests();
             }
         });
 
@@ -190,36 +202,59 @@ export class SingleRequestPageComponent implements OnDestroy {
     this.selectedDays = event;
   }
 
-  refreshMyRequests() {
-    if (this.showOnlyMyActiveRequests) {
-      this.requestService.getMyRequests(0, 10,
-        [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS],
-        this.requestTypeName
-        ).subscribe(res => {
-        this.myRequests = res.content;
-      });
-    } else {
-      this.requestService.getMyRequests(0, 10, null, this.requestTypeName).subscribe(res => {
-        this.myRequests = res.content;
-      });
-    }
 
+  loadMyRequests() {
+    let requestsSub: Observable<Page<Request>>;
+    if (this.showOnlyMyActiveRequests) {
+      requestsSub = this.requestService.getMyRequests(this.currentMyRequestsPage, this.pageSize,
+        [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS],
+        this.requestTypeName);
+    } else {
+      requestsSub = this.requestService.getMyRequests(this.currentMyRequestsPage, this.pageSize,
+        null, this.requestTypeName);
+    }
+    requestsSub.subscribe(res => {
+      this.myRequests = res.content;
+      this.totalMyRequestsPages = res.totalPages;
+      this.totalMyElements = res.totalElements;
+      if (this.currentMyRequestsPage >= this.totalMyRequestsPages && this.totalMyRequestsPages > 0) {
+        // if current page number after checkbox event > than total page number
+        this.currentMyRequestsPage = this.totalMyRequestsPages - 1;
+        this.loadMyRequests();
+      }
+    });
   }
 
-  refreshAssignedToMeRequests() {
+  loadAssignedToMeRequests() {
+    let requestsSub: Observable<Page<Request>>;
     if (this.showOnlyAssignedToMeActiveRequests) {
-      this.requestService.getAssignedToMeRequests(0, 10,
+      requestsSub = this.requestService.getAssignedToMeRequests(this.currentAssignedToMePage, this.pageSize,
         [RequestStatus.NEW, RequestStatus.ACCEPTED, RequestStatus.IN_PROGRESS],
-        this.requestTypeName
-        ).subscribe(res => {
-        this.assignedToMeRequests = res.content;
-      });
+        this.requestTypeName);
     } else {
-      this.requestService.getAssignedToMeRequests(0, 10, null, this.requestTypeName).subscribe(res => {
-        this.assignedToMeRequests = res.content;
-      });
-
+      requestsSub = this.requestService.getAssignedToMeRequests(this.currentAssignedToMePage, this.pageSize,
+        null, this.requestTypeName);
     }
+    requestsSub.subscribe(res => {
+      this.assignedToMeRequests = res.content;
+      this.totalAssignedToMePages = res.totalPages;
+      this.totalAssignedToMeElements = res.totalElements;
+      if (this.currentAssignedToMePage >= this.totalAssignedToMePages && this.totalAssignedToMePages > 0) {
+        // if current page number after checkbox event > than total page number
+        this.currentAssignedToMePage = this.totalAssignedToMePages - 1;
+        this.loadAssignedToMeRequests();
+      }
+    });
+  }
+
+  assignedToMeRequestsPageChanged(pageNumber: number) {
+    this.currentAssignedToMePage = pageNumber;
+    this.loadAssignedToMeRequests();
+  }
+
+  myRequestsPageChanged(pageNumber: number) {
+    this.currentMyRequestsPage = pageNumber;
+    this.loadMyRequests();
   }
 
 

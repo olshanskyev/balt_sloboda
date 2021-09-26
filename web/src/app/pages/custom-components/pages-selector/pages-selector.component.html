@@ -1,0 +1,10 @@
+<div *ngIf="totalPages > 0">
+  <button [disabled]="currentPage === 0" nbButton (click)="onPrevPage()">
+    <nb-icon icon="arrow-ios-back-outline"></nb-icon>
+  </button>
+  <button nbButton (click)="onNextPage()" [disabled]="((currentPage + 1) >= totalPages)">
+    <nb-icon icon="arrow-ios-forward-outline"></nb-icon>
+  </button>
+  <label class="label label-page">{{'common.page'|translate}} {{currentPage + 1}} {{'common.of'|translate}} {{totalPages}}</label>
+</div>
+

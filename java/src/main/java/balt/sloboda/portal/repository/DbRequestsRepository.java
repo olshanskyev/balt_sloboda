@@ -15,14 +15,15 @@ public interface DbRequestsRepository extends PagingAndSortingRepository<Request
     Page<Request> findByTypeName(String requestTypeName, Pageable pageable);
     Page<Request> findByStatus(RequestStatus status, Pageable pageable);
     Page<Request> findByStatusAndTypeName(RequestStatus status, String requestTypeName, Pageable pageable);
-    Page<Request> findByOwnerUserName(String userName, Pageable pageable);
-    Page<Request> findByOwnerUserNameAndTypeName(String userName, String typeName, Pageable pageable);
-    Page<Request> findByAssignedToUserName(String userName, Pageable pageable);
-    Page<Request> findByAssignedToUserNameAndTypeName(String userName, String typeName, Pageable pageable);
-    Page<Request> findByOwnerUserNameAndStatusIn(String userName, List<RequestStatus> status, Pageable pageable);
-    Page<Request> findByOwnerUserNameAndTypeNameAndStatusIn(String userName, String typeName, List<RequestStatus> status, Pageable pageable);
-    Page<Request> findByAssignedToUserNameAndStatusIn(String userName, List<RequestStatus> status, Pageable pageable);
-    Page<Request> findByAssignedToUserNameAndTypeNameAndStatusIn(String userName, String typeName, List<RequestStatus> status, Pageable pageable);
+
+    Page<Request> findByOwnerUserNameAndTypeSystemRequest(String userName, boolean systemRequest, Pageable pageable);
+    Page<Request> findByOwnerUserNameAndTypeNameAndTypeSystemRequest(String userName, String typeName, boolean systemRequest, Pageable pageable);
+    Page<Request> findByAssignedToUserNameAndTypeSystemRequest(String userName, boolean systemRequest, Pageable pageable);
+    Page<Request> findByAssignedToUserNameAndTypeNameAndTypeSystemRequest(String userName, String typeName, boolean systemRequest, Pageable pageable);
+    Page<Request> findByOwnerUserNameAndStatusInAndTypeSystemRequest(String userName, List<RequestStatus> status, boolean systemRequest, Pageable pageable);
+    Page<Request> findByOwnerUserNameAndTypeNameAndStatusInAndTypeSystemRequest(String userName, String typeName, List<RequestStatus> status, boolean systemRequest, Pageable pageable);
+    Page<Request> findByAssignedToUserNameAndStatusInAndTypeSystemRequest(String userName, List<RequestStatus> status, boolean systemRequest, Pageable pageable);
+    Page<Request> findByAssignedToUserNameAndTypeNameAndStatusInAndTypeSystemRequest(String userName, String typeName, List<RequestStatus> status, boolean systemRequest, Pageable pageable);
 
     @Query("SELECT r.type.name as requestTypeName, count(r.type.name) as count FROM Request r group by(r.type.name)")
     List<IRequestsCount> findAllRequestsCount();

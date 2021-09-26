@@ -1,20 +1,22 @@
 <nb-card>
   <nb-card-header>
-    <b><a [routerLink]="['../']">{{'menu.allRequests'|translate}}</a></b>
+    <b><a [routerLink]="['./']">{{'menu.allRequests'|translate}}</a></b>
   </nb-card-header>
   <nb-card-body>
     <nb-tabset>
       <nb-tab tabTitle="{{'singleRequestPage.myRequests'|translate}}" badgeText="{{myRequestsCount}}" badgeStatus="primary">
         <div class="show-closed-requests">
-          <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyMyActiveRequests" (change)="refreshMyRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
+          <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyMyActiveRequests" (change)="loadMyRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
         </div>
         <ngx-requests-list [requests]="myRequests"></ngx-requests-list>
+        <ngx-pages-selector (pageChanged)="myRequestsPageChanged($event)" [currentPage]="currentMyRequestsPage" [totalPages]="totalMyRequestsPages"></ngx-pages-selector>
       </nb-tab>
       <nb-tab *nbIsGranted="['read', 'assignedRequests']" tabTitle="{{'singleRequestPage.assignedToMeRequest'|translate}}" badgeText="{{assignedToMeRequestsCount}}" badgeStatus="primary">
         <div class="show-closed-requests">
-          <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyAssignedToMeActiveRequests" (change)="refreshAssignedToMeRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
+          <nb-checkbox ghost class="show-closed-requests" status="info" [(checked)]= "showOnlyAssignedToMeActiveRequests" (change)="loadAssignedToMeRequests()">{{'singleRequestPage.hideClosedRequests'|translate}}</nb-checkbox>
         </div>
         <ngx-requests-list [requests]="assignedToMeRequests"></ngx-requests-list>
+        <ngx-pages-selector (pageChanged)="assignedToMeRequestsPageChanged($event)" [currentPage]="currentAssignedToMePage" [totalPages]="totalAssignedToMePages"></ngx-pages-selector>
       </nb-tab>
     </nb-tabset>
 

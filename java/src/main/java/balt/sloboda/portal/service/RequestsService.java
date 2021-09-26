@@ -157,7 +157,6 @@ public class RequestsService {
     }
 
     public Page<Request> getAllRequestByType(String requestTypeName, int page, int size){
-
         return dbRequestsRepository.findByTypeName(requestTypeName, PageRequest.of(page, size, requestsSort()));
     }
 
@@ -173,21 +172,22 @@ public class RequestsService {
         return dbRequestsRepository.findAll(PageRequest.of(page, size));
     }
 
+    // =============== current user/assigned to current user requests ========================
     public Page<Request> getAllAssignedToCurrentUserRequests(Optional<List<RequestStatus>> status, Optional<String> typeName, int page, int size){
         if (status.isPresent()) {
             if (typeName.isPresent() && typeName.get().length() > 0) {
-                return dbRequestsRepository.findByAssignedToUserNameAndTypeNameAndStatusIn(
-                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByAssignedToUserNameAndTypeNameAndStatusInAndTypeSystemRequest(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), false, PageRequest.of(page, size, requestsSort()));
             } else {
-                return dbRequestsRepository.findByAssignedToUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByAssignedToUserNameAndStatusInAndTypeSystemRequest(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), false, PageRequest.of(page, size, requestsSort()));
             }
         }
         else{
             if (typeName.isPresent() && typeName.get().length() > 0) {
-                return dbRequestsRepository.findByAssignedToUserNameAndTypeName(
-                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByAssignedToUserNameAndTypeNameAndTypeSystemRequest(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), false, PageRequest.of(page, size, requestsSort()));
             } else {
-                return dbRequestsRepository.findByAssignedToUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByAssignedToUserNameAndTypeSystemRequest(webSecurityUtils.getAuthorizedUser().getUserName(), false, PageRequest.of(page, size, requestsSort()));
             }
         }
 
@@ -197,26 +197,26 @@ public class RequestsService {
     public Page<Request> getAllCurrentUserRequests(Optional<List<RequestStatus>> status, Optional<String> typeName, int page, int size){
         if (status.isPresent()) {
             if (typeName.isPresent() && typeName.get().length() > 0) {
-                return dbRequestsRepository.findByOwnerUserNameAndTypeNameAndStatusIn(
-                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByOwnerUserNameAndTypeNameAndStatusInAndTypeSystemRequest(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), status.get(), false, PageRequest.of(page, size, requestsSort()));
             } else {
-                return dbRequestsRepository.findByOwnerUserNameAndStatusIn(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByOwnerUserNameAndStatusInAndTypeSystemRequest(webSecurityUtils.getAuthorizedUser().getUserName(), status.get(), false, PageRequest.of(page, size, requestsSort()));
             }
         }
 
         else {
             if (typeName.isPresent() && typeName.get().length() > 0) {
-                return dbRequestsRepository.findByOwnerUserNameAndTypeName(
-                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByOwnerUserNameAndTypeNameAndTypeSystemRequest(
+                        webSecurityUtils.getAuthorizedUser().getUserName(), typeName.get(), false, PageRequest.of(page, size, requestsSort()));
             } else {
-                return dbRequestsRepository.findByOwnerUserName(webSecurityUtils.getAuthorizedUser().getUserName(), PageRequest.of(page, size, requestsSort()));
+                return dbRequestsRepository.findByOwnerUserNameAndTypeSystemRequest(webSecurityUtils.getAuthorizedUser().getUserName(), false, PageRequest.of(page, size, requestsSort()));
             }
 
         }
     }
 
     // =================== Requests Count ===================
-    public List<IRequestsCount> getAllCurrentUserRequestsCount() {
+    public List<IRequestsCount> getAllRequestsCount() {
         return dbRequestsRepository.findAllRequestsCount();
     }
 

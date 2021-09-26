@@ -44,7 +44,7 @@ public class RequestsServiceTest {
         Page<Request> newUserRequest = requestsService.getAllRequestByType("NewUserRequest", 0, 10);
         Assert.assertEquals(1, newUserRequest.getContent().size());
 
-        List<IRequestsCount> requestsCountGroupByType = requestsService.getAllCurrentUserRequestsCount();
+        List<IRequestsCount> requestsCountGroupByType = requestsService.getAllRequestsCount();
         Assert.assertEquals(3, requestsCountGroupByType.size());
         requestsCountGroupByType.forEach(item -> {
             if (item.getRequestTypeName().equals("GarbageRemovalRequest")){

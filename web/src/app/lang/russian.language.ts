@@ -195,7 +195,9 @@ export class RussianLanguage {
                 count: 'Всего',
                 enterComment: 'Введите комментарий',
                 ok: 'ОК',
-                cancel: 'Отмена'
+                cancel: 'Отмена',
+                page: 'Страница',
+                of: 'из',
             },
             singleRequestPage: {
                 createRequest: 'Создать новую заявку',
